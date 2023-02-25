@@ -1,11 +1,14 @@
 Package: throne
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Thermal Drone OTM Integration
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Authors@R: c(
+  person("Guillermo", "Garcia Costoya", email = "guille@nevada.unr.edu", role = c("aut", "cre")),
+  person("Karla", "Alujevic", email = "kalujevic@gmail.com", role = "aut"))
+Maintainer: person("Guillermo", "Garcia Costoya", email ="guille@nevada.unr.edu")
+Description: A package to integrate operative temperature model (OTM) 
+    with thermal drone imaging. 
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 7.2.3
