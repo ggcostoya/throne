@@ -17,5 +17,7 @@ Depends:
   sf,
   tiff,
   raster,
-  proj4
+  proj4,
+  lubridate,
+  readr
   
