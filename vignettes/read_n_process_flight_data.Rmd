@@ -25,7 +25,7 @@ Luckily, these packages are included as dependencies for the `throne` package so
 First thing is to define the location of the `.TIF` file you want to process. This kind of files are usually pretty big and exceed GitHub's maximum file size limit so keep that in mind when managing your data. In our case, we stored flight information in a separate folder locally. This was our file path:
 
 ```{r}
-filepath <- "C:/Users/ggarc/OneDrive/projects/throne_data/example_flight_1.tif"
+filepath <- "C:/Users/ggarc/OneDrive/projects/throne_data/test_flight.tif"
 ```
 
 Before continuing, we you should also define the other `3` inputs of the `read_n_process_flight_data` function. First is the **Universal Transverse Mercator** (`UTM`) zone in which your drone flight took place. The `UTM` coordinate system divides the world into `60` north-south zones, each `6` degrees of longitude wide. To calculate which `UTM` zone your flight took place, you can use the rough longitude of where your flight took place and apply the formula:

@@ -7,6 +7,9 @@
     <loc>/articles/index.html</loc>
   </url>
   <url>
+    <loc>/articles/read_n_process_flight_data.html</loc>
+  </url>
+  <url>
     <loc>/articles/read_n_process_tif_drone_files.html</loc>
   </url>
   <url>
@@ -16,10 +19,16 @@
     <loc>/index.html</loc>
   </url>
   <url>
+    <loc>/reference/get_utm_zone.html</loc>
+  </url>
+  <url>
     <loc>/reference/hello.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/read_n_process_flight_data.html</loc>
   </url>
   <url>
     <loc>/reference/read_n_process_tif.html</loc>

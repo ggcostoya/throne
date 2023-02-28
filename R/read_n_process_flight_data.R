@@ -1,19 +1,19 @@
 ### Read and process .TIF files
 
-#' Read and process .tif files
+#' Read and process .TIF files
 #'
-#' Reads a .tif file obtained from a drone flight and processes it into a tibble object
+#' Reads and processes a raw flight data file (.TIF) it into a processed flight tibble object
 #'
 #' @param file_path The location of the .tif file as a character.
 #' @param utm_zone The universal transverse mercator (UTM) zone where the drone flight took place.
 #' @param hemisphere The hemisphere where the drone flight took place.
 #' @param digits The number of decimal digits to which coordinates should be rounded to. Will define the spatial accuracy of the flight
 #'
-#' @return A tibble with latitude (lat), longitude (long) and temperature (temp) as columns. Lat and long will have as many digits as specified above and temp will be in degrees C.
+#' @return A processed flight object: A tibble with latitude (lat), longitude (long) and temperature (temp) as columns. Lat and long will have as many digits as specified above and temp will be in degrees C.
 #'
-#' @export
+#' @export read_n_process_tif
 
-read_n_process_tif <- function(file_path, utm_zone, hemisphere, digits){
+read_n_process_flight_data <- function(file_path, utm_zone, hemisphere, digits){
 
   ## Step 1: Read raster file and transform into a data frame ##
 
