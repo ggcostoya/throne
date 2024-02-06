@@ -5,7 +5,7 @@
 #' Reads OTM files from a specified folder and returns a processed data frame.
 #'
 #' @param folder_path Folder where raw OTM files (in .csv format) are stored.
-#' @param rows_skip Rows to skip on each OTM file to get to the data.
+#' @param rows_skip Rows to skip on each OTM file to get to the data. It defaults to zero if not specified.
 #' @param time_col Column within an OTM file where the "time" variable is stored.
 #' @param op_temp_col Column within an OTM file where the operative temperature ("op_temp") variable is stored.
 #'

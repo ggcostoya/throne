@@ -3,8 +3,9 @@
 #'
 #' Read and process thermal imaging data from a drone flight (in `.tif` format)
 #'
-#' @param file_path File path to flight
-#' @param digits Number of decimal digits to round coordinates to
+#' @param file_path The path to the folder where the `.tif` file is stored.
+#' @param digits The number of decimal digits to which the final output should be summarized to.
+
 #'
 #' @return Pending
 #'

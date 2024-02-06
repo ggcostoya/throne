@@ -304,14 +304,15 @@ val_data4k <- val_data
 save(val_data4k, file = "data/val_data_4k.RData")
 rm(list = ls())
 
-# merging datasets
+# merging datasets ----
 
 val_data <- val_data %>% mutate(knot_h = 12)
 val_data4k <- val_data4k %>% mutate(knot_h = 4)
 val_data_1.6k <- val_data_1.6k %>% mutate(knot_h = 1.6)
 vals_data <- rbind(val_data, val_data4k, val_data_1.6k)
 
-# raw error plot
+# raw error plot ----
+
 vals_data %>%
   filter(minute > 420) %>% filter(minute < 1140) %>%
   mutate(minute = round(minute/96)) %>%
@@ -332,7 +333,7 @@ vals_data %>%
          shape = guide_legend("Spline Knots / h")) +
   ggtitle("Raw error, day-time temps, averaging every 15 minutes")
 
-# absolute error plot
+# absolute error plot ----
 vals_data %>%
   filter(minute > 420) %>% filter(minute < 1140) %>%
   mutate(minute = round(minute/96)) %>%
@@ -353,7 +354,7 @@ vals_data %>%
          shape = guide_legend("Spline Knots / h")) +
   ggtitle("Absolute error, day-time temps, averaging every 15 minutes")
 
-
+## summarize data ----
 
 x <- vals_data %>%
   #filter(minute > 420) %>% filter(minute < 1140) %>%
@@ -366,6 +367,70 @@ x <- vals_data %>%
             mean_abs_error = mean(abs(pred_op_temp - obs_op_temp)),
             sd_abs_error = sd(abs(pred_op_temp - obs_op_temp)))
 
+
+
+
+
+
+
+
+
+# ridges plot ----
+
+library(ggridges)
+
+val_data %>%
+  filter(minute > 420) %>% filter(minute < 1140) %>%
+  mutate(minute = round(minute/96)) %>%
+  group_by(n_flights, n_otms, knot_p, minute) %>%
+  summarise(obs_op_temp = mean(obs_op_temp), pred_op_temp = mean(pred_op_temp)) %>%
+  ggplot(aes(y = as.factor(knot_p), x = pred_op_temp - obs_op_temp)) +
+  geom_density_ridges(aes(fill = as.factor(knot_p)),
+                      quantile_lines = TRUE, quantiles = c(0.025, 0.975),
+                      alpha = 0.5, scale = 1.25) +
+  stat_summary(aes(fill = as.factor(knot_h)),shape = 21, size = 0.5) +
+  scale_x_continuous(#limits = c(0,6), expand = c(0,0), breaks = seq(0,5, by = 1),
+                     sec.axis = sec_axis(~.,name = "Flights used", breaks = NULL)) +
+  scale_y_discrete(expand = c(0.05,0.05)) +
+  scale_fill_manual(values = c("skyblue", "royalblue", "darkblue")) +
+  ylab("Knots / Hour") +
+  xlab ("Absolute Error (|Observed - Predicted Operative Temp.|") +
+  facet_grid(cols = vars(n_flights), rows = vars(n_otms)) +
+  theme_minimal() +
+  theme(panel.border = element_rect(fill = NA),
+        axis.ticks = element_line(),
+        legend.position = "none",
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(linewidth = 0.25),
+        strip.text = element_text(size = 9),
+        strip.background = element_rect(fill = "lightgray"),
+        axis.title = element_text(size = 11, face = "bold"))
+
+# time of day plot ----
+
+vals_data %>%
+  #filter(minute > 420) %>% filter(minute < 1140) %>%
+  mutate(minute = round(minute/96)) %>%
+  group_by(n_flights, n_otms, knot_h, minute) %>%
+  summarise(obs_op_temp = mean(obs_op_temp), pred_op_temp = mean(pred_op_temp)) %>%
+  ggplot(aes(x = minute*(96/60), y = abs(pred_op_temp - obs_op_temp))) +
+  #geom_hline(yintercept = 0, linetype = 2) +
+  geom_line(aes(col = as.factor(knot_h)), linewidth = 2, alpha = 0.5) +
+  scale_x_continuous(expand = c(0,0), breaks = seq(0,22,by = 2),
+                     sec.axis = sec_axis(~.,name = "Flights used", breaks = NULL)) +
+  scale_color_manual(values = c("skyblue", "royalblue", "darkblue")) +
+  ylab("Hour") +
+  xlab ("Absolute Error (|Observed - Predicted Operative Temp.|") +
+  facet_grid(cols = vars(n_flights), rows = vars(n_otms)) +
+  theme_minimal() +
+  theme(panel.border = element_rect(fill = NA),
+        axis.ticks = element_line(),
+        legend.position = "top",
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(linewidth = 0.25),
+        strip.text = element_text(size = 9),
+        strip.background = element_rect(fill = "lightgray"),
+        axis.title = element_text(size = 11, face = "bold"))
 
 
 

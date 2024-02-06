@@ -1,0 +1,82 @@
+---
+title: "Reading and processing OTM data"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+devtools::load_all()
+```
+
+# Overview 
+
+The goal of this vignette is to illustrate the process behind the functions `rnp_otm_data`, `add_otm_metadata` and `gen_otm_splines` of the `throne` package. 
+The first two functions allow for the reading and processing of multiple raw `.csv` files with the temperature measurements recorded using **operative temperature models** (**OTM**) to data frame-like structure in `R` (i.e., a [`tibble`](https://tibble.tidyverse.org/)). The `gen_otm_splines` function will then take this processed OTM data and generate OTM & date specific cubic spline models that descibre the thermal dynamics of each OTM each day. These spline models will later be used to both correct the flight data and to ultimately predict thermal landscapes. Below, we highlight the section of the package's workflow that is covered in this vignette
+
+# The `rnp_otm_data` function
+
+The `rnp_otm_data` function (i.e., **r**ead a**n**d **p**rocess OTM data) reads a reads and combines data from a set of raw OTM files (`.csv` format) and transforms them into an `R` `tibble`. Below we detail the function's inputs, processing and outputs. 
+
+## Inputs
+
+The `rnp_otm_data` function takes in 4 inputs:
+
+1. `folder_path`: A character indicating the location where all OTM `.csv` files are stored.
+2. `rows_skip`: An integer indicating how many rows should be skipped when reading each `.csv` file. 
+3. `time_col`: An integer indicating the column in all `.csv` that corresponds to the time associated with each recording
+4. `op_temp-col`: An integer indicating the column in all `.csv` that corresponds to the operative temperature measurement. 
+
+While the specific way in which of these arguments is used to process the data will be discussed next, we want to take a second to highlight the importance of the `rows_skip` argument here. Including the it ensures that reading errors will be minimized. For instance, the software we used to program and download the data recorded in the Eye Buttons that we house inside the OTMs is [OneWire Viewer](https://www.analog.com/en/resources/evaluation-hardware-and-software/1-wire-sdks/viewer.html) returns `.csv` files with several rows of metadata on each measurement. These rows lead to an incorrect reading of the raw data, see below:
+
+```{r, eval = FALSE}
+read.csv("data/otm_data/OTM34.csv")
+```
+
+```{r, echo = FALSE}
+head(read.csv("C:/Users/ggarc/OneDrive/research/throne/data/otm_data/OTM34.csv"), 15)
+```
+
+In contrast, by skipping precisely `14` rows, we can access the recordings directly without formatting issues: 
+
+```{r, eval = FALSE}
+read.csv("data/otm_data/OTM34.csv", skip = 14)
+```
+
+```{r, echo = FALSE}
+head(read.csv("C:/Users/ggarc/OneDrive/research/throne/data/otm_data/OTM34.csv", skip = 14))
+```
+
+>**TIP**: We recommend that users of the `throne` package become very familiar with the formatting of the raw OTM data. Specifying the `rows_skip` argument correctly is crucial for the rest of the package's functions to work properly down the line. 
+
+## Processing
+
+To transform the raw `.csv` data into an `R` `tibble`, the `rnp_otm_data` function will go through the following general steps for each of the files contained in the folder specified via the argument `folder_path`: 
+
+1. Read each `.csv` file while skipping as many rows as specified within the `rows_skip` argument. 
+2. 
+
+
+
+## Outputs
+
+# The `add_otm_metadata` function
+
+## Inputs
+
+## Processing
+
+## Outputs
+
+# The `gen_otm_splines` function
+
+## Inputs
+
+## Processing 
+
+## Outputs
+

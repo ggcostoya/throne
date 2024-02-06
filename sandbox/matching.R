@@ -274,7 +274,7 @@ anim_save("test.gif", anim)
 
 # plot moving thermal landscape with elevation
 
-load("data/elevation.RData")
+
 
 test <- merge(prediction, elevation, by = c("latitude", "longitude"))
 
