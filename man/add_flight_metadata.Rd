@@ -7,7 +7,7 @@
 add_flight_metadata(flight_data, flight_id, flight_metadata)
 }
 \arguments{
-\item{flight_data}{A processed flight data frame generated with the function `rnp_flight_data.R`}
+\item{flight_data}{A processed flight data frame generated with the function `rnp_flight_data`}
 
 \item{flight_id}{The ID of the flight to match its metadata.}
 

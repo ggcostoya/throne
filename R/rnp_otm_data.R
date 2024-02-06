@@ -9,9 +9,9 @@
 #' @param time_col Column within an OTM file where the "time" variable is stored.
 #' @param op_temp_col Column within an OTM file where the operative temperature ("op_temp") variable is stored.
 #'
-#' @return A data frame with otm_id, year, date (Julian), minute (of the day) and operatie temperature.
+#' @return A data frame with otm_id, year, date (Julian), minute (of the day) and operative temperature.
 #'
-#' @export rnp_otm_data
+#' @export
 
 rnp_otm_data <- function(folder_path, rows_skip, time_col, op_temp_col){
 

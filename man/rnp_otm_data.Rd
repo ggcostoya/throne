@@ -9,14 +9,14 @@ rnp_otm_data(folder_path, rows_skip, time_col, op_temp_col)
 \arguments{
 \item{folder_path}{Folder where raw OTM files (in .csv format) are stored.}
 
-\item{rows_skip}{Rows to skip on each OTM file to get to the data.}
+\item{rows_skip}{Rows to skip on each OTM file to get to the data. It defaults to zero if not specified.}
 
 \item{time_col}{Column within an OTM file where the "time" variable is stored.}
 
 \item{op_temp_col}{Column within an OTM file where the operative temperature ("op_temp") variable is stored.}
 }
 \value{
-A data frame with otm_id, year, date (Julian), minute (of the day) and operatie temperature.
+A data frame with otm_id, year, date (Julian), minute (of the day) and operative temperature.
 }
 \description{
 Reads OTM files from a specified folder and returns a processed data frame.

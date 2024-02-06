@@ -5,7 +5,6 @@
 #'
 #' @param file_path The path to the folder where the `.tif` file is stored.
 #' @param digits The number of decimal digits to which the final output should be summarized to.
-
 #'
 #' @return Pending
 #'

@@ -1,11 +1,10 @@
 ---
-title: "Reading and processing flight data"
+title: "Dealing with flight data"
 output:
   html_document:
     toc: true
     toc_depth: 2
     toc_float: true
-    number_sections: true
 ---
 
 ```{r setup, include=FALSE}
@@ -13,17 +12,17 @@ knitr::opts_chunk$set(echo = TRUE)
 devtools::load_all()
 ```
 
-# Overview
+## Overview
 
 The goal of this vignette is to illustrate the process behind the functions `rnp_flight_data` and `add_flight_metadata` of the `throne` package. These two functions will allow the processing a raw `.tif` file obtained by combining images gathered during the flight itself into a data structure easily manageable with `R` (i.e., a [`tibble`](https://tibble.tidyverse.org/)) that will later be related with operative temperature model (**OTM**) data to finally predict predict thermal landscapes. 
 
 >**NOTE**: To go further or to clarify any issues, throughout this vignette, we provie links to additional resources or complementary information. 
 
-# The `rnp_flight_data` function 
+## Reading and processing flight data
 
 The `rnp_flight_data` function (i.e., **r**ead a**n**d **p**rocess flight data) uses the functionality developed by packages such as [`raster`](https://rspatial.org/raster/pkg/index.html), [`sf`](https://r-spatial.github.io/sf/) or [`terra`](https://rspatial.org/pkg/1-introduction.html) to transform a `.tif` file into a data frame like `R` data structure (a `tibble`). Below we detail the functions inputs, processing and output. 
 
-## Inputs
+### Inputs
 
 The `rnp_flight_data` takes in 2 inputs:
 
@@ -33,9 +32,6 @@ The `rnp_flight_data` takes in 2 inputs:
 The argument `digits` determines the number of decimal digit places to which latitude and longitude information should be rounded to. This argument will therefore determine the spatial resolution of your final measurement as different latitude and longitude decimal digits correspond to different distances. As a generalization, 1 degree of latitude can be approximated to 111.32 km, a relationship that can be extended to decimal digits as seen below. 
 
 ```{r, echo = FALSE, message = FALSE, fig.width = 8, fig.height = 4, fig.align='center'}
-# load package
-library(gridExtra)
-
 # generate latitudes 
 lats <- c(1, 1/1e1, 1/1e2, 1/1e3, 1/1e4, 1/1e5, 1/1e6)
 meter_lat <- lats*111320
@@ -143,10 +139,9 @@ comparison %>%
 
 This spatial resolution guarantees that the original `.tif` file is processed at a scale that is relevant for the majority of study organisms for which this package is intended. However, we leave this decision up to the user to consider the spatial scale that is most relevant for their organism. In the image below (figure S1 in the accompanying paper), we illustrate the same flight processed when the argument `digits` is set to 4, 5 and 6 respectively. 
 
-![image](C:/Users/ggarc/OneDrive/research/throne/paper/figures/fig_s1.png)
+![image](C:/Users/ggarc/OneDrive/research/throne/vignettes/fig_s1.png)
 
-## Processing 
-
+, 
 In order to transform the original `.tif` file, the `rnp_flight_data` goes through the following general steps: 
 
 1. Read the `.tif` file as a as a raster object using the `raster` function from the `raster` package.
@@ -159,7 +154,7 @@ In order to transform the original `.tif` file, the `rnp_flight_data` goes throu
 
 5. Average the reflected temperature across all observations with the same averaged latitude and longitude. 
 
-## Output 
+### Output 
 
 The final output is a `tibble` object with columns for latitude, longitude and reflected temperature (`ref_temp`). The number of rows of this data set will vary depending on the area covered by the flight and the number of `digits` specified. For instance, our study area was ~ 2900 $m^2$, which processed setting `digits = 5` led to a `tibble` of 7813 observations each representing a "tile" of approximately 0.4 $m^2$ at a latitude of approximately 40°. 
 
@@ -174,8 +169,6 @@ flights_data %>%
 Once the raw `.tif` file is processed, the resulting `tibble` can already be used to quantify the thermal characteristics of a study site from a spatially discrete perspective. To illustrate this, below we plot 4 of the 34 fully processed flights (with `digits = 5`) over the same area we offer in the `throne` package as example data. Panel titles indicate the hour in which the flight took place
 
 ```{r, echo = FALSE, message = FALSE, fig.width = 8, fig.height = 10, fig.align='center'}
-library(viridis)
-
 flights_data %>% 
   filter(minute_start %in% c(515, 700, 900, 1026)) %>%
   mutate(hour = round(minute_start/60)) %>%
@@ -197,11 +190,11 @@ flights_data %>%
 
 
 
-# The `add_flight_metadata` function
+## Adding flight metadata
 
 The `add_flight_metadta` function adds information about the flight to the processed flight data outputted from the `rnp_flight_data` function. Below we detail the function's inputs, processing and output. 
 
-## Inputs 
+### Inputs 
 
 The `add_flight_data` function takes in 3 inputs:
 
@@ -221,7 +214,7 @@ Our example file includes an `flight_id` column and columns for the `date` when 
 
 >**NOTE**: It is important that the `flight_id`, `date`, `time_start` and `time_end` columns in a metadata file are formatted like in the example file above for the `add_flight_metadata` function to work correctly. 
 
-## Processing 
+### Processing 
 
 In order to add the metadata specific to the flight being processed, the `add_flight_metadata` function goes through the following general steps.
 
@@ -232,7 +225,7 @@ In order to add the metadata specific to the flight being processed, the `add_fl
 
 >**NOTE**: We choose to use Julian dates and minutes of the day to simplify the management of the data as much as possible. Date and time data have unique data formats in the `R` environment that are often difficult to handle for users and that might lead to unintended errors. By using Julian dates and minutes of the day, we deal only with integer columns, much easier to operate with and manipulate. Further, these formats can be easily transformed back into more easily interpretable scales for visualization purposes, [by using the `as.Date` function to transform Julian dates back into a YYYY-MM-DD format](https://stackoverflow.com/questions/24200014/convert-day-of-year-to-date) and dividing by 60 for minutes of the day to get hours. 
 
-## Output
+### Output
 
 The final output is the same as with the `rnp_flight_data` function adding columns for `year`, `date`, `minute_start` and `minute_end`. 
 
@@ -242,7 +235,7 @@ flights_data %>% filter(minute_start == 515) %>% mutate(flight_id = "VAL02_GCP_0
 ```
 
 
-# Integrated processing for multiple flights
+## Integrated processing for multiple flights
 
 Both of the functions presented above work for a single flight, nonetheless, in the majority of occasions, users will probably have multiple flights to process. Below, we provide some example code on how to precisely do that via a loop. 
 

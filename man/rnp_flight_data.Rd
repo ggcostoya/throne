@@ -7,9 +7,9 @@
 rnp_flight_data(file_path, digits)
 }
 \arguments{
-\item{file_path}{File path to flight}
+\item{file_path}{The path to the folder where the `.tif` file is stored.}
 
-\item{digits}{Number of decimal digits to round coordinates to}
+\item{digits}{The number of decimal digits to which the final output should be summarized to.}
 }
 \value{
 Pending

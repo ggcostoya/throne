@@ -4,7 +4,7 @@
 #'
 #' Adds metadata (e.g., flight time) to a processed flight data frame
 #'
-#' @param flight_data A processed flight data frame generated with the function `rnp_flight_data.R`
+#' @param flight_data A processed flight data frame generated with the function `rnp_flight_data`
 #' @param flight_id The ID of the flight to match its metadata.
 #' @param flight_metadata A flight metadata data frame.
 #'

@@ -15,4 +15,7 @@ Depends:
   lubridate,
   terra,
   raster,
-  proj4
+  proj4,
+  gridExtra,
+  viridis
+URL: https://ggcostoya.github.io/throne/
