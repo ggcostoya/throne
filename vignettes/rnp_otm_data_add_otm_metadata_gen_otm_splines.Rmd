@@ -32,11 +32,11 @@ The `rnp_otm_data` function takes in 4 inputs:
 While the specific way in which of these arguments is used to process the data will be discussed next, we want to take a second to highlight the importance of the `rows_skip` argument here. Including the it ensures that reading errors will be minimized. For instance, the software we used to program and download the data recorded in the Eye Buttons that we house inside the OTMs is [OneWire Viewer](https://www.analog.com/en/resources/evaluation-hardware-and-software/1-wire-sdks/viewer.html) returns `.csv` files with several rows of metadata on each measurement. These rows lead to an incorrect reading of the raw data, see below:
 
 ```{r, eval = FALSE}
-read.csv("data/otm_data/OTM34.csv")
+otm_34 <- read.csv("data/otm_data/OTM34.csv")
 ```
 
 ```{r, echo = FALSE}
-head(read.csv("C:/Users/ggarc/OneDrive/research/throne/data/otm_data/OTM34.csv"), 15)
+head(bad_read_otm, 15)
 ```
 
 In contrast, by skipping precisely `14` rows, we can access the recordings directly without formatting issues:
@@ -46,7 +46,7 @@ read.csv("data/otm_data/OTM34.csv", skip = 14)
 ```
 
 ```{r, echo = FALSE}
-head(read.csv("C:/Users/ggarc/OneDrive/research/throne/data/otm_data/OTM34.csv", skip = 14))
+head(good_read_otm, 15)
 ```
 
 > **TIP**: We recommend that users of the `throne` package become very familiar with the formatting of the raw OTM data. Specifying the `rows_skip` argument correctly is crucial for the rest of the package's functions to work properly down the line.
@@ -68,9 +68,6 @@ To transform the raw `.csv` data into an `R` `tibble`, the `rnp_otm_data` functi
 The final output is a `tibble` object with columns for the OTM's identification (`otm_id`), year, date (Julian date format), minute of the day (`minute`) and operative temperature (`op_temp`). If the function worked correctly, the resulting data set should contain all observations made by all OTM whose files were located in the directory specified via the argument `folder_path`. We have included a data set of these characteristics with 33 OTMs that recorded over a period of 4 days. Below we present and plot a subset of this data:
 
 ```{r, echo = FALSE, message = FALSE, fig.height=4, fig.width=8}
-otm_data <- rnp_otm_data(folder_path = "C:/Users/ggarc/OneDrive/research/throne/data/otm_data", rows_skip = 14, time_col = 1, op_temp_col = 3)
-head(otm_data)
-
 otm_data %>% 
   filter(date %in% c(235, 236)) %>%
   mutate(date = ifelse(date == 235, "DOY 235 (August 23rd)", "DOY 236 (August 24th)")) %>%
@@ -96,7 +93,6 @@ The `add_otm_metadata` function adds information about the OTMs to the OTM data 
 As part of the `throne` package documentation we include an example metadata file for OTM. Our file contains information on the latitude, longitude and elevation at which each OTM was deployed as well as information on the orientation and microhabitat.
 
 ```{r}
-otm_metadata <- read.csv("C:/Users/ggarc/OneDrive/research/throne/data/otm_metadata.csv")
 head(otm_metadata)
 ```
 
@@ -130,7 +126,6 @@ The last step when dealing with OTM data is to fit a **cubic smoothing spline mo
 To fit these models the `throne` package includes the `gen_otm_splines` function (**Gen**erate **OTM** cubic smoothing **splines** model). This function takes in an OTM data frame that has been generate via the `rnp_otm_data` and `add_otm_metadata` functions and returns a complex `tibble`. This `tibble` will include the OTM's identification and all associated metadata, together with a [nested column](https://tidyr.tidyverse.org/articles/nest.html) containing the spline model generated via the native `R` function `smooth.spline`. We call this a complex `tibble` precisely because of the nesting of the `splines` column. The resulting splines `tibble` will contain as many rows as combinations of unique `otm_id` and `date` since there will be a spline model for each OTM every day it was deployed in the field:
 
 ```{r, echo = FALSE}
-load("C:/Users/ggarc/OneDrive/research/throne/data/otm_splines.RData")
 otm_splines
 ```
 

@@ -186,8 +186,6 @@ flights_data %>%
   guides(fill = guide_colorbar("Reflected temperature (°C)"))
 ```
 
-
-
 ## Adding flight metadata
 
 The `add_flight_metadta` function adds information about the flight to the processed flight data outputted from the `rnp_flight_data` function. Below we detail the function's inputs, processing and output. 
@@ -203,8 +201,6 @@ The `add_flight_data` function takes in 3 inputs:
 The documentation for the `throne` package includes an example flight metadata flight that includes information on when did the flight took place see below:
 
 ```{r, echo = FALSE, message = FALSE}
-flights_metadata_path <- "C:/Users/ggarc/OneDrive/research/throne/data/flights_metadata.csv"
-flights_metadata <- read.csv(flights_metadata_path)
 head(flights_metadata)
 ```
 
