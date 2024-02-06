@@ -159,8 +159,6 @@ In order to transform the original `.tif` file, the `rnp_flight_data` goes throu
 The final output is a `tibble` object with columns for latitude, longitude and reflected temperature (`ref_temp`). The number of rows of this data set will vary depending on the area covered by the flight and the number of `digits` specified. For instance, our study area was ~ 2900 $m^2$, which processed setting `digits = 5` led to a `tibble` of 7813 observations each representing a "tile" of approximately 0.4 $m^2$ at a latitude of approximately 40°. 
 
 ```{r, echo = FALSE, warnings = FALSE}
-load("C:/Users/ggarc/OneDrive/research/throne/data/flights_data.RData")
-
 flights_data %>% 
   filter(minute_start == 515) %>% 
   dplyr::select(latitude, longitude, ref_temp)
