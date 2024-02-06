@@ -1,0 +1,11 @@
+pandoc: 3.1.1
+pkgdown: 2.0.7
+pkgdown_sha: ~
+articles:
+  rnp_flight_data_add_flight_metadata: rnp_flight_data_add_flight_metadata.html
+  rnp_otm_data_add_otm_metadata_gen_otm_splines: rnp_otm_data_add_otm_metadata_gen_otm_splines.html
+last_built: 2024-02-06T23:43Z
+urls:
+  reference: https://ggcostoya.github.io/throne/reference
+  article: https://ggcostoya.github.io/throne/articles
+
