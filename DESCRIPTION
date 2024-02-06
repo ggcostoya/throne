@@ -17,5 +17,6 @@ Depends:
   raster,
   proj4,
   gridExtra,
-  viridis
+  viridis,
+  devtools
 URL: https://ggcostoya.github.io/throne/
