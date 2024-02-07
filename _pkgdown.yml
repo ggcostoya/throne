@@ -1,4 +1,17 @@
 url: https://ggcostoya.github.io/throne/
 template:
   bootstrap: 5
+  bootswatch: sandstone
+navbar:
+  left:
+  - icon: fa-home fa-lg
+    href: index.html
+  - text: Workflow
+    menu:
+    - text: Dealing with flight data
+      href: articles/rnp_flight_data_add_flight_metadata.html
+    - text: Reading and processing OTM data
+      href: articles/rnp_otm_data_add_otm_metadata_gen_otm_splines.html
+  - text: Reference
+    href: reference/index.html
 
