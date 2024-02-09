@@ -1,0 +1,31 @@
+---
+title: "Correcting flight data"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+devtools::load_all()
+```
+
+## Overview
+
+In this vignette, our aim is to illustrate how to correct spatial temperature data obtained using thermal photogrammetry. By correcting, we are referring to the process of transforming the temperature measurements made via the IR cameras mounted into the drone into **operative temperatures** as measured via an operative temperature model (OTM). 
+
+The need from this correction stems from the fact that the measurement of an IR camera is depending on the object's emissivity ($\epsilon$), or its ability to emit infrared radiation. Emissivity ranges between $\epsilon = 0$ (completely non-emitting) to $\epsilon = 1$ (completely emitting). For instance, if an objects actual internal temperature was 50 °C, if its $\epsilon = 1$  (i.e., if it is a theoretical object known as a [black body](https://en.wikipedia.org/wiki/Black_body)), an IR measurement would read exactly 50 °C. In contrast, if that object's $\epsilon = 0$, the IR reading would be 0 °C
+
+If we apply this framework to organisms, in all cases $\epsilon < 1$  which makes estimates of their body temperature via IR photogrammetry inherently biased. Further, the size of the organism also generates a thermal gradient between its interior and surface. While this gradient can be neglected in small organisms like insects, it further contributes to the decoupling between body temperature estimates using IR photogrammetry and the actual body temperature of the organism. 
+
+In contrast, OTMs are designed to record temperature measurements that match the internal body temperature of the organism as closely as possible. This is achieved by enclosing a temperature logger (e.g., an Eye Button) inside of a structure with similar emissivity and size (to ultimately achieve a similar internal thermal gradient) to the organism of interest. 
+
+Due to the above, the IR camera of the drone and the OTM will ultimately record fundamentally different temperature metrics. For the thermal measurements estimated using the drone to be truly representative of what the organism is experiencing, they must be corrected such that they instead describe operative temperatures. 
+
+
+
+
+
+

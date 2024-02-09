@@ -6,12 +6,24 @@ navbar:
   left:
   - icon: fa-home fa-lg
     href: index.html
-  - text: Workflow
+  - text: Overview
+    href: articles/overview.html
+  - text: Field setup
     menu:
-    - text: Dealing with flight data
+    - text: Drones
+      href: articles/flying_and_collecting_data_from_drones.html
+    - text: OTMs
+      href: articles/otms.html
+  - text: R Workflow
+    menu:
+    - text: Processing with flight data
       href: articles/rnp_flight_data_add_flight_metadata.html
-    - text: Reading and processing OTM data
+    - text: Processing OTM data
       href: articles/rnp_otm_data_add_otm_metadata_gen_otm_splines.html
+    - text: Correcting flight data
+      href: articles/correcting_flight_data.html
+    - text: Predicting thermal landscapes
+      href: articles/predicting_thermal_landscapes.html
   - text: Reference
     href: reference/index.html
 
