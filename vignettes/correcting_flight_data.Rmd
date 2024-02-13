@@ -14,15 +14,71 @@ devtools::load_all()
 
 ## Overview
 
-In this vignette, our aim is to illustrate how to correct spatial temperature data obtained using thermal photogrammetry. By correcting, we are referring to the process of transforming the temperature measurements made via the IR cameras mounted into the drone into **operative temperatures** as measured via an operative temperature model (OTM). 
+In this vignette, our aim is to illustrate how to correct temperature data obtained using thermal photogrammetry. By correcting, we are referring to the process of transforming the temperature measurements made via the IR cameras mounted into the drone into **operative temperatures** as measured using an operative temperature model (OTM). 
 
-The need from this correction stems from the fact that the measurement of an IR camera is depending on the object's emissivity ($\epsilon$), or its ability to emit infrared radiation. Emissivity ranges between $\epsilon = 0$ (completely non-emitting) to $\epsilon = 1$ (completely emitting). For instance, if an objects actual internal temperature was 50 °C, if its $\epsilon = 1$  (i.e., if it is a theoretical object known as a [black body](https://en.wikipedia.org/wiki/Black_body)), an IR measurement would read exactly 50 °C. In contrast, if that object's $\epsilon = 0$, the IR reading would be 0 °C
+The need from this correction stems from the fundamental difference between temperature estimates made using an IR camera and those made by making physical contact with an object. This is because the IR camera measurement is influenced by a wide range of factors including the object's emissivity, the conditions in which the image is taken (ambient temperature, amount of light etc. see [Playà-Montmany & Tattersall 2021](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13563) for further details). 
 
-If we apply this framework to organisms, in all cases $\epsilon < 1$  which makes estimates of their body temperature via IR photogrammetry inherently biased. Further, the size of the organism also generates a thermal gradient between its interior and surface. While this gradient can be neglected in small organisms like insects, it further contributes to the decoupling between body temperature estimates using IR photogrammetry and the actual body temperature of the organism. 
-
-In contrast, OTMs are designed to record temperature measurements that match the internal body temperature of the organism as closely as possible. This is achieved by enclosing a temperature logger (e.g., an Eye Button) inside of a structure with similar emissivity and size (to ultimately achieve a similar internal thermal gradient) to the organism of interest. 
+In contrast, OTMs are designed to record temperature measurements that match the internal body temperature of the organism as closely as possible. This is achieved by enclosing a temperature logger (e.g., an Eye Button) inside of a structure of a similar size and with similar surface properties to the  the organism of interest. This methodology has been used extensively in the field of thermal ecology and recent advances have minimized the costs of production and maximized the accuracy of OTMs (see our past work in [Alujević et al. 2024](https://www.sciencedirect.com/science/article/pii/S0306456523003030])).
 
 Due to the above, the IR camera of the drone and the OTM will ultimately record fundamentally different temperature metrics. For the thermal measurements estimated using the drone to be truly representative of what the organism is experiencing, they must be corrected such that they instead describe operative temperatures. 
+
+To transform temperature measurements obtained using a drone-mounted IR camera into operative temperature measurements, the `throne` R package performs a double correction:
+
+1. It corrects for date and time of the day to account for the differences in light conditions across seasons and throughout a day. 
+
+2. It corrects for the temperature value itself as to account for the differences in temperature measurements caused by the inherent biases associated with an IR measurement. 
+
+Next, we will introduce how this corrections are implemented using via 3 functions within the `R` package. (`gen_correction_data`, `get_correction_factors` and `apply_correction`). We will start by presenting how to build data to inform the correction, how to estimate the factors that will guide the correction and lastly how the correction will be implemented into a flight data set. Below is an image of what is covered in this vignette within the overall context of the `throne` package workflow.
+
+## Building a correction data frame
+
+The first step is to construct a data frame (or `tibble`) from which the how the flight data needs to be corrected.To perform this correction we will use the `gen_corr_data` function, which will take in as arguments: 
+
+1. `flight`: A flight `tibble` with metadata generated using the functions `rnp_flight_data` and `add_flight_metadata`. It is **essential that the metadata of the flight includes the date when the flight happened (as a DOY or Julian date) and the minute of the day when the flight started and when the flight ended**. 
+
+2. `splines`: A complex `tibble` of OTM spline models obtained using the `gen_otm_splines` function. It is also essential that each OTM spline model contains information on the date and on the latitude and longitude of the OTM itself. 
+
+The `gen_corr_data` function will then: 
+
+1. Select the tiles of the flight data (i.e., latitude and longitude combinations) that had an OTM. 
+
+2. Filter among all available OTM splines for the ones that occurred in the same date as the flight of interest. 
+
+3. Using the spline models estimate the average temperature estimated by the OTM for the period between the start and the end of the flight. 
+
+4. Merge the predictions made using the spline models with the filtered data from the flight to finally return a `tibble` with matched observations like the one below:
+
+```{r, echo = FALSE}
+corr_data %>% filter(gcps == "Y") %>% dplyr::select(!gcps) %>% as_tibble()
+```
+With this data we can take a first look at how does the reflected temperature measurements made by the drone (`ref_temp`) relate to those collected by the OTMs (`op_temp`).
+
+```{r, fig.align='center', fig.height=4, fig.width=6, echo = FALSE, message=FALSE}
+corr_data %>% filter(gcps == "Y") %>% 
+  ggplot(aes(x = op_temp, y = ref_temp)) +
+  geom_point(aes(col = minute/60), alpha = 0.5, size = 3) +
+  geom_abline(intercept = 0, slope = 1, linetype = 2, linewidth = 1.25) +
+  geom_smooth(method = "lm", col = "black")  +
+  scale_color_gradient2(low = "black", mid = "orange", high = "darkblue",midpoint = 12) +
+  ylab("IR Temperature (C)") +
+  xlab("Operative Temperature (C)") +
+  theme_minimal() +
+  theme(axis.line = element_line(),
+        axis.ticks = element_line(),
+        panel.grid = element_blank()) +
+  labs(colour = "Hour of the day")
+```
+
+## Getting correction factors
+
+By running a simple linear regression, we can see that IR and operative temperatures are positively correlated 
+
+```{r}
+summary(lm(ref_temp ~ op_temp, data = corr_data %>% filter(gcps == "Y")))
+```
+
+## Applying corrections
+
 
 
 
