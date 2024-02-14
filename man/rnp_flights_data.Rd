@@ -19,7 +19,7 @@ should be summarized to. Will dictate the spatial resolution of each of the
 tiles in the eventual thermal landscape.}
 }
 \value{
-A `tibble` where each column represents a unique tile (a unique combination
+A `tibble` where each row represents a unique tile (a unique combination
    of `longitude` and `latitude`), with an associated IR temperature measurement
    (`ir_temp`) for a unique flight. To identify each flight, each row of the
    return `tibble` also contains information on the `year`, date of the year (`doy`)
