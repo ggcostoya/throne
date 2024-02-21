@@ -4,19 +4,27 @@
 \alias{predict_thermal_landscape}
 \title{Predict thermal landscape}
 \usage{
-predict_thermal_landscape(matches, otm_splines, date, minute)
+predict_thermal_landscape(matches, otm_splines, doy, mod)
 }
 \arguments{
-\item{matches}{x}
+\item{matches}{A matches `tibble` obtained using the `match_data` function.}
 
-\item{otm_splines}{x}
+\item{otm_splines}{A complex `tibble` obtained using the `gen_otm_splines` function.}
 
-\item{date}{x}
+\item{doy}{An integer or vector of integers indicating the day(s) of the year
+(DOY) for which the thermal landscape should be predicted. All elements within
+`doy` must be within the range between when the OTMs started and finished
+recording operative temperatures.}
 
-\item{minute}{x}
+\item{mod}{An integer of vector of integers indicating the minute(s) of the
+day (MOD) for which the thermal landscape should be predicted. All elements
+within `mod` must fall within the 0 to 1440 range. If `mod` includes
+values when the OTMs were not recording it will return `NA` and provide a
+diagnostics message}
 }
 \value{
-x
+A `tibble` with a predicted thermal landscape with `longitude`, `latitude`,
+   `doy`, `mod` and predicted operative temperature columns (`pred_op_temp`).
 }
 \description{
 Predict thermal landscape

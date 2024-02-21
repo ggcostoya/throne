@@ -43,3 +43,7 @@ A `tibble` where each row represents a unique operative temperature
 Read and processes data from multiple operative temperature model (OTM) `.csv` files and
 adds metadata
 }
+\examples{
+otms_data
+
+}

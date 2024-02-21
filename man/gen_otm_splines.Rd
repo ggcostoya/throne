@@ -7,13 +7,40 @@
 gen_otm_splines(otm_data, knot_p)
 }
 \arguments{
-\item{otm_data}{An OTM data frame that can (and should) include metadata}
+\item{otm_data}{An OTM data `tibble` obtained via the function `rnp_otms_data`.
+It must include columns describing the OTM id (`otm_id`), the day of the
+year (`doy`), the minute of the day (`mod`) in which each operative temperature
+measurement (`op_temp`) was made. The function can run without `latitude` and
+`longitude` columns, but including them is necessary for the `correct_flight_data`,
+`match_data` and `predict_thermal_landscape` functions.}
 
-\item{knot_p}{The number of knots the spline should have taken as a percentage of all observations made in a given day.}
+\item{knot_p}{The number of knots the spline model should have to describe the
+temperature dynamics of the OTM for a given day taken as a percentage of
+the total number of operative measurements in a given day.}
 }
 \value{
-An OTM splines complex tibble with otm_id, date, {metadata} and a nested spline model objects column.
+A complex `tibble` with columns for `otm_id`, `year`, `doy` and `spline`.
+   The spline column is nested and contains a OTM, year and DOY `smooth.spline` model
+   with the specified number of knots.
 }
 \description{
 Generate a unique spline model for each OTM on each date (Julian) while the OTM was measuring
+}
+\examples{
+
+# filter data for a specific OTM in a given doy
+otm <- otms_data \%>\% filter(otm_id == "OTM12", doy == 237)
+
+# generate the spline model
+otm_spline <- gen_otm_splines(otm_data = otm, knot_p = 1/7.5)
+
+# obtain a prediction
+pred <- tibble(mod = seq(0,1440,by = 1), op_temp = predict(otm_spline$spline[[1]], seq(0,1440,by = 1))$y)
+
+# plotting
+ggplot() +
+  geom_point(data = otm, aes(x = mod, y = op_temp), size = 4, alpha = 0.1) +
+  geom_line(data = pred, aes(x = mod, y = op_temp), linewidth = 2, col = "red") +
+  xlab("Minute of the day (MOD)") + ylab("Operative Temperature (C)")
+
 }

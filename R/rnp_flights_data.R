@@ -50,16 +50,16 @@ rnp_flights_data <- function(path, metadata, digits){
   # modify format of metadata file and select columns of interest
   metadata$year <- year(mdy(metadata$date))
   metadata$doy <- yday(mdy(metadata$date))
-  metadata$min_start <- hour(hm(metadata$time_start))*60 + minute(hm(metadata$time_start))
-  metadata$min_end <- hour(hm(metadata$time_end))*60 + minute(hm(metadata$time_end))
-  metadata <- metadata %>% dplyr::select(flight_id, year, doy, min_start, min_end)
+  metadata$mod_start <- hour(hm(metadata$time_start))*60 + minute(hm(metadata$time_start))
+  metadata$mod_end <- hour(hm(metadata$time_end))*60 + minute(hm(metadata$time_end))
+  metadata <- metadata %>% dplyr::select(flight_id, year, doy, mod_start, mod_end)
 
   # list files within path specified
   flight_files_list <- paste(path, "/", list.files(path), sep = "")
 
   # build holder flights data
   flights_data <- tibble(longitude = c(), latitude = c(), ir_temp = c(),
-                         year = c(), doy = c(), min_start = c(), min_end = c())
+                         year = c(), doy = c(), mod_start = c(), mod_end = c())
 
   ## reading and processing data in loop
 
@@ -93,8 +93,8 @@ rnp_flights_data <- function(path, metadata, digits){
     # add flight metadata
     flight <- flight %>% mutate(year = flight_metadata$year,
                                 doy = flight_metadata$doy,
-                                mod_start = flight_metadata$min_start,
-                                mod_end = flight_metadata$min_end)
+                                mod_start = flight_metadata$mod_start,
+                                mod_end = flight_metadata$mod_end)
 
     # rbind flight with flights_data
     flights_data <- rbind(flights_data, flight)

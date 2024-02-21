@@ -2,20 +2,37 @@
 % Please edit documentation in R/match_data.R
 \name{match_data}
 \alias{match_data}
-\title{Match data}
+\title{Match flights to OTM data}
 \usage{
-match_data(flights_data, coverage, otm_splines)
+match_data(flights_data, otm_splines, coverage_per, error_max)
 }
 \arguments{
-\item{flights_data}{A flight data frame for multiple flights}
+\item{flights_data}{A `tibble` of flights data obtained through the `rnp_flights_data`
+and corrected using the the `correct_flights_data` function. The temperature
+column should be `op_temp` but the function will also work if `ir_temp` is provided.}
 
-\item{coverage}{Number of times a given pixel needs to be covered by a flight for it to be considered.}
+\item{otm_splines}{A complex `tibble` obtained using the `gen_otm_splines` function.}
 
-\item{otm_splines}{An OTM splines dataset obtained with the `gen_otm_splines` function}
+\item{coverage_per}{A numeric between 0 - 1 indicating the minimum coverage that
+a tile should have across all flights provided in order to be included in the matching.
+Coverage is calculated as the number of times temperature was measured in a given tile
+divided by the total number of flights. Values >= 0.9 are recommended.
+The function will provide a warning of the number of tiles for which
+coverage < `coverage_per` is > 50%.}
+
+\item{error_max}{The maximum average absolute error between temperature measurements
+of a tile and an OTM that makes a match between a tile and OTM valid.
+Error is calculated as the average absolute value between the OTM prediction
+and the temperature measurements of the tile.}
 }
 \value{
-A match dataset where each pixel is associated with an OTM.
+A `matches` `tibble` with columns for `latitude`, `longitude`, the `otm_id`
+   that best describes the thermal dynamics of that tile and the average absolute
+   `error` between tile measurements and OTM predictions. Columns where `is.na(otm_id)`
+   indicate tiles where `error` was not `< error_max` for any of the OTMs provided.
 }
 \description{
-Matches each pixel within a given are where flights have occured with an OTM.
+Matches thermal dynamics of specific tiles (i.e., specific latitude and longitudes)
+collected across multiple flights to the thermal dynamics of an operative
+temperature model (OTM)
 }

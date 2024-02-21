@@ -23,7 +23,7 @@ A `tibble` where each row represents a unique tile (a unique combination
    of `longitude` and `latitude`), with an associated IR temperature measurement
    (`ir_temp`) for a unique flight. To identify each flight, each row of the
    return `tibble` also contains information on the `year`, date of the year (`doy`)
-   and the minute when the flight started (`min_start`) and ended (`min_end`)
+   and the minute of the da (MOD) when the flight started (`mod_start`) and ended (`mod_end`)
 }
 \description{
 Reads and processes data from multiple flights in `.tif` format and adds metadata

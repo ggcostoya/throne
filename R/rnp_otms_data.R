@@ -31,6 +31,9 @@
 #'    the day (`mod`). The `tibble` will have as many additional columns as
 #'    metadata characteristics included in `metadata`.
 #'
+#' @examples
+#' otms_data
+#'
 #' @export
 
 rnp_otms_data <- function(path, rows_skip, date_col, time_col, op_temp_col, metadata){
