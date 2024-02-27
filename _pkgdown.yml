@@ -16,10 +16,10 @@ navbar:
       href: articles/otms.html
   - text: R Workflow
     menu:
-    - text: Processing with flight data
-      href: articles/rnp_flight_data_add_flight_metadata.html
-    - text: Processing OTM data
-      href: articles/rnp_otm_data_add_otm_metadata_gen_otm_splines.html
+    - text: Reading and processing flight data
+      href: articles/rnp_flights_data.html
+    - text: Reading and processing OTM data
+      href: articles/rnp_otms_data_gen_otm_splines.html
     - text: Correcting flight data
       href: articles/correcting_flight_data.html
     - text: Predicting thermal landscapes

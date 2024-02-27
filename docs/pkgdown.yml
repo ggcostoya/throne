@@ -7,9 +7,9 @@ articles:
   otms: otms.html
   overview: overview.html
   predicting_thermal_landscapes: predicting_thermal_landscapes.html
-  rnp_flight_data_add_flight_metadata: rnp_flight_data_add_flight_metadata.html
-  rnp_otm_data_add_otm_metadata_gen_otm_splines: rnp_otm_data_add_otm_metadata_gen_otm_splines.html
-last_built: 2024-02-09T00:58Z
+  rnp_flights_data: rnp_flights_data.html
+  rnp_otms_data_gen_otm_splines: rnp_otms_data_gen_otm_splines.html
+last_built: 2024-02-27T23:27Z
 urls:
   reference: https://ggcostoya.github.io/throne/reference
   article: https://ggcostoya.github.io/throne/articles

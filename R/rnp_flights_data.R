@@ -5,13 +5,14 @@
 #' Reads and processes data from multiple flights in `.tif` format and adds metadata
 #'
 #' @param path A character indicating the directory where all `.tif`
-#'    files for flights are stored.
+#'    files for flights are stored. The name of each flight `.tif` file must
+#'    have associated metadata for the function to work.
 #' @param metadata A metadata `tibble` for the flights with information on
 #'    the `flight_id` (character), `date` (MM/DD/YYYY), `time_start`(HH:MM)
 #'    and `time_end`(HH:MM) of each flight.
-#' @param digits An integer (>0 & <6), indicating the number of decimal digit places to which the final output
-#'    should be summarized to. Will dictate the spatial resolution of each of the
-#'    tiles in the eventual thermal landscape.
+#' @param digits An integer (>0 & <6), indicating the number of decimal digit places
+#'    to which the final output should be summarized to. Will dictate the spatial
+#'    resolution of each of the tiles in the eventual thermal landscape.
 #'
 #' @return A `tibble` where each row represents a unique tile (a unique combination
 #'    of `longitude` and `latitude`), with an associated IR temperature measurement

@@ -145,19 +145,9 @@ panel_d <- corr_data_gcps %>%
 
 ## Figure S3 ----
 
-# read and process OTM data
-otm_data <- rnp_otm_data(folder_path = "data/otm_data",
-                         rows_skip = 14, time_col = 1, op_temp_col = 3)
-
-# read OTM metadata
-otm_metadata <- read.csv("data/otm_metadata.csv")
-
-# add OTM metadata
-otm_data <- add_otm_metadata(otm_data = otm_data, otm_metadata = otm_metadata)
-
 # filter OTM01 on Julian date 236
-otm_data_plot <- otm_data %>% filter(otm_id == "OTM01") %>%
-  filter(date == 236)
+otm_data_plot <- otms_data %>% filter(otm_id == "OTM01") %>%
+  filter(doy == 237)
 
 # generate OTM splines
 otm_splines_15 <- gen_otm_splines(otm_data = otm_data_plot, knot_p = 360/720)
@@ -166,21 +156,21 @@ otm_splines_2 <- gen_otm_splines(otm_data = otm_data_plot, knot_p = 48/720)
 otm_splines_0.5 <- gen_otm_splines(otm_data = otm_data_plot, knot_p = 12/720)
 
 # generate data
-otm_15 <- as.data.frame(predict(otm_splines_15$splines[[1]])) %>%
-  rename(minute = x, op_temp = y) %>% mutate(knot_h = 15)
-otm_4 <- as.data.frame(predict(otm_splines_4$splines[[1]])) %>%
-  rename(minute = x, op_temp = y) %>% mutate(knot_h = 4)
-otm_2 <- as.data.frame(predict(otm_splines_2$splines[[1]])) %>%
-  rename(minute = x, op_temp = y) %>% mutate(knot_h = 2)
-otm_0.5 <- as.data.frame(predict(otm_splines_0.5$splines[[1]])) %>%
-  rename(minute = x, op_temp = y) %>% mutate(knot_h = 0.5)
+otm_15 <- as.data.frame(predict(otm_splines_15$spline[[1]])) %>%
+  rename(mod = x, op_temp = y) %>% mutate(knot_h = 15)
+otm_4 <- as.data.frame(predict(otm_splines_4$spline[[1]])) %>%
+  rename(mod = x, op_temp = y) %>% mutate(knot_h = 4)
+otm_2 <- as.data.frame(predict(otm_splines_2$spline[[1]])) %>%
+  rename(mod = x, op_temp = y) %>% mutate(knot_h = 2)
+otm_0.5 <- as.data.frame(predict(otm_splines_0.5$spline[[1]])) %>%
+  rename(mod = x, op_temp = y) %>% mutate(knot_h = 0.5)
 otm_pred <- rbind(otm_15, otm_4, otm_2, otm_0.5)
 otm_pred$knot_h_name <- paste("Knots / h = ", otm_pred$knot_h, sep = "")
 
 # plot (5 x 4.5 inches)
 ggplot() +
-  geom_point(data = otm_data_plot, aes(x = minute/60, y = op_temp), size = 1, alpha = 0.5) +
-  geom_line(data = otm_pred, aes(x = minute/60, y = op_temp),
+  geom_point(data = otm_data_plot, aes(x = mod/60, y = op_temp), size = 1, alpha = 0.5) +
+  geom_line(data = otm_pred, aes(x = mod/60, y = op_temp),
             col = "orange", alpha = 0.75, linewidth = 1.25) +
   scale_x_continuous(expand = c(0,0)) +
   facet_wrap(~knot_h_name) +

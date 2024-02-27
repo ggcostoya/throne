@@ -54,8 +54,8 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-r-workflow">R Workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-r-workflow">
-    <a class="dropdown-item" href="../articles/rnp_flight_data_add_flight_metadata.html">Processing with flight data</a>
-    <a class="dropdown-item" href="../articles/rnp_otm_data_add_otm_metadata_gen_otm_splines.html">Processing OTM data</a>
+    <a class="dropdown-item" href="../articles/rnp_flights_data.html">Reading and processing flight data</a>
+    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Reading and processing OTM data</a>
     <a class="dropdown-item" href="../articles/correcting_flight_data.html">Correcting flight data</a>
     <a class="dropdown-item" href="../articles/predicting_thermal_landscapes.html">Predicting thermal landscapes</a>
   </div>
@@ -92,43 +92,99 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>In this vignette, our aim is to illustrate how to correct spatial
-temperature data obtained using thermal photogrammetry. By correcting,
-we are referring to the process of transforming the temperature
-measurements made via the IR cameras mounted into the drone into
-<strong>operative temperatures</strong> as measured via an operative
-temperature model (OTM).</p>
-<p>The need from this correction stems from the fact that the
-measurement of an IR camera is depending on the object’s emissivity
-(<span class="math inline">\(\epsilon\)</span>), or its ability to emit
-infrared radiation. Emissivity ranges between <span class="math inline">\(\epsilon = 0\)</span> (completely non-emitting) to
-<span class="math inline">\(\epsilon = 1\)</span> (completely emitting).
-For instance, if an objects actual internal temperature was 50 °C, if
-its <span class="math inline">\(\epsilon = 1\)</span> (i.e., if it is a
-theoretical object known as a <a href="https://en.wikipedia.org/wiki/Black_body" class="external-link">black body</a>), an IR
-measurement would read exactly 50 °C. In contrast, if that object’s
-<span class="math inline">\(\epsilon = 0\)</span>, the IR reading would
-be 0 °C</p>
-<p>If we apply this framework to organisms, in all cases <span class="math inline">\(\epsilon &lt; 1\)</span> which makes estimates of
-their body temperature via IR photogrammetry inherently biased. Further,
-the size of the organism also generates a thermal gradient between its
-interior and surface. While this gradient can be neglected in small
-organisms like insects, it further contributes to the decoupling between
-body temperature estimates using IR photogrammetry and the actual body
-temperature of the organism.</p>
+<p>In this vignette, our aim is to illustrate how to correct temperature
+data obtained using thermal photogrammetry. By correcting, we are
+referring to the process of transforming the temperature measurements
+made via the IR cameras mounted into the drone into <strong>operative
+temperatures</strong> as measured using an operative temperature model
+(OTM).</p>
+<p>The need from this correction stems from the fundamental difference
+between temperature estimates made using an IR camera and those made by
+making physical contact with an object. This is because the IR camera
+measurement is influenced by a wide range of factors including the
+object’s emissivity, the conditions in which the image is taken (ambient
+temperature, amount of light etc. see <a href="https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13563" class="external-link">Playà-Montmany
+&amp; Tattersall 2021</a> for further details).</p>
 <p>In contrast, OTMs are designed to record temperature measurements
 that match the internal body temperature of the organism as closely as
 possible. This is achieved by enclosing a temperature logger (e.g., an
-Eye Button) inside of a structure with similar emissivity and size (to
-ultimately achieve a similar internal thermal gradient) to the organism
-of interest.</p>
+Eye Button) inside of a structure of a similar size and with similar
+surface properties to the the organism of interest. This methodology has
+been used extensively in the field of thermal ecology and recent
+advances have minimized the costs of production and maximized the
+accuracy of OTMs (see our past work in <a href="https://www.sciencedirect.com/science/article/pii/S0306456523003030%5D" class="external-link">Alujević
+et al. 2024</a>).</p>
 <p>Due to the above, the IR camera of the drone and the OTM will
 ultimately record fundamentally different temperature metrics. For the
 thermal measurements estimated using the drone to be truly
 representative of what the organism is experiencing, they must be
 corrected such that they instead describe operative temperatures.</p>
+<p>To transform temperature measurements obtained using a drone-mounted
+IR camera into operative temperature measurements, the
+<code>throne</code> R package performs a double correction:</p>
+<ol style="list-style-type: decimal">
+<li><p>It corrects for date and time of the day to account for the
+differences in light conditions across seasons and throughout a
+day.</p></li>
+<li><p>It corrects for the temperature value itself as to account for
+the differences in temperature measurements caused by the inherent
+biases associated with an IR measurement.</p></li>
+</ol>
+<p>Next, we will introduce how this corrections are implemented using
+via 3 functions within the <code>R</code> package.
+(<code>gen_correction_data</code>, <code>get_correction_factors</code>
+and <code>apply_correction</code>). We will start by presenting how to
+build data to inform the correction, how to estimate the factors that
+will guide the correction and lastly how the correction will be
+implemented into a flight data set. Below is an image of what is covered
+in this vignette within the overall context of the <code>throne</code>
+package workflow.</p>
 </div>
-  </main>
+<div class="section level2">
+<h2 id="building-a-correction-data-frame">Building a correction data frame<a class="anchor" aria-label="anchor" href="#building-a-correction-data-frame"></a>
+</h2>
+<p>The first step is to construct a data frame (or <code>tibble</code>)
+from which the how the flight data needs to be corrected.To perform this
+correction we will use the <code>gen_corr_data</code> function, which
+will take in as arguments:</p>
+<ol style="list-style-type: decimal">
+<li><p><code>flight</code>: A flight <code>tibble</code> with metadata
+generated using the functions <code>rnp_flight_data</code> and
+<code>add_flight_metadata</code>. It is <strong>essential that the
+metadata of the flight includes the date when the flight happened (as a
+DOY or Julian date) and the minute of the day when the flight started
+and when the flight ended</strong>.</p></li>
+<li><p><code>splines</code>: A complex <code>tibble</code> of OTM spline
+models obtained using the <code>gen_otm_splines</code> function. It is
+also essential that each OTM spline model contains information on the
+date and on the latitude and longitude of the OTM itself.</p></li>
+</ol>
+<p>The <code>gen_corr_data</code> function will then:</p>
+<ol style="list-style-type: decimal">
+<li><p>Select the tiles of the flight data (i.e., latitude and longitude
+combinations) that had an OTM.</p></li>
+<li><p>Filter among all available OTM splines for the ones that occurred
+in the same date as the flight of interest.</p></li>
+<li><p>Using the spline models estimate the average temperature
+estimated by the OTM for the period between the start and the end of the
+flight.</p></li>
+<li><p>Merge the predictions made using the spline models with the
+filtered data from the flight to finally return a <code>tibble</code>
+with matched observations like the one below:</p></li>
+</ol>
+</div>
+<div class="section level2">
+<h2 id="getting-correction-factors">Getting correction factors<a class="anchor" aria-label="anchor" href="#getting-correction-factors"></a>
+</h2>
+<p>By running a simple linear regression, we can see that IR and
+operative temperatures are positively correlated</p>
+</div>
+<div class="section level2">
+<h2 id="applying-corrections">Applying corrections<a class="anchor" aria-label="anchor" href="#applying-corrections"></a>
+</h2>
+</div>
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

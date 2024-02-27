@@ -78,10 +78,10 @@ gen_otm_splines <- function(otm_data, knot_p){
     knot_n <- ceiling(length(otm_x$mod) * knot_p)
 
     # if number of observations is > 1
-    if(knot_n > 1){
+    if(knot_n > 2){
 
       # fit spline model
-      spline <- smooth.spline(x = otm_x$mod, y = otm_x$op_temp, nknots = knot_n)
+      spline <- smooth.spline(x = otm_x$mod, y = otm_x$op_temp, nknots = knot_n, cv = FALSE)
 
       # add spline to spline list
       otm_spline_list <- c(otm_spline_list, list(spline))
@@ -96,6 +96,7 @@ gen_otm_splines <- function(otm_data, knot_p){
 
   # add spline to the otm_splines tibble
   otm_splines <- otm_splines %>% mutate(spline = otm_spline_list)
+
 
   # return
   return(as_tibble(otm_splines))

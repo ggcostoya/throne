@@ -3,23 +3,22 @@
 
 ## Packages ----
 
-library(tidyverse)
+devtools::load_all()
+library(ggridges)
+library(gridExtra)
 
 ## Load data to plot ----
 
 load("data/all_val_data.RData")
-
-library(ggridges)
-library(gridExtra)
 
 ## Figure 4 ----
 
 # panel A
 panel_a <- all_val_data %>%
   filter(knot_p == 1/7.5) %>%
-  mutate(minute = round(minute/96)) %>%
-  group_by(n_flights, n_otms, knot_p, minute) %>%
-  summarise(obs_op_temp = mean(obs_op_temp), pred_op_temp = mean(pred_op_temp)) %>%
+  #mutate(mod = round(mod/96)) %>%
+  #group_by(n_flights, n_otms, knot_p, mod) %>%
+  #summarise(obs_op_temp = mean(obs_op_temp), pred_op_temp = mean(pred_op_temp)) %>%
   mutate(n_flights_name = paste("Flights used = ", n_flights, sep = "")) %>%
   mutate(n_flights_name = fct_reorder(n_flights_name, n_flights)) %>%
   ggplot(aes(y = as.factor(n_otms), x = pred_op_temp - obs_op_temp)) +
@@ -35,14 +34,15 @@ panel_a <- all_val_data %>%
         panel.grid.minor = element_blank(),
         panel.grid.major = element_line(linewidth = 0.25),
         axis.ticks = element_line()) +
-  ggtitle("A")
+  ggtitle("A") +
+  coord_cartesian(xlim = c(-10,10))
 
 # panel B
 panel_b <- all_val_data %>%
   filter(knot_p == 1/7.5) %>%
-  filter(minute > 382) %>% filter(minute < 1180) %>%
-  mutate(minute = round(minute/96)) %>%
-  group_by(n_flights, n_otms, knot_p, minute) %>%
+  filter(mod > 382) %>% filter(mod < 1180) %>%
+  mutate(mod = round(mod/96)) %>%
+  group_by(n_flights, n_otms, knot_p, mod) %>%
   summarise(obs_op_temp = mean(obs_op_temp), pred_op_temp = mean(pred_op_temp)) %>%
   mutate(n_flights_name = paste("Flights used = ", n_flights, sep = "")) %>%
   mutate(n_flights_name = fct_reorder(n_flights_name, n_flights)) %>%
@@ -55,12 +55,13 @@ panel_b <- all_val_data %>%
   facet_wrap(~n_flights_name) +
   theme_minimal() +
   theme(panel.border = element_rect(fill = NA),
-        strip.background = element_rect(fill = "lightgray"),,
+        strip.background = element_rect(fill = "lightgray"),
         panel.grid.minor = element_blank(),
         panel.grid.major = element_line(linewidth = 0.25),
         axis.title.y = element_blank(),
         axis.ticks = element_line()) +
-  ggtitle("B")
+  ggtitle("B") +
+  coord_cartesian(xlim = c(-3,3))
 
 # dimensions 8.5 inch x 5 inch
 grid.arrange(panel_a, panel_b, nrow = 1, ncol = 2)
@@ -68,7 +69,7 @@ grid.arrange(panel_a, panel_b, nrow = 1, ncol = 2)
 ## Figure S4 ----
 
 fig_S4 <- all_val_data %>%
-  mutate(minute = round(minute/96)) %>%
+  mutate(minute = round(mod/96)) %>%
   group_by(n_flights, n_otms, knot_p, minute) %>%
   summarise(obs_op_temp = mean(obs_op_temp), pred_op_temp = mean(pred_op_temp)) %>%
   mutate(knot_h = knot_p * 30) %>%
@@ -91,9 +92,9 @@ grid.arrange(fig_S4, top = "Flights used", right = "OTMs used")
 ## Figure S5 ----
 
 fig_S5 <- all_val_data %>%
-  filter(minute > 382) %>% filter(minute < 1180) %>%
-  mutate(minute = round(minute/96)) %>%
-  group_by(n_flights, n_otms, knot_p, minute) %>%
+  filter(mod > 382) %>% filter(mod < 1180) %>%
+  mutate(mod = round(mod/96)) %>%
+  group_by(n_flights, n_otms, knot_p, mod) %>%
   summarise(obs_op_temp = mean(obs_op_temp), pred_op_temp = mean(pred_op_temp)) %>%
   mutate(knot_h = knot_p * 30) %>%
   ggplot(aes(y = as.factor(knot_h), x = pred_op_temp - obs_op_temp)) +
@@ -116,11 +117,11 @@ grid.arrange(fig_S5, top = "Flights used", right = "OTMs used")
 ## Figure S6 (dimensions 8 x 7 inch) ----
 
 all_val_data %>%
-  mutate(minute = round(minute/96)) %>%
-  group_by(n_flights, n_otms, knot_p, minute) %>%
+  mutate(mod = round(mod/96)) %>%
+  group_by(n_flights, n_otms, knot_p, mod) %>%
   summarise(obs_op_temp = mean(obs_op_temp), pred_op_temp = mean(pred_op_temp)) %>%
   mutate(knot_h = knot_p * 30) %>%
-  ggplot(aes(x = (minute*96)/60, y = pred_op_temp - obs_op_temp)) +
+  ggplot(aes(x = (mod*96)/60, y = pred_op_temp - obs_op_temp)) +
   geom_hline(yintercept = 0, linetype = 2) +
   geom_line(aes(group = as.factor(knot_h), col = as.factor(knot_h)),
             linewidth = 1.25, alpha = 0.75) +

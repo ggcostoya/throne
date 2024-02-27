@@ -48,34 +48,10 @@ The `gen_corr_data` function will then:
 
 4. Merge the predictions made using the spline models with the filtered data from the flight to finally return a `tibble` with matched observations like the one below:
 
-```{r, echo = FALSE}
-corr_data %>% filter(gcps == "Y") %>% dplyr::select(!gcps) %>% as_tibble()
-```
-With this data we can take a first look at how does the reflected temperature measurements made by the drone (`ref_temp`) relate to those collected by the OTMs (`op_temp`).
-
-```{r, fig.align='center', fig.height=4, fig.width=6, echo = FALSE, message=FALSE}
-corr_data %>% filter(gcps == "Y") %>% 
-  ggplot(aes(x = op_temp, y = ref_temp)) +
-  geom_point(aes(col = minute/60), alpha = 0.5, size = 3) +
-  geom_abline(intercept = 0, slope = 1, linetype = 2, linewidth = 1.25) +
-  geom_smooth(method = "lm", col = "black")  +
-  scale_color_gradient2(low = "black", mid = "orange", high = "darkblue",midpoint = 12) +
-  ylab("IR Temperature (C)") +
-  xlab("Operative Temperature (C)") +
-  theme_minimal() +
-  theme(axis.line = element_line(),
-        axis.ticks = element_line(),
-        panel.grid = element_blank()) +
-  labs(colour = "Hour of the day")
-```
 
 ## Getting correction factors
 
 By running a simple linear regression, we can see that IR and operative temperatures are positively correlated 
-
-```{r}
-summary(lm(ref_temp ~ op_temp, data = corr_data %>% filter(gcps == "Y")))
-```
 
 ## Applying corrections
 
