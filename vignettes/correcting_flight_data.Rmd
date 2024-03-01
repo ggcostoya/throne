@@ -12,52 +12,30 @@ knitr::opts_chunk$set(echo = TRUE)
 devtools::load_all()
 ```
 
-## Overview
+# Overview
 
-In this vignette, our aim is to illustrate how to correct temperature data obtained using thermal photogrammetry. By correcting, we are referring to the process of transforming the temperature measurements made via the IR cameras mounted into the drone into **operative temperatures** as measured using an operative temperature model (OTM). 
+In this vignette, our aim is to illustrate how to correct temperature data obtained using thermal photogrammetry. By correcting, we are referring to the process of transforming the temperature measurements made via the IR cameras mounted into the drone into **operative temperatures** as measured using an **operative temperature model** (OTM). Below we highlight the section of the package's workflow that is covered in this vignette:
 
-The need from this correction stems from the fundamental difference between temperature estimates made using an IR camera and those made by making physical contact with an object. This is because the IR camera measurement is influenced by a wide range of factors including the object's emissivity, the conditions in which the image is taken (ambient temperature, amount of light etc. see [Playà-Montmany & Tattersall 2021](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13563) for further details). 
+```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
+knitr::include_graphics("C:/Users/ggarc/OneDrive/research/throne/vignettes/workflow_correcting_flights_data.png")
+```
 
-In contrast, OTMs are designed to record temperature measurements that match the internal body temperature of the organism as closely as possible. This is achieved by enclosing a temperature logger (e.g., an Eye Button) inside of a structure of a similar size and with similar surface properties to the  the organism of interest. This methodology has been used extensively in the field of thermal ecology and recent advances have minimized the costs of production and maximized the accuracy of OTMs (see our past work in [Alujević et al. 2024](https://www.sciencedirect.com/science/article/pii/S0306456523003030])).
+The need from this correction stems from the fundamental difference between temperature estimates made using an IR camera and those made by making physical contact with an object. This is because the IR camera measurement is influenced by a wide range of factors including the object's emissivity, the conditions in which the image is taken (ambient temperature, amount of light etc. see [Playà-Montmany & Tattersall 2021](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13563) for further details).
 
-Due to the above, the IR camera of the drone and the OTM will ultimately record fundamentally different temperature metrics. For the thermal measurements estimated using the drone to be truly representative of what the organism is experiencing, they must be corrected such that they instead describe operative temperatures. 
+In contrast, OTMs are designed to record temperature measurements that match the internal body temperature of the organism as closely as possible. This is achieved by enclosing a temperature logger (e.g., an iButton) inside of a structure of a similar size and with similar surface properties to the the organism of interest. This methodology has been used extensively in the field of thermal ecology and recent advances have minimized the costs of production and maximized the accuracy of OTMs (see our past work in [Alujević et al. 2024](https://www.sciencedirect.com/science/article/pii/S0306456523003030%5D)).
 
-To transform temperature measurements obtained using a drone-mounted IR camera into operative temperature measurements, the `throne` R package performs a double correction:
+Due to the above, the IR camera of the drone and the OTM will ultimately record fundamentally different temperature metrics. For the thermal measurements estimated using the drone to be truly representative of what the organism is experiencing, they must be corrected such that they instead describe operative temperatures.
 
-1. It corrects for date and time of the day to account for the differences in light conditions across seasons and throughout a day. 
+# The `correct_flights_data` function
 
-2. It corrects for the temperature value itself as to account for the differences in temperature measurements caused by the inherent biases associated with an IR measurement. 
+To transform temperature measurements obtained using a drone-mounted IR camera into operative temperature measurements, the `throne` R package includes the `correct_flights_data` function. This function will perform a double correction on data collected via flights:
 
-Next, we will introduce how this corrections are implemented using via 3 functions within the `R` package. (`gen_correction_data`, `get_correction_factors` and `apply_correction`). We will start by presenting how to build data to inform the correction, how to estimate the factors that will guide the correction and lastly how the correction will be implemented into a flight data set. Below is an image of what is covered in this vignette within the overall context of the `throne` package workflow.
+1.  It corrects for date and time of the day to account for the differences in light conditions across seasons and throughout a day.
 
-## Building a correction data frame
+2.  It corrects for the temperature value itself as to account for the differences in temperature measurements caused by the inherent biases associated with an IR measurement.
 
-The first step is to construct a data frame (or `tibble`) from which the how the flight data needs to be corrected.To perform this correction we will use the `gen_corr_data` function, which will take in as arguments: 
+To perform such correction, the function will take 2 outputs:
 
-1. `flight`: A flight `tibble` with metadata generated using the functions `rnp_flight_data` and `add_flight_metadata`. It is **essential that the metadata of the flight includes the date when the flight happened (as a DOY or Julian date) and the minute of the day when the flight started and when the flight ended**. 
-
-2. `splines`: A complex `tibble` of OTM spline models obtained using the `gen_otm_splines` function. It is also essential that each OTM spline model contains information on the date and on the latitude and longitude of the OTM itself. 
-
-The `gen_corr_data` function will then: 
-
-1. Select the tiles of the flight data (i.e., latitude and longitude combinations) that had an OTM. 
-
-2. Filter among all available OTM splines for the ones that occurred in the same date as the flight of interest. 
-
-3. Using the spline models estimate the average temperature estimated by the OTM for the period between the start and the end of the flight. 
-
-4. Merge the predictions made using the spline models with the filtered data from the flight to finally return a `tibble` with matched observations like the one below:
-
-
-## Getting correction factors
-
-By running a simple linear regression, we can see that IR and operative temperatures are positively correlated 
-
-## Applying corrections
-
-
-
-
-
+1.  A `flights_data` `tibble` obtained through the `rnp_flights_data` function.
 
 

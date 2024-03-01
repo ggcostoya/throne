@@ -1,7 +1,7 @@
 ---
 title: "Reading and processing flights data"
 output:
-  bookdown::html_document2:
+  html_document:
     toc: true
     toc_depth: 2
     toc_float: true

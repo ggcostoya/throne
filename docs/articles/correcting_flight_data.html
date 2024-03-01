@@ -96,8 +96,10 @@
 data obtained using thermal photogrammetry. By correcting, we are
 referring to the process of transforming the temperature measurements
 made via the IR cameras mounted into the drone into <strong>operative
-temperatures</strong> as measured using an operative temperature model
-(OTM).</p>
+temperatures</strong> as measured using an <strong>operative temperature
+model</strong> (OTM). Below we highlight the section of the package’s
+workflow that is covered in this vignette:</p>
+<p><img src="workflow_correcting_flights_data.png" width="80%" style="display: block; margin: auto;"></p>
 <p>The need from this correction stems from the fundamental difference
 between temperature estimates made using an IR camera and those made by
 making physical contact with an object. This is because the IR camera
@@ -108,7 +110,7 @@ temperature, amount of light etc. see <a href="https://besjournals.onlinelibrary
 <p>In contrast, OTMs are designed to record temperature measurements
 that match the internal body temperature of the organism as closely as
 possible. This is achieved by enclosing a temperature logger (e.g., an
-Eye Button) inside of a structure of a similar size and with similar
+iButton) inside of a structure of a similar size and with similar
 surface properties to the the organism of interest. This methodology has
 been used extensively in the field of thermal ecology and recent
 advances have minimized the costs of production and maximized the
@@ -119,9 +121,15 @@ ultimately record fundamentally different temperature metrics. For the
 thermal measurements estimated using the drone to be truly
 representative of what the organism is experiencing, they must be
 corrected such that they instead describe operative temperatures.</p>
+</div>
+<div class="section level2">
+<h2 id="the-correct_flights_data-function">The <code>correct_flights_data</code> function<a class="anchor" aria-label="anchor" href="#the-correct_flights_data-function"></a>
+</h2>
 <p>To transform temperature measurements obtained using a drone-mounted
 IR camera into operative temperature measurements, the
-<code>throne</code> R package performs a double correction:</p>
+<code>throne</code> R package includes the
+<code>correct_flights_data</code> function. This function will perform a
+double correction on data collected via flights:</p>
 <ol style="list-style-type: decimal">
 <li><p>It corrects for date and time of the day to account for the
 differences in light conditions across seasons and throughout a
@@ -130,58 +138,11 @@ day.</p></li>
 the differences in temperature measurements caused by the inherent
 biases associated with an IR measurement.</p></li>
 </ol>
-<p>Next, we will introduce how this corrections are implemented using
-via 3 functions within the <code>R</code> package.
-(<code>gen_correction_data</code>, <code>get_correction_factors</code>
-and <code>apply_correction</code>). We will start by presenting how to
-build data to inform the correction, how to estimate the factors that
-will guide the correction and lastly how the correction will be
-implemented into a flight data set. Below is an image of what is covered
-in this vignette within the overall context of the <code>throne</code>
-package workflow.</p>
-</div>
-<div class="section level2">
-<h2 id="building-a-correction-data-frame">Building a correction data frame<a class="anchor" aria-label="anchor" href="#building-a-correction-data-frame"></a>
-</h2>
-<p>The first step is to construct a data frame (or <code>tibble</code>)
-from which the how the flight data needs to be corrected.To perform this
-correction we will use the <code>gen_corr_data</code> function, which
-will take in as arguments:</p>
+<p>To perform such correction, the function will take 2 outputs:</p>
 <ol style="list-style-type: decimal">
-<li><p><code>flight</code>: A flight <code>tibble</code> with metadata
-generated using the functions <code>rnp_flight_data</code> and
-<code>add_flight_metadata</code>. It is <strong>essential that the
-metadata of the flight includes the date when the flight happened (as a
-DOY or Julian date) and the minute of the day when the flight started
-and when the flight ended</strong>.</p></li>
-<li><p><code>splines</code>: A complex <code>tibble</code> of OTM spline
-models obtained using the <code>gen_otm_splines</code> function. It is
-also essential that each OTM spline model contains information on the
-date and on the latitude and longitude of the OTM itself.</p></li>
+<li>A <code>flights_data</code> <code>tibble</code> obtained through the
+<code>rnp_flights_data</code> function.</li>
 </ol>
-<p>The <code>gen_corr_data</code> function will then:</p>
-<ol style="list-style-type: decimal">
-<li><p>Select the tiles of the flight data (i.e., latitude and longitude
-combinations) that had an OTM.</p></li>
-<li><p>Filter among all available OTM splines for the ones that occurred
-in the same date as the flight of interest.</p></li>
-<li><p>Using the spline models estimate the average temperature
-estimated by the OTM for the period between the start and the end of the
-flight.</p></li>
-<li><p>Merge the predictions made using the spline models with the
-filtered data from the flight to finally return a <code>tibble</code>
-with matched observations like the one below:</p></li>
-</ol>
-</div>
-<div class="section level2">
-<h2 id="getting-correction-factors">Getting correction factors<a class="anchor" aria-label="anchor" href="#getting-correction-factors"></a>
-</h2>
-<p>By running a simple linear regression, we can see that IR and
-operative temperatures are positively correlated</p>
-</div>
-<div class="section level2">
-<h2 id="applying-corrections">Applying corrections<a class="anchor" aria-label="anchor" href="#applying-corrections"></a>
-</h2>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
