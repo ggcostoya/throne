@@ -16,9 +16,9 @@ devtools::load_all()
 
 In this vignette, our aim is to illustrate how to correct temperature data obtained using thermal photogrammetry. By correcting, we are referring to the process of transforming the temperature measurements made via the IR cameras mounted into the drone into **operative temperatures** as measured using an **operative temperature model** (OTM). Below we highlight the section of the package's workflow that is covered in this vignette:
 
-```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
+{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
 knitr::include_graphics("C:/Users/ggarc/OneDrive/research/throne/vignettes/workflow_correcting_flights_data.png")
-```
+
 
 The need from this correction stems from the fundamental difference between temperature estimates made using an IR camera and those made by making physical contact with an object. This is because the IR camera measurement is influenced by a wide range of factors including the object's emissivity, the conditions in which the image is taken (ambient temperature, amount of light etc. see [Playà-Montmany & Tattersall 2021](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13563) for further details).
 
