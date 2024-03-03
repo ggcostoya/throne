@@ -108,8 +108,7 @@ describes the thermal dynamics of each unique OTM each day. These spline
 models will later be used to both correct the flight data and to
 ultimately predict thermal landscapes. Below, we highlight the section
 of the package’s workflow that is covered in this vignette:</p>
-<p>{r, echo=FALSE, out.width = ‘80%’, fig.align = ‘center’}
-knitr::include_graphics(“C:/Users/ggarc/OneDrive/research/throne/vignettes/workflow_rnp_otms_data_gen_otm_splines.png”)</p>
+<p><img src="images/workflow_rnp_otms_data_gen_otm_splines.png" width="80%" style="display: block; margin: auto;"></p>
 <p>Next, we will</p>
 </div>
 <div class="section level2">
@@ -310,7 +309,7 @@ determine the “wiggliness” of the resulting model, in other words, the
 number of times the resulting curve will change direction. As an
 example, below we plot different spline models for the same data using
 different <code>knot_p</code> parameter specifications.</p>
-<p><img src="rnp_otms_data_gen_otm_splines_files/figure-html/unnamed-chunk-6-1.png" width="576" style="display: block; margin: auto;"></p>
+<p><img src="rnp_otms_data_gen_otm_splines_files/figure-html/unnamed-chunk-7-1.png" width="576" style="display: block; margin: auto;"></p>
 <p>The decision on which <code>knot_p</code> value to use is dependent
 on two things. First is the <strong>frequency at which the OTM itself is
 recording</strong>. We can extrapolate how many knots/day (or knots/h)

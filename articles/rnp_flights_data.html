@@ -102,8 +102,7 @@ a flight into a data structure easily manageable in <code>R</code> (a <a href="h
 (<strong>OTM</strong>) data to finally predict thermal landscapes.
 Below, we highlight the section of the package’s workflow that is
 covered in this vignette:</p>
-<p>{r, echo=FALSE, out.width = ‘80%’, fig.align = ‘center’}
-knitr::include_graphics(“C:/Users/ggarc/OneDrive/research/throne/vignettes/workflow_rnp_flights_data.png”)</p>
+<p><img src="images/workflow_rnp_otms_data_gen_otm_splines.png" width="80%" style="display: block; margin: auto;"></p>
 <p>Next, we present how the <code>rnp_flights_data</code> function
 works, some notes on the choice of the parameter <code>digits</code> and
 a worked-through example on how to use the function.</p>
@@ -237,7 +236,7 @@ To illustrate this, below we plot 4 of the 34 fully processed flights
 (with <code>digits = 5</code>) over the same area we offer in the
 <code>throne</code> package as example data. Panel titles indicate the
 hour in which the flight took place</p>
-<p><img src="rnp_flights_data_files/figure-html/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="rnp_flights_data_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
 <h2 id="digits">Choosing the appropriate <code>digits</code>.<a class="anchor" aria-label="anchor" href="#digits"></a>
@@ -249,7 +248,7 @@ resolution of your final measurement as different latitude and longitude
 decimal digits correspond to different distances. As a generalization, 1
 degree of latitude can be approximated to 111.32 km, a relationship that
 can be extended to decimal digits as seen below.</p>
-<p><img src="rnp_flights_data_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;"></p>
+<p><img src="rnp_flights_data_files/figure-html/unnamed-chunk-5-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>In contrast, due to the curvature of the Earth the distance
 represented by a longitude degree is also dependent on latitude. You can
 find more information on how to transform degrees longitude into
@@ -265,12 +264,12 @@ by a longitudinal degree.</p>
 <span><span class="co">## <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
 <span><span class="co">## <span style="color: #555555;">Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span></span>
 <span><span class="co">## <span style="color: #555555;">generated.</span></span></span></code></pre>
-<p><img src="rnp_flights_data_files/figure-html/unnamed-chunk-5-1.png" width="768" style="display: block; margin: auto;"></p>
+<p><img src="rnp_flights_data_files/figure-html/unnamed-chunk-6-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>Based on the above, in the majority of cases, <strong>we recommend
 setting the argument <code>digits = 5</code></strong>. This will provide
 a spatial resolution of ~ 1.2 <span class="math inline">\(m^2\)</span>
 at the equator which will gradually descend to as little as ~ 0.5 <span class="math inline">\(m^2\)</span> at 66° Latitude as seen below.</p>
-<p><img src="rnp_flights_data_files/figure-html/unnamed-chunk-6-1.png" width="576" style="display: block; margin: auto;"></p>
+<p><img src="rnp_flights_data_files/figure-html/unnamed-chunk-7-1.png" width="576" style="display: block; margin: auto;"></p>
 <p>This spatial resolution guarantees that the original
 <code>.tif</code> file is processed at a scale that is relevant for the
 majority of study organisms for which this package is intended. However,

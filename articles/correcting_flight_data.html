@@ -99,8 +99,7 @@ made via the IR cameras mounted into the drone into <strong>operative
 temperatures</strong> as measured using an <strong>operative temperature
 model</strong> (OTM). Below we highlight the section of the package’s
 workflow that is covered in this vignette:</p>
-<p>{r, echo=FALSE, out.width = ‘80%’, fig.align = ‘center’}
-knitr::include_graphics(“C:/Users/ggarc/OneDrive/research/throne/vignettes/workflow_correcting_flights_data.png”)</p>
+<p><img src="images/workflow_rnp_otms_data_gen_otm_splines.png" width="80%" style="display: block; margin: auto;"></p>
 <p>The need from this correction stems from the fundamental difference
 between temperature estimates made using an IR camera and those made by
 making physical contact with an object. This is because the IR camera
@@ -219,7 +218,7 @@ temperature (<code>op_temp</code>) for that OTM on that tile is the
 average temperature for the duration of the flight.</p>
 </blockquote>
 <p>Using this data we can visualize the need for a correction:</p>
-<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-4-1.png" width="700" style="display: block; margin: auto;"></p>
+<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-5-1.png" width="700" style="display: block; margin: auto;"></p>
 <p>As shown above, there is a consistent bias between these two
 measurements, with IR temperatures being generally cooler than operative
 temperatures when both have high values and the opposite holding true
@@ -262,7 +261,7 @@ environmental temperature and the light conditions where variable. We
 can visualize how the bias between measurements (i.e.,
 <code>op_temp</code> - <code>ir_temp</code>) is different depending on
 the <code>mod</code>.</p>
-<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-6-1.png" width="700" style="display: block; margin: auto;"></p>
+<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-7-1.png" width="700" style="display: block; margin: auto;"></p>
 <p>Flights closer to the middle of the day (i.e., ~ 11:00 - 13:00 or
 <code>mod</code> 660 - 800) when light conditions are optimal tend to be
 less biased whereas flights earlier in the morning or the afternoon are
@@ -272,7 +271,7 @@ more affected by it. Based on this, the first correction will 1)
 that flight</strong>. Once this correction is implemented the
 relationship between <code>ir_temp</code> and <code>op_temp</code> looks
 like:</p>
-<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-8-1.png" width="700" style="display: block; margin: auto;"></p>
+<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-9-1.png" width="700" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">ir_temp_corr</span> <span class="op">~</span> <span class="va">op_temp</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## </span></span>
@@ -316,7 +315,7 @@ now at <code>3.76</code> and the slope at <code>0.9</code> much closer
 to the desired values of <code>0</code> and <code>1</code> respectively.
 This is also apparent when plotting this relationship with the line of
 best fit now being very close to the 1:1 line.</p>
-<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-11-1.png" width="700" style="display: block; margin: auto;"></p>
+<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-12-1.png" width="700" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">op_temp_corr</span> <span class="op">~</span> <span class="va">op_temp</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## </span></span>
@@ -344,11 +343,11 @@ landscape of IR temperatures (<em>Pre-correction</em>) or corrected IR
 temperatures now operative temperatures (<em>Post-correction</em>). The
 rows indicate the <code>mod</code> of the day when the flight took
 place:</p>
-<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-13-1.png" width="768" style="display: block; margin: auto;"></p>
+<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-14-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>The correction results in a slight shift, generally towards a warmer
 and wider temperature distributions higher mean temperature and more
 variance:</p>
-<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-14-1.png" width="700" style="display: block; margin: auto;"></p>
+<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-15-1.png" width="700" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
 <h2 id="a-worked-out-example">A worked out example<a class="anchor" aria-label="anchor" href="#a-worked-out-example"></a>
