@@ -37,8 +37,8 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-r-workflow">R Workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-r-workflow">
-    <a class="dropdown-item" href="../articles/rnp_flight_data_add_flight_metadata.html">Processing with flight data</a>
-    <a class="dropdown-item" href="../articles/rnp_otm_data_add_otm_metadata_gen_otm_splines.html">Processing OTM data</a>
+    <a class="dropdown-item" href="../articles/rnp_flights_data.html">Reading and processing flight data</a>
+    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Reading and processing OTM data</a>
     <a class="dropdown-item" href="../articles/correcting_flight_data.html">Correcting flight data</a>
     <a class="dropdown-item" href="../articles/predicting_thermal_landscapes.html">Predicting thermal landscapes</a>
   </div>
@@ -73,20 +73,50 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>otm_data</dt>
-<dd><p>An OTM data frame that can (and should) include metadata</p></dd>
+<dd><p>An OTM data `tibble` obtained via the function `rnp_otms_data`.
+It must include columns describing the OTM id (`otm_id`), the day of the
+year (`doy`), the minute of the day (`mod`) in which each operative temperature
+measurement (`op_temp`) was made. The function can run without `latitude` and
+`longitude` columns, but including them is necessary for the `correct_flight_data`,
+`match_data` and `predict_thermal_landscape` functions.</p></dd>
 
 
 <dt>knot_p</dt>
-<dd><p>The number of knots the spline should have taken as a percentage of all observations made in a given day.</p></dd>
+<dd><p>The number of knots the spline model should have to describe the
+temperature dynamics of the OTM for a given day taken as a percentage of
+the total number of operative measurements in a given day.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>An OTM splines complex tibble with otm_id, date, metadata and a nested spline model objects column.</p>
+<p>A complex `tibble` with columns for `otm_id`, `year`, `doy` and `spline`.
+   The spline column is nested and contains a OTM, year and DOY `smooth.spline` model
+   with the specified number of knots.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># filter data for a specific OTM in a given doy</span></span></span>
+<span class="r-in"><span><span class="va">otm</span> <span class="op">&lt;-</span> <span class="va">otms_data</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">otm_id</span> <span class="op">==</span> <span class="st">"OTM12"</span>, <span class="va">doy</span> <span class="op">==</span> <span class="fl">237</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># generate the spline model</span></span></span>
+<span class="r-in"><span><span class="va">otm_spline</span> <span class="op">&lt;-</span> <span class="fu">gen_otm_splines</span><span class="op">(</span>otm_data <span class="op">=</span> <span class="va">otm</span>, knot_p <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">7.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># obtain a prediction</span></span></span>
+<span class="r-in"><span><span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>mod <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1440</span>,by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, op_temp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">otm_spline</span><span class="op">$</span><span class="va">spline</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1440</span>,by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># plotting</span></span></span>
+<span class="r-in"><span><span class="fu">ggplot</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>  <span class="fu">geom_point</span><span class="op">(</span>data <span class="op">=</span> <span class="va">otm</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">mod</span>, y <span class="op">=</span> <span class="va">op_temp</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">4</span>, alpha <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>  <span class="fu">geom_line</span><span class="op">(</span>data <span class="op">=</span> <span class="va">pred</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">mod</span>, y <span class="op">=</span> <span class="va">op_temp</span><span class="op">)</span>, linewidth <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span> <span class="op">+</span></span></span>
+<span class="r-in"><span>  <span class="fu">xlab</span><span class="op">(</span><span class="st">"Minute of the day (MOD)"</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ylab</span><span class="op">(</span><span class="st">"Operative Temperature (C)"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="gen_otm_splines-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 

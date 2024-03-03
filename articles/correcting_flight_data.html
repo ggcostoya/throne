@@ -54,8 +54,8 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-r-workflow">R Workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-r-workflow">
-    <a class="dropdown-item" href="../articles/rnp_flight_data_add_flight_metadata.html">Processing with flight data</a>
-    <a class="dropdown-item" href="../articles/rnp_otm_data_add_otm_metadata_gen_otm_splines.html">Processing OTM data</a>
+    <a class="dropdown-item" href="../articles/rnp_flights_data.html">Reading and processing flight data</a>
+    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Reading and processing OTM data</a>
     <a class="dropdown-item" href="../articles/correcting_flight_data.html">Correcting flight data</a>
     <a class="dropdown-item" href="../articles/predicting_thermal_landscapes.html">Predicting thermal landscapes</a>
   </div>
@@ -92,43 +92,277 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>In this vignette, our aim is to illustrate how to correct spatial
-temperature data obtained using thermal photogrammetry. By correcting,
-we are referring to the process of transforming the temperature
-measurements made via the IR cameras mounted into the drone into
-<strong>operative temperatures</strong> as measured via an operative
-temperature model (OTM).</p>
-<p>The need from this correction stems from the fact that the
-measurement of an IR camera is depending on the object’s emissivity
-(<span class="math inline">\(\epsilon\)</span>), or its ability to emit
-infrared radiation. Emissivity ranges between <span class="math inline">\(\epsilon = 0\)</span> (completely non-emitting) to
-<span class="math inline">\(\epsilon = 1\)</span> (completely emitting).
-For instance, if an objects actual internal temperature was 50 °C, if
-its <span class="math inline">\(\epsilon = 1\)</span> (i.e., if it is a
-theoretical object known as a <a href="https://en.wikipedia.org/wiki/Black_body" class="external-link">black body</a>), an IR
-measurement would read exactly 50 °C. In contrast, if that object’s
-<span class="math inline">\(\epsilon = 0\)</span>, the IR reading would
-be 0 °C</p>
-<p>If we apply this framework to organisms, in all cases <span class="math inline">\(\epsilon &lt; 1\)</span> which makes estimates of
-their body temperature via IR photogrammetry inherently biased. Further,
-the size of the organism also generates a thermal gradient between its
-interior and surface. While this gradient can be neglected in small
-organisms like insects, it further contributes to the decoupling between
-body temperature estimates using IR photogrammetry and the actual body
-temperature of the organism.</p>
+<p>In this vignette, our aim is to illustrate how to correct temperature
+data obtained using thermal photogrammetry. By correcting, we are
+referring to the process of transforming the temperature measurements
+made via the IR cameras mounted into the drone into <strong>operative
+temperatures</strong> as measured using an <strong>operative temperature
+model</strong> (OTM). Below we highlight the section of the package’s
+workflow that is covered in this vignette:</p>
+<p>{r, echo=FALSE, out.width = ‘80%’, fig.align = ‘center’}
+knitr::include_graphics(“C:/Users/ggarc/OneDrive/research/throne/vignettes/workflow_correcting_flights_data.png”)</p>
+<p>The need from this correction stems from the fundamental difference
+between temperature estimates made using an IR camera and those made by
+making physical contact with an object. This is because the IR camera
+measurement is influenced by a wide range of factors including the
+object’s emissivity, the conditions in which the image is taken (ambient
+temperature, amount of light etc. see <a href="https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13563" class="external-link">Playà-Montmany
+&amp; Tattersall 2021</a> for further details).</p>
 <p>In contrast, OTMs are designed to record temperature measurements
 that match the internal body temperature of the organism as closely as
 possible. This is achieved by enclosing a temperature logger (e.g., an
-Eye Button) inside of a structure with similar emissivity and size (to
-ultimately achieve a similar internal thermal gradient) to the organism
-of interest.</p>
+iButton) inside of a structure of a similar size and with similar
+surface properties to the the organism of interest. This methodology has
+been used extensively in the field of thermal ecology and recent
+advances have minimized the costs of production and maximized the
+accuracy of OTMs (see our past work in <a href="https://www.sciencedirect.com/science/article/pii/S0306456523003030%5D" class="external-link">Alujević
+et al. 2024</a>).</p>
 <p>Due to the above, the IR camera of the drone and the OTM will
 ultimately record fundamentally different temperature metrics. For the
 thermal measurements estimated using the drone to be truly
 representative of what the organism is experiencing, they must be
 corrected such that they instead describe operative temperatures.</p>
 </div>
-  </main>
+<div class="section level2">
+<h2 id="the-correct_flights_data-function">The <code>correct_flights_data</code> function<a class="anchor" aria-label="anchor" href="#the-correct_flights_data-function"></a>
+</h2>
+<p>To transform temperature measurements obtained using a drone-mounted
+IR camera into operative temperature measurements, the
+<code>throne</code> package includes the
+<code>correct_flights_data</code> function. This function will perform a
+double correction on data obtained through a flight by correcting for 1)
+differences in light conditions across multiple flights and 2) the
+inherent difference in physical properties between IR and operative
+temperature measurements.To perform such correction, the function will
+take 2 inputs:</p>
+<ol style="list-style-type: decimal">
+<li>A <code>flights_data</code> <code>tibble</code> obtained through the
+<code>rnp_flights_data</code> function like the one below:</li>
+</ol>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">flights_data</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 263,008 × 7</span></span></span>
+<span><span class="co">##    longitude latitude ir_temp  year   doy mod_start mod_end</span></span>
+<span><span class="co">##        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>     -<span style="color: #BB0000;">120.</span>     39.9    12.5  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>     -<span style="color: #BB0000;">120.</span>     39.9    14.4  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>     -<span style="color: #BB0000;">120.</span>     39.9    14.0  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>     -<span style="color: #BB0000;">120.</span>     39.9    13.7  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>     -<span style="color: #BB0000;">120.</span>     39.9    14.6  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>     -<span style="color: #BB0000;">120.</span>     39.9    15.3  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>     -<span style="color: #BB0000;">120.</span>     39.9    14.5  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>     -<span style="color: #BB0000;">120.</span>     39.9    14.5  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>     -<span style="color: #BB0000;">120.</span>     39.9    13.9  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span>     -<span style="color: #BB0000;">120.</span>     39.9    13.9  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 262,998 more rows</span></span></span></code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>An <code>otm_splines</code> complex <code>tibble</code> obtained
+through the <code>generate_otm_splines</code> function like the one seen
+below:</li>
+</ol>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">otms_splines</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 132 × 9</span></span></span>
+<span><span class="co">##    otm_id  year   doy microhabitat orientation latitude longitude elevation</span></span>
+<span><span class="co">##    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span> OTM01   <span style="text-decoration: underline;">2</span>023   236 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span> OTM01   <span style="text-decoration: underline;">2</span>023   237 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span> OTM01   <span style="text-decoration: underline;">2</span>023   238 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span> OTM01   <span style="text-decoration: underline;">2</span>023   239 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span> OTM02   <span style="text-decoration: underline;">2</span>023   236 outcrop      W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span> OTM02   <span style="text-decoration: underline;">2</span>023   237 outcrop      W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span> OTM02   <span style="text-decoration: underline;">2</span>023   238 outcrop      W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span> OTM02   <span style="text-decoration: underline;">2</span>023   239 outcrop      W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span> OTM03   <span style="text-decoration: underline;">2</span>023   236 rock         W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>317.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span> OTM03   <span style="text-decoration: underline;">2</span>023   237 rock         W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>317.</span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 122 more rows</span></span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 1 more variable: spline &lt;list&gt;</span></span></span></code></pre>
+<p>Both data sets contain <code>latitude</code> and
+<code>longitude</code> information. This is a crucial step for the
+correction process, as the first task will be to filter the
+<code>flights_data</code> to contain only tiles (i.e., unique
+<code>latitude</code> and <code>longitude</code> combinations) where
+OTMs were actually deployed.</p>
+<p>Once these tiles are filtered, we will then use the spline models to
+estimate the temperature of each OTM at the exact <code>year</code>, day
+of the year (<code>doy</code>) and minute of the day (<code>mod</code>)
+at which each of the flights took place. The result will be a
+<code>tibble</code> where each unique <code>latitude</code> &amp;
+<code>longitude</code> in each unique <code>year</code>,
+<code>doy</code> and <code>mod</code> has an IR temperature measurement
+(<code>ir_temp</code>, from the drone) associated with an operative
+temperature measurement (<code>op_temp</code>, from the OTM) as seen
+below:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">correction_data</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 1,114 × 8</span></span></span>
+<span><span class="co">##    latitude longitude  year   doy mod_start mod_end ir_temp op_temp</span></span>
+<span><span class="co">##       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    25.4    30.0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    20.5    26.8</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    27.8    30.3</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    21.3    28.3</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    28.0    33.8</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    20.4    19.7</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    19.1    21.3</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    22.9    28.5</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    22.1    28.2</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    19.9    30.5</span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 1,104 more rows</span></span></span></code></pre>
+<blockquote>
+<p>The <code>tibble</code> above contains the <code>mod_start</code> and
+<code>mod_end</code> columns. These are the <code>mod</code> when the
+flight started and when the flight ended. In the example data, all
+flights were relatively fast (~ 4 minutes) but to cover larger areas
+flights are going to be longer. In that case, the predicted operative
+temperature (<code>op_temp</code>) for that OTM on that tile is the
+average temperature for the duration of the flight.</p>
+</blockquote>
+<p>Using this data we can visualize the need for a correction:</p>
+<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-4-1.png" width="700" style="display: block; margin: auto;"></p>
+<p>As shown above, there is a consistent bias between these two
+measurements, with IR temperatures being generally cooler than operative
+temperatures when both have high values and the opposite holding true
+when both have low values. Note that the line of best linear fit is
+substantially different from the gray line that indicates the ideal 1:1
+relationship. This can be easily appreciated when running a simple
+linear regression between <code>ir_temp</code> and
+<code>op_temp</code>.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">ir_temp</span> <span class="op">~</span> <span class="va">op_temp</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## Call:</span></span>
+<span><span class="co">## lm(formula = ir_temp ~ op_temp, data = correction_data)</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Residuals:</span></span>
+<span><span class="co">##      Min       1Q   Median       3Q      Max </span></span>
+<span><span class="co">## -17.3750  -2.5640   0.0021   2.7808  17.1201 </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Coefficients:</span></span>
+<span><span class="co">##             Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span><span class="co">## (Intercept)   6.2269     0.6906   9.017   &lt;2e-16 ***</span></span>
+<span><span class="co">## op_temp       0.7492     0.0174  43.052   &lt;2e-16 ***</span></span>
+<span><span class="co">## ---</span></span>
+<span><span class="co">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Residual standard error: 4.184 on 1112 degrees of freedom</span></span>
+<span><span class="co">## Multiple R-squared:  0.625,  Adjusted R-squared:  0.6247 </span></span>
+<span><span class="co">## F-statistic:  1853 on 1 and 1112 DF,  p-value: &lt; 2.2e-16</span></span></code></pre>
+<p>The <code>(Intercept)</code> and the slope (i.e., the
+<code>Estimate</code> of <code>op_temp</code> above) are
+<code>6.23</code> and <code>0.75</code> when, ideally, we would want
+them to be at <code>0</code> and <code>1</code> respectively. Further
+the <span class="math inline">\(R^2\)</span> (<code>R-squared</code> in
+the model’s output) of this relationship is <code>0.625</code>, for an
+improved match between these two measurements we would also want <span class="math inline">\(R^2\)</span> to be closer to <code>1</code>.</p>
+<p>It is in this step when we implement the first correction, that has
+to do with the date and time of each flight. Because flights took place
+at different days and in different <code>mod</code> both the
+environmental temperature and the light conditions where variable. We
+can visualize how the bias between measurements (i.e.,
+<code>op_temp</code> - <code>ir_temp</code>) is different depending on
+the <code>mod</code>.</p>
+<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-6-1.png" width="700" style="display: block; margin: auto;"></p>
+<p>Flights closer to the middle of the day (i.e., ~ 11:00 - 13:00 or
+<code>mod</code> 660 - 800) when light conditions are optimal tend to be
+less biased whereas flights earlier in the morning or the afternoon are
+more affected by it. Based on this, the first correction will 1)
+<strong>caculate the average bias for each flight</strong> and 2)
+<strong>subtract that bias to all <code>ir_temp</code> measurements of
+that flight</strong>. Once this correction is implemented the
+relationship between <code>ir_temp</code> and <code>op_temp</code> looks
+like:</p>
+<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-8-1.png" width="700" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">ir_temp_corr</span> <span class="op">~</span> <span class="va">op_temp</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## Call:</span></span>
+<span><span class="co">## lm(formula = ir_temp_corr ~ op_temp, data = correction_data)</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Residuals:</span></span>
+<span><span class="co">##      Min       1Q   Median       3Q      Max </span></span>
+<span><span class="co">## -15.3410  -2.3108  -0.0795   2.0655  18.2656 </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Coefficients:</span></span>
+<span><span class="co">##             Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span><span class="co">## (Intercept) 12.11754    0.56523   21.44   &lt;2e-16 ***</span></span>
+<span><span class="co">## op_temp      0.68946    0.01424   48.40   &lt;2e-16 ***</span></span>
+<span><span class="co">## ---</span></span>
+<span><span class="co">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Residual standard error: 3.424 on 1112 degrees of freedom</span></span>
+<span><span class="co">## Multiple R-squared:  0.6781, Adjusted R-squared:  0.6778 </span></span>
+<span><span class="co">## F-statistic:  2343 on 1 and 1112 DF,  p-value: &lt; 2.2e-16</span></span></code></pre>
+<p>Although the model’s <code>Intercept</code> and slope have worsened
+(from <code>6.22</code> to <code>12.11</code> and from <code>0.74</code>
+to <code>0.69</code>) the <span class="math inline">\(R^2\)</span> of
+the model has improved (from <code>0.625</code> to <code>0.678</code>)
+as can be appreciated by the reduced amount of error around the line of
+best fit.</p>
+<p>From here, we will apply the second correction by correcting for the
+temperature value itself. We do this by using the estimates of the
+linear regression above to correct our IR temperature measurements
+(already corrected by <code>year</code>, <code>doy</code> and
+<code>mod</code>, as indicated by the *) into operative measurements
+following the formula:</p>
+<p><span class="math display">\[Operative\;Temperature = - Intercept +
+(2 - Slope)\cdot IR\; Temperature^*\]</span> If we implement the
+formula</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># estimate op_temp after correction</span></span>
+<span><span class="va">correction_data</span><span class="op">$</span><span class="va">op_temp_corr</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">12.11754</span> <span class="op">+</span> <span class="op">(</span><span class="fl">2</span> <span class="op">-</span> <span class="fl">0.68946</span><span class="op">)</span><span class="op">*</span><span class="va">correction_data</span><span class="op">$</span><span class="va">ir_temp_corr</span></span></code></pre></div>
+<p>We can see that the <code>Intercept</code> of this relationship is
+now at <code>3.76</code> and the slope at <code>0.9</code> much closer
+to the desired values of <code>0</code> and <code>1</code> respectively.
+This is also apparent when plotting this relationship with the line of
+best fit now being very close to the 1:1 line.</p>
+<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-11-1.png" width="700" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">op_temp_corr</span> <span class="op">~</span> <span class="va">op_temp</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## </span></span>
+<span><span class="co">## Call:</span></span>
+<span><span class="co">## lm(formula = op_temp_corr ~ op_temp, data = correction_data)</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Residuals:</span></span>
+<span><span class="co">##      Min       1Q   Median       3Q      Max </span></span>
+<span><span class="co">## -20.1051  -3.0285  -0.1041   2.7070  23.9378 </span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Coefficients:</span></span>
+<span><span class="co">##             Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span><span class="co">## (Intercept)  3.76298    0.74075    5.08 4.43e-07 ***</span></span>
+<span><span class="co">## op_temp      0.90356    0.01867   48.40  &lt; 2e-16 ***</span></span>
+<span><span class="co">## ---</span></span>
+<span><span class="co">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">## </span></span>
+<span><span class="co">## Residual standard error: 4.488 on 1112 degrees of freedom</span></span>
+<span><span class="co">## Multiple R-squared:  0.6781, Adjusted R-squared:  0.6778 </span></span>
+<span><span class="co">## F-statistic:  2343 on 1 and 1112 DF,  p-value: &lt; 2.2e-16</span></span></code></pre>
+<p>Below is an example of the effects of the correction across some of
+the flights provided as example data sets in the <code>throne</code>
+package. The columns across panels indicate if the plot shows a thermal
+landscape of IR temperatures (<em>Pre-correction</em>) or corrected IR
+temperatures now operative temperatures (<em>Post-correction</em>). The
+rows indicate the <code>mod</code> of the day when the flight took
+place:</p>
+<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-13-1.png" width="768" style="display: block; margin: auto;"></p>
+<p>The correction results in a slight shift, generally towards a warmer
+and wider temperature distributions higher mean temperature and more
+variance:</p>
+<p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-14-1.png" width="700" style="display: block; margin: auto;"></p>
+</div>
+<div class="section level2">
+<h2 id="a-worked-out-example">A worked out example<a class="anchor" aria-label="anchor" href="#a-worked-out-example"></a>
+</h2>
+<p>Implementing the <code>correct_flights_data</code> function is
+straightforward. Say that the user has a flights <code>tibble</code>
+called <code>flights_datax</code> and an OTM splines complex
+<code>tibble</code> called <code>otm_splinesx</code>, to correct their
+flights data the user would simply need to run the following code.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">corrected_flights_datax</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/correct_flights_data.html">correct_flights_data</a></span><span class="op">(</span>flights_data <span class="op">=</span> <span class="va">flights_datax</span>, otm_splines <span class="op">=</span> <span class="va">otm_splinesx</span><span class="op">)</span></span></code></pre></div>
+</div>
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

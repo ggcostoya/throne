@@ -22,10 +22,10 @@
     <loc>https://ggcostoya.github.io/throne/articles/predicting_thermal_landscapes.html</loc>
   </url>
   <url>
-    <loc>https://ggcostoya.github.io/throne/articles/rnp_flight_data_add_flight_metadata.html</loc>
+    <loc>https://ggcostoya.github.io/throne/articles/rnp_flights_data.html</loc>
   </url>
   <url>
-    <loc>https://ggcostoya.github.io/throne/articles/rnp_otm_data_add_otm_metadata_gen_otm_splines.html</loc>
+    <loc>https://ggcostoya.github.io/throne/articles/rnp_otms_data_gen_otm_splines.html</loc>
   </url>
   <url>
     <loc>https://ggcostoya.github.io/throne/authors.html</loc>
@@ -34,22 +34,10 @@
     <loc>https://ggcostoya.github.io/throne/index.html</loc>
   </url>
   <url>
-    <loc>https://ggcostoya.github.io/throne/reference/add_flight_metadata.html</loc>
-  </url>
-  <url>
-    <loc>https://ggcostoya.github.io/throne/reference/add_otm_metadata.html</loc>
-  </url>
-  <url>
-    <loc>https://ggcostoya.github.io/throne/reference/apply_correction.html</loc>
-  </url>
-  <url>
-    <loc>https://ggcostoya.github.io/throne/reference/gen_corr_data.html</loc>
+    <loc>https://ggcostoya.github.io/throne/reference/correct_flights_data.html</loc>
   </url>
   <url>
     <loc>https://ggcostoya.github.io/throne/reference/gen_otm_splines.html</loc>
-  </url>
-  <url>
-    <loc>https://ggcostoya.github.io/throne/reference/get_correction_factors.html</loc>
   </url>
   <url>
     <loc>https://ggcostoya.github.io/throne/reference/index.html</loc>
@@ -61,9 +49,9 @@
     <loc>https://ggcostoya.github.io/throne/reference/predict_thermal_landscape.html</loc>
   </url>
   <url>
-    <loc>https://ggcostoya.github.io/throne/reference/rnp_flight_data.html</loc>
+    <loc>https://ggcostoya.github.io/throne/reference/rnp_flights_data.html</loc>
   </url>
   <url>
-    <loc>https://ggcostoya.github.io/throne/reference/rnp_otm_data.html</loc>
+    <loc>https://ggcostoya.github.io/throne/reference/rnp_otms_data.html</loc>
   </url>
 </urlset>

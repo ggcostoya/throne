@@ -37,8 +37,8 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-r-workflow">R Workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-r-workflow">
-    <a class="dropdown-item" href="../articles/rnp_flight_data_add_flight_metadata.html">Processing with flight data</a>
-    <a class="dropdown-item" href="../articles/rnp_otm_data_add_otm_metadata_gen_otm_splines.html">Processing OTM data</a>
+    <a class="dropdown-item" href="../articles/rnp_flights_data.html">Reading and processing flight data</a>
+    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Reading and processing OTM data</a>
     <a class="dropdown-item" href="../articles/correcting_flight_data.html">Correcting flight data</a>
     <a class="dropdown-item" href="../articles/predicting_thermal_landscapes.html">Predicting thermal landscapes</a>
   </div>
@@ -67,32 +67,40 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">predict_thermal_landscape</span><span class="op">(</span><span class="va">matches</span>, <span class="va">otm_splines</span>, <span class="va">date</span>, <span class="va">minute</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">predict_thermal_landscape</span><span class="op">(</span><span class="va">matches</span>, <span class="va">otm_splines</span>, <span class="va">doy</span>, <span class="va">mod</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>matches</dt>
-<dd><p>x</p></dd>
+<dd><p>A matches `tibble` obtained using the `match_data` function.</p></dd>
 
 
 <dt>otm_splines</dt>
-<dd><p>x</p></dd>
+<dd><p>A complex `tibble` obtained using the `gen_otm_splines` function.</p></dd>
 
 
-<dt>date</dt>
-<dd><p>x</p></dd>
+<dt>doy</dt>
+<dd><p>An integer or vector of integers indicating the day(s) of the year
+(DOY) for which the thermal landscape should be predicted. All elements within
+`doy` must be within the range between when the OTMs started and finished
+recording operative temperatures.</p></dd>
 
 
-<dt>minute</dt>
-<dd><p>x</p></dd>
+<dt>mod</dt>
+<dd><p>An integer of vector of integers indicating the minute(s) of the
+day (MOD) for which the thermal landscape should be predicted. All elements
+within `mod` must fall within the 0 to 1440 range. If `mod` includes
+values when the OTMs were not recording it will return `NA` and provide a
+diagnostics message</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>x</p>
+<p>A `tibble` with a predicted thermal landscape with `longitude`, `latitude`,
+   `doy`, `mod` and predicted operative temperature columns (`pred_op_temp`).</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
