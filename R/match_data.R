@@ -4,7 +4,7 @@
 #'
 #' Matches thermal dynamics of specific tiles (i.e., specific latitude and longitudes)
 #' collected across multiple flights to the thermal dynamics of an operative
-#' temperature model (OTM)
+#' temperature model (OTM).
 #'
 #' @param flights_data A `tibble` of flights data obtained through the `rnp_flights_data`
 #'    and corrected using the the `correct_flights_data` function. The temperature
@@ -15,13 +15,13 @@
 #'    Coverage is calculated as the number of times temperature was measured in a given tile
 #'    divided by the total number of flights. Values >= 0.9 are recommended.
 #'    The function will provide a warning of the number of tiles for which
-#'    coverage < `coverage_per` is > 50%.
+#'    coverage is > 0.5.
 #' @param error_max The maximum average absolute error between temperature measurements
 #'    of a tile and an OTM that makes a match between a tile and OTM valid.
 #'    Error is calculated as the average absolute value between the OTM prediction
 #'    and the temperature measurements of the tile.
 #'
-#' @return A `matches` `tibble` with columns for `latitude`, `longitude`, the `otm_id`
+#' @return A matches `tibble` with columns for `latitude`, `longitude`, the `otm_id`
 #'    that best describes the thermal dynamics of that tile and the average absolute
 #'    `error` between tile measurements and OTM predictions. Columns where `is.na(otm_id)`
 #'    indicate tiles where `error` was not `< error_max` for any of the OTMs provided.

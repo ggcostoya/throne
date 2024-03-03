@@ -18,6 +18,5 @@ Depends:
   proj4,
   gridExtra,
   viridis,
-  devtools,
-  bookdown
+  devtools
 URL: https://ggcostoya.github.io/throne/
