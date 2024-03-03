@@ -17,9 +17,9 @@ devtools::load_all()
 
 The goal of this vignette is to illustrate the process behind the `rnp_otms_data` (**r**ead a**n**d **p**rocess OTMs data) and `gen_otm_splines` (**gen**erate **OTM** **spline** model**s**) function of the `throne` package. The first function allows the user to read one or multiple raw `.csv` with temperature measurements recorded by an iButton logger inside (or not) of an **operative temperature model** (**OTM**) to a data structure easily manageable in `R` (a [`tibble`](https://tibble.tidyverse.org/)). The second function takes this processed OTM data and generates an OTM & day of year (`doy`) specific cubic spline model that describes the thermal dynamics of each unique OTM each day. These spline models will later be used to both correct the flight data and to ultimately predict thermal landscapes. Below, we highlight the section of the package's workflow that is covered in this vignette:
 
-{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
-knitr::include_graphics("C:/Users/ggarc/OneDrive/research/throne/vignettes/workflow_rnp_otms_data_gen_otm_splines.png")
-
+```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
+knitr::include_graphics("images/workflow_rnp_otms_data_gen_otm_splines.png")
+```
 
 Next, we will
 
