@@ -11,3 +11,186 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 devtools::load_all()
 ```
+
+# Overview
+
+In this vignette, our goal is to illustrate the process behind the final step in the workflow of the `throne` package, the prediction of spatio-temporally complete thermal landscapes. To achieve this, `throne` uses two functions: `match_data` and `predict_thermal_landscpe`. The first allows the user to match the thermal dynamics of a given tile within their site (i.e., a unique `latitude` and `longitude`) as measured across multiple flights with those of an **operative temperature model** (**OTM**). The second, uses this matches data set and combines it with information from date & OTM specific cubic spline models (obtained using the `gen_otm_splines`) function in this package to predict the temperature of each tile on the site at any moment in time while the OTMs were deployed in the field. In the context of the overall workflow of the package, this is the section that is covered in this vignette: 
+
+```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
+knitr::include_graphics("images/workflow_predicting_thermal_landscapes.png")
+```
+
+Finally, we also provide some information on the predictive accuracy of this method which, as we present in the accompanying manuscript, is very high. 
+
+# The `match_data` function
+
+## Inputs
+
+The `match_data` function matches the thermal dynamics of specific tiles (i.e., unique `latitude` and `longitude` combinations) collected across multiple flights to the thermal dynamics of an operative temperature model (OTM). To do so, the function takes in the following inputs inherited from previous functions : 
+
+1. A `flights_data` `tibble` obtained using the `rnp_flights_data`. We **strongly** recommend that this `tibble` undergoes correction using the `correct_flights_data` function in order to ensure that the both the `flights_data` `tibble` and the OTMs are on an operative temperature scale. However, the function will allow the user to use an uncorrected `flights_data` `tibble` if they so choose. 
+2. An `otm_splines` complex `tibble` obtained using the `gen_otm_splines` function. 
+
+Additionally, the `match_data` also requires `2` user specified inputs: 
+
+1. `coverage_per`, a numeric value between 0 - 1 indicating the minimum coverage that a tile should have across all flights provided in order t be included in the matching. The need for this input can be easily visualized by overlapping the area covered by multiple flights in the provided example `flights_data` (see image below). Due to the unique conditions during each of the `34` flights we conducted to perform this study (e.g., wind etc.), the area covered be each flights was variable specially when focusing around the edges. Nonetheless, we foresaw this effect which is why **we ensured that the area covered by each flight would be much larger than the area of interest for our study**, a precaution we recommend all users of this package to follow. Our goal was that the area where we had OTMs would be covered by flights and, as seen above, all OTMs deployed on the ground (black dots) fell on areas that were covered by the vast majority of our flights. **As a general guideline, we recommend setting `coverage_per >= 0.9`**
+
+```{r, fig.align='center', echo = FALSE, message = FALSE}
+flights_data_corr %>% 
+  group_by(longitude, latitude) %>% 
+  summarise(times_covered = n()) %>% 
+  ggplot(aes(x = longitude, y = latitude)) +
+  geom_tile(aes(fill = 100 * times_covered/34)) +
+  geom_point(data = otms_splines, col = "black", size = 2) +
+  theme_minimal() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank()) +
+  guides(fill = guide_colorbar(title = "% of times covered"))
+  
+```
+
+2. `error_max`, the maximum error between temperature measurements of a tile and the OTM that best represents it, which we develop on more next. 
+
+To match tiles with OTMs that best describe their thermal dynamics, the `match_data` function goes through the following general steps: 
+
+1. It calculates the coverage across all flights for every single tile covered and selects only those tiles that have bee covered as much or more as the `coverage_per` argument specifies. 
+
+2. For each tile, calculate the average absolute error between the temperature measurements of that tile during each flight and the temperature measurements made by every OTMs at the exact same time each flight took place.
+
+3. Select the OTM that minimizes the error between the tile's and the OTMs measurements. In the figure below we illustrate the logic of this approach. The black dots indicate the temperature measurements associated with a given tile (note that these measurements are corrected using the `correct_flights_data` function) across all flights that occurred in the days of the year (`doy`) 236, 237 and 238. The red and blue lines indicate the temperatures predicted by the spline model of 2 OTMs for those same `doy`. In this case, the `match_data` function would choose `OTM25` to better represent the dynamics of that tile as the average different between each of the tile's temperature measurements and those estimated by the cubic spline model for that OTM is much smaller than that for `OTM05`. 
+
+```{r, echo = FALSE, fig.align = 'center', fig.width = 8}
+# filter 2 OTMs of interest
+fig_splines <- otms_splines %>% 
+  filter(otm_id %in% c("OTM05", "OTM25")) %>% 
+  filter(doy %in% c(236:238))
+# predict temperatures with OTMs
+otm_preds <- tibble(otm_id = c(), doy = c(), mod = c(), op_temp = c())
+for(i in 1:nrow(fig_splines)){
+  
+  if(fig_splines$doy[i] < 237){mods = c(400:1440)}else{mods = c(0:1440)}
+  op_temp_i <- predict(fig_splines$spline[[i]],mods)$y
+  otm_pred_i <- tibble(otm_id = fig_splines$otm_id[i],
+                       doy = fig_splines$doy[i],
+                       mod = mods, 
+                       op_temp = op_temp_i)
+  otm_preds <- rbind(otm_preds, otm_pred_i)
+
+}
+#plot
+flights_data_corr %>% 
+  filter(longitude == -119.62715) %>% filter(latitude == 39.86875) %>% 
+  ggplot() +
+  geom_point(aes(x = mod_start/60, op_temp), size = 2) +
+  geom_line(data = otm_preds, aes(x = mod/60, y = op_temp, col = otm_id), alpha = 0.75, linewidth = 1.25) +
+  facet_wrap(~doy) +
+  scale_x_continuous(expand = c(0,0), breaks = seq(6,24, by = 6)) +
+  xlab("Hour of the day") +
+  ylab("Operative Temperature (C)") +
+  theme_minimal() +
+  theme(axis.line = element_line(),
+        panel.spacing.x = unit(0,"lines"),
+        strip.text = element_text(size = 12)) 
+
+```
+
+> **NOTE**: The distance between the tile and the OTM is **NOT** weighted for during this step. This is because an OTM that is not necessarily the closest to that tile might actually be able to represent its thermal dynamics much better than one that is closer. For example, a tile that contains a tree might be represented by an OTM that is deployed inside of a tree at 100 m than one that is on a southern facing slope only 2 m away. This approach extends even to a the same tile where an OTM is deployed. Imagine a tile that is mostly facing south but that has a small bush on it. If an OTM is placed precisely on that bush, its thermal dynamics might not be representative of the average dynamics of that tile and an OTM placed elsewhere might actually represent that tile better. In the figure below we show the results of matching our example data set, in only 5 cases the same OTM that was on a tile best described its thermal dynamics. 
+
+```{r, echo = FALSE, fig.align = 'center'}
+otms_splines_sub <- otms_splines %>% 
+  dplyr::select(otm_id, latitude, longitude) %>% unique()
+otms_splines_sub$longitude <- as.numeric(format(otms_splines_sub$longitude, nsmall = 5))
+otms_splines_sub$latitude <- as.numeric(format(otms_splines_sub$latitude, nsmall = 5))
+
+merge(otms_splines_sub, matches, by = c("latitude", "longitude")) %>% 
+  rename(actual_otm_id = otm_id.x, matched_otm_id = otm_id.y) %>% 
+  mutate(same = ifelse(actual_otm_id == matched_otm_id, "Yes", "No")) %>% 
+  ggplot(aes(x = matched_otm_id, y = actual_otm_id, fill = as.factor(same))) +
+  geom_tile() +
+  xlab("OTM ID matched to that tile") + ylab("OTM ID actually on that tile") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  guides(fill = guide_legend("Is it the same?"))
+
+```
+
+4. If the minimum error is above a certain threshold indicated by he `error_max` parameter do not assign any OTM to a tile. In the figure below we show the results of implementing this step with the areas marked in dark blue indicating tiles for which no one OTM could best describe it without exceeding the threshold imposed by `error_max`. It is also important to note that these "problematic" tiles are far from the area of interest for this study (where the OTMs, indicated by black dots, where deployed) and that in this area the error is minimized. 
+
+```{r, fig.align = 'center', echo = FALSE}
+matches %>%
+  mutate(isna = ifelse(is.na(error), 1, 0)) %>%
+  ggplot(aes(x = longitude, y = latitude)) +
+  geom_tile(data = flights_data, fill = "lightgray") +
+  geom_tile(aes(fill = error)) +
+  scale_fill_gradient(low = "palegreen", high = "darkorange") +
+  geom_tile(aes(alpha = as.factor(isna)), fill = "darkblue", show.legend = FALSE) +
+  scale_alpha_manual(values = c(0,1)) +
+  geom_point(data = otms_splines, size = 2) +
+  theme_minimal() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank()) +
+  guides(fill = guide_colorbar(title = "Error (C)"))
+```
+> **NOTE**: The figure above shades in light gray all tiles that were covered by at least 1 flights but that were not covered in at least 90% of flights. As seen above, the high-coverage area is much smaller than the total area covered in flights. 
+
+The resulting `matches` `tibble` will have an `otm_id` column indicating the OTM that best describes a given tile (i.e., a combination o `latitude` and `longitude`) as well as a column for the matching `error` for the user to check if desired. In rows where `error > error_max` the `otm_id` will be specified as `NA`. 
+
+```{r}
+matches
+```
+From this `matches` data we gather some interesting findings. Including that: 
+
+1. Very few OTMs are needed to explain the majority of the sites thermal dynamics. In the example data set, only `5` out of the `33` OTMs deployed were needed to explain more than >50% of the variability of the site and only `21` to explain >95%. 
+
+```{r, echo = FALSE, message = FALSE, fig.align='center'}
+matches %>% 
+  filter(!is.na(otm_id)) %>%
+  group_by(otm_id) %>% 
+  summarise(tiles_covered = (n()/6102)*100) %>% 
+  ungroup() %>%
+  arrange(desc(tiles_covered)) %>% 
+  mutate(cum_tiles_covered = cumsum(tiles_covered)) %>%
+  ggplot(aes(x = reorder(otm_id, -tiles_covered))) +
+  geom_hline(yintercept = 95, linetype = 2) +
+  geom_col(aes(y = tiles_covered)) +
+  geom_point(aes(y = cum_tiles_covered)) +
+  geom_path(aes(y = cum_tiles_covered, group = 1)) +
+  xlab("OTM ID") +
+  ylab("Cummulative % of tiles covered") +
+  theme_minimal() +
+  theme(panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_line(linetype = 2, color = "black"),
+        axis.text.x = element_text(angle = 90))
+```
+
+2. The matching mechanism will automatically match tiles with a given orientation to OTMs deployed in a tile with the same orientation. As seen below and considering that the site is plotted in a N-S orientation, we can, for example, that OTMs facing `W` best described tiles that were on a western slope and so on. 
+
+```{r, echo = FALSE, fig.align='center'}
+otms_splines_orient <- otms_splines %>% 
+  dplyr::select(otm_id,orientation) %>% unique()
+orientation_colors <- c("N" = "darkblue", "NW" = "#7F468B","W" = "darkorange",
+                        "SW" = "#FCCE7B", "S" = "gold", "SE" = "#90B122",
+                        "E" = "forestgreen", "NE" = "#11458B", "Flat" = "maroon")
+
+merge(matches, otms_splines_orient, by = c("otm_id"))%>% 
+  ggplot(aes(x = longitude, y = latitude)) +
+  geom_tile(aes(fill = orientation)) +
+  geom_contour(data = elevation, aes(z = elevation), bins = 20, col = "white") +
+   geom_text_contour(data = elevation, aes(z = round(elevation)),
+                    skip = 1, stroke = 0.2, col = "black", size = 3, bins = 10) +
+  scale_fill_manual(values = orientation_colors) +
+    theme_minimal() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank()) 
+  
+```
+
+# Predicting thermal landscapes
+
+```{r, echo=FALSE, fig.align = 'center'}
+knitr::include_graphics("images/dynamic_thermal_landscape.gif")
+```
+
+
+# Predictive accuracy
+

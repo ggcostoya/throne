@@ -89,8 +89,195 @@
 
     
     
-
-  </main>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
+<p>In this vignette, our goal is to illustrate the process behind the
+final step in the workflow of the <code>throne</code> package, the
+prediction of spatio-temporally complete thermal landscapes. To achieve
+this, <code>throne</code> uses two functions: <code>match_data</code>
+and <code>predict_thermal_landscpe</code>. The first allows the user to
+match the thermal dynamics of a given tile within their site (i.e., a
+unique <code>latitude</code> and <code>longitude</code>) as measured
+across multiple flights with those of an <strong>operative temperature
+model</strong> (<strong>OTM</strong>). The second, uses this matches
+data set and combines it with information from date &amp; OTM specific
+cubic spline models (obtained using the <code>gen_otm_splines</code>)
+function in this package to predict the temperature of each tile on the
+site at any moment in time while the OTMs were deployed in the field. In
+the context of the overall workflow of the package, this is the section
+that is covered in this vignette:</p>
+<p><img src="images/workflow_predicting_thermal_landscapes.png" width="80%" style="display: block; margin: auto;"></p>
+<p>Finally, we also provide some information on the predictive accuracy
+of this method which, as we present in the accompanying manuscript, is
+very high.</p>
+</div>
+<div class="section level2">
+<h2 id="the-match_data-function">The <code>match_data</code> function<a class="anchor" aria-label="anchor" href="#the-match_data-function"></a>
+</h2>
+<div class="section level3">
+<h3 id="inputs">Inputs<a class="anchor" aria-label="anchor" href="#inputs"></a>
+</h3>
+<p>The <code>match_data</code> function matches the thermal dynamics of
+specific tiles (i.e., unique <code>latitude</code> and
+<code>longitude</code> combinations) collected across multiple flights
+to the thermal dynamics of an operative temperature model (OTM). To do
+so, the function takes in the following inputs inherited from previous
+functions :</p>
+<ol style="list-style-type: decimal">
+<li>A <code>flights_data</code> <code>tibble</code> obtained using the
+<code>rnp_flights_data</code>. We <strong>strongly</strong> recommend
+that this <code>tibble</code> undergoes correction using the
+<code>correct_flights_data</code> function in order to ensure that the
+both the <code>flights_data</code> <code>tibble</code> and the OTMs are
+on an operative temperature scale. However, the function will allow the
+user to use an uncorrected <code>flights_data</code> <code>tibble</code>
+if they so choose.</li>
+<li>An <code>otm_splines</code> complex <code>tibble</code> obtained
+using the <code>gen_otm_splines</code> function.</li>
+</ol>
+<p>Additionally, the <code>match_data</code> also requires
+<code>2</code> user specified inputs:</p>
+<ol style="list-style-type: decimal">
+<li>
+<code>coverage_per</code>, a numeric value between 0 - 1 indicating
+the minimum coverage that a tile should have across all flights provided
+in order t be included in the matching. The need for this input can be
+easily visualized by overlapping the area covered by multiple flights in
+the provided example <code>flights_data</code> (see image below). Due to
+the unique conditions during each of the <code>34</code> flights we
+conducted to perform this study (e.g., wind etc.), the area covered be
+each flights was variable specially when focusing around the edges.
+Nonetheless, we foresaw this effect which is why <strong>we ensured that
+the area covered by each flight would be much larger than the area of
+interest for our study</strong>, a precaution we recommend all users of
+this package to follow. Our goal was that the area where we had OTMs
+would be covered by flights and, as seen above, all OTMs deployed on the
+ground (black dots) fell on areas that were covered by the vast majority
+of our flights. <strong>As a general guideline, we recommend setting
+<code>coverage_per &gt;= 0.9</code></strong>
+</li>
+</ol>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-2-1.png" width="700" style="display: block; margin: auto;"></p>
+<ol start="2" style="list-style-type: decimal">
+<li>
+<code>error_max</code>, the maximum error between temperature
+measurements of a tile and the OTM that best represents it, which we
+develop on more next.</li>
+</ol>
+<p>To match tiles with OTMs that best describe their thermal dynamics,
+the <code>match_data</code> function goes through the following general
+steps:</p>
+<ol style="list-style-type: decimal">
+<li><p>It calculates the coverage across all flights for every single
+tile covered and selects only those tiles that have bee covered as much
+or more as the <code>coverage_per</code> argument specifies.</p></li>
+<li><p>For each tile, calculate the average absolute error between the
+temperature measurements of that tile during each flight and the
+temperature measurements made by every OTMs at the exact same time each
+flight took place.</p></li>
+<li><p>Select the OTM that minimizes the error between the tile’s and
+the OTMs measurements. In the figure below we illustrate the logic of
+this approach. The black dots indicate the temperature measurements
+associated with a given tile (note that these measurements are corrected
+using the <code>correct_flights_data</code> function) across all flights
+that occurred in the days of the year (<code>doy</code>) 236, 237 and
+238. The red and blue lines indicate the temperatures predicted by the
+spline model of 2 OTMs for those same <code>doy</code>. In this case,
+the <code>match_data</code> function would choose <code>OTM25</code> to
+better represent the dynamics of that tile as the average different
+between each of the tile’s temperature measurements and those estimated
+by the cubic spline model for that OTM is much smaller than that for
+<code>OTM05</code>.</p></li>
+</ol>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-3-1.png" width="768" style="display: block; margin: auto;"></p>
+<blockquote>
+<p><strong>NOTE</strong>: The distance between the tile and the OTM is
+<strong>NOT</strong> weighted for during this step. This is because an
+OTM that is not necessarily the closest to that tile might actually be
+able to represent its thermal dynamics much better than one that is
+closer. For example, a tile that contains a tree might be represented by
+an OTM that is deployed inside of a tree at 100 m than one that is on a
+southern facing slope only 2 m away. This approach extends even to a the
+same tile where an OTM is deployed. Imagine a tile that is mostly facing
+south but that has a small bush on it. If an OTM is placed precisely on
+that bush, its thermal dynamics might not be representative of the
+average dynamics of that tile and an OTM placed elsewhere might actually
+represent that tile better. In the figure below we show the results of
+matching our example data set, in only 5 cases the same OTM that was on
+a tile best described its thermal dynamics.</p>
+</blockquote>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-4-1.png" width="700" style="display: block; margin: auto;"></p>
+<ol start="4" style="list-style-type: decimal">
+<li>If the minimum error is above a certain threshold indicated by he
+<code>error_max</code> parameter do not assign any OTM to a tile. In the
+figure below we show the results of implementing this step with the
+areas marked in dark blue indicating tiles for which no one OTM could
+best describe it without exceeding the threshold imposed by
+<code>error_max</code>. It is also important to note that these
+“problematic” tiles are far from the area of interest for this study
+(where the OTMs, indicated by black dots, where deployed) and that in
+this area the error is minimized.</li>
+</ol>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-5-1.png" width="700" style="display: block; margin: auto;">
+&gt; <strong>NOTE</strong>: The figure above shades in light gray all
+tiles that were covered by at least 1 flights but that were not covered
+in at least 90% of flights. As seen above, the high-coverage area is
+much smaller than the total area covered in flights.</p>
+<p>The resulting <code>matches</code> <code>tibble</code> will have an
+<code>otm_id</code> column indicating the OTM that best describes a
+given tile (i.e., a combination o <code>latitude</code> and
+<code>longitude</code>) as well as a column for the matching
+<code>error</code> for the user to check if desired. In rows where
+<code>error &gt; error_max</code> the <code>otm_id</code> will be
+specified as <code>NA</code>.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">matches</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6,386 × 4</span></span></span>
+<span><span class="co">##    latitude longitude otm_id error</span></span>
+<span><span class="co">##       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   3.60</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   3.61</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM14   2.96</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   2.93</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   3.14</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM02   2.45</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   2.61</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   2.71</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   2.50</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   2.98</span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 6,376 more rows</span></span></span></code></pre>
+<p>From this <code>matches</code> data we gather some interesting
+findings. Including that:</p>
+<ol style="list-style-type: decimal">
+<li>Very few OTMs are needed to explain the majority of the sites
+thermal dynamics. In the example data set, only <code>5</code> out of
+the <code>33</code> OTMs deployed were needed to explain more than
+&gt;50% of the variability of the site and only <code>21</code> to
+explain &gt;95%.</li>
+</ol>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-7-1.png" width="700" style="display: block; margin: auto;"></p>
+<ol start="2" style="list-style-type: decimal">
+<li>The matching mechanism will automatically match tiles with a given
+orientation to OTMs deployed in a tile with the same orientation. As
+seen below and considering that the site is plotted in a N-S
+orientation, we can, for example, that OTMs facing <code>W</code> best
+described tiles that were on a western slope and so on.</li>
+</ol>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-8-1.png" width="700" style="display: block; margin: auto;"></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="predicting-thermal-landscapes">Predicting thermal landscapes<a class="anchor" aria-label="anchor" href="#predicting-thermal-landscapes"></a>
+</h2>
+<p><img src="images/dynamic_thermal_landscape.gif" style="display: block; margin: auto;"></p>
+</div>
+<div class="section level2">
+<h2 id="predictive-accuracy">Predictive accuracy<a class="anchor" aria-label="anchor" href="#predictive-accuracy"></a>
+</h2>
+</div>
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
