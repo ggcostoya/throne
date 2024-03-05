@@ -8,7 +8,9 @@ library(metR)
 library(transformr)
 
 pred <- predict_thermal_landscape(matches = matches, otm_splines = otms_splines,
-                          doy = c(237), mod = seq(0,1440,by = 15))
+                          doy = c(237), mod = seq(0,1440,by = 60))
+
+pred$hour <- floor(pred$mod/60)
 
 
 x <- pred %>%
@@ -21,9 +23,9 @@ x <- pred %>%
         axis.text = element_blank(),
         legend.position = c(0.25, 0.85)) +
   labs(fill = "Predicted operative temperature (C)",
-       title = "MOD: {frame_time}") +
-  transition_time(mod) +
+       title = "Hour: {frame_time}") +
+  transition_time(as.integer(hour)) +
   enter_fade() +
   exit_fade()
-anim <- animate(x, height = 5, width = 5, units = "in", fps = 4, res = 200, renderer = gifski_renderer())
+anim <- animate(x, height = 5, width = 5, units = "in", fps = 5, res = 200, renderer = gifski_renderer())
 anim_save("dynamic_thermal_landscape.gif", anim)

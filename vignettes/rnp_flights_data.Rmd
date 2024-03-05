@@ -69,7 +69,7 @@ flights_data %>%
   mutate(hour = round(mod_start/60)) %>%
   mutate(hour = paste(hour,":00 h", sep = "")) %>%
   ggplot(aes(x = longitude, y = latitude, fill = ir_temp)) +
-  geom_tile() +
+  geom_raster() +
   scale_fill_viridis(option = "magma") +
   facet_wrap(~ fct_reorder(hour, mod_start)) +
   xlab("Longitude") + ylab("Latitude") +

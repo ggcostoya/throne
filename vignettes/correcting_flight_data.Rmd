@@ -173,7 +173,7 @@ flights_data_comp %>%
   pivot_longer(c("ir_temp", "op_temp"), names_to = "temp_type", values_to = "temp") %>% 
   mutate(when = ifelse(temp_type == "ir_temp", "Pre-correction", "Post-correction")) %>%
   ggplot(aes(x = longitude, y = latitude, fill = temp)) +
-  geom_tile() +
+  geom_raster() +
   scale_fill_viridis(option = "magma") +
   facet_grid(rows = vars(mod_start), cols = vars(when)) +
   theme_minimal() +

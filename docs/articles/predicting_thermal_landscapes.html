@@ -115,9 +115,6 @@ very high.</p>
 <div class="section level2">
 <h2 id="the-match_data-function">The <code>match_data</code> function<a class="anchor" aria-label="anchor" href="#the-match_data-function"></a>
 </h2>
-<div class="section level3">
-<h3 id="inputs">Inputs<a class="anchor" aria-label="anchor" href="#inputs"></a>
-</h3>
 <p>The <code>match_data</code> function matches the thermal dynamics of
 specific tiles (i.e., unique <code>latitude</code> and
 <code>longitude</code> combinations) collected across multiple flights
@@ -158,7 +155,7 @@ of our flights. <strong>As a general guideline, we recommend setting
 <code>coverage_per &gt;= 0.9</code></strong>
 </li>
 </ol>
-<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-2-1.png" width="700" style="display: block; margin: auto;"></p>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-2-1.png" width="576" style="display: block; margin: auto;"></p>
 <ol start="2" style="list-style-type: decimal">
 <li>
 <code>error_max</code>, the maximum error between temperature
@@ -207,7 +204,7 @@ represent that tile better. In the figure below we show the results of
 matching our example data set, in only 5 cases the same OTM that was on
 a tile best described its thermal dynamics.</p>
 </blockquote>
-<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-4-1.png" width="700" style="display: block; margin: auto;"></p>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-4-1.png" width="384" style="display: block; margin: auto;"></p>
 <ol start="4" style="list-style-type: decimal">
 <li>If the minimum error is above a certain threshold indicated by he
 <code>error_max</code> parameter do not assign any OTM to a tile. In the
@@ -219,11 +216,13 @@ best describe it without exceeding the threshold imposed by
 (where the OTMs, indicated by black dots, where deployed) and that in
 this area the error is minimized.</li>
 </ol>
-<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-5-1.png" width="700" style="display: block; margin: auto;">
-&gt; <strong>NOTE</strong>: The figure above shades in light gray all
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-5-1.png" width="576" style="display: block; margin: auto;"></p>
+<blockquote>
+<p><strong>NOTE</strong>: The figure above shades in light gray all
 tiles that were covered by at least 1 flights but that were not covered
 in at least 90% of flights. As seen above, the high-coverage area is
 much smaller than the total area covered in flights.</p>
+</blockquote>
 <p>The resulting <code>matches</code> <code>tibble</code> will have an
 <code>otm_id</code> column indicating the OTM that best describes a
 given tile (i.e., a combination o <code>latitude</code> and
@@ -256,7 +255,7 @@ the <code>33</code> OTMs deployed were needed to explain more than
 &gt;50% of the variability of the site and only <code>21</code> to
 explain &gt;95%.</li>
 </ol>
-<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-7-1.png" width="700" style="display: block; margin: auto;"></p>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-7-1.png" width="576" style="display: block; margin: auto;"></p>
 <ol start="2" style="list-style-type: decimal">
 <li>The matching mechanism will automatically match tiles with a given
 orientation to OTMs deployed in a tile with the same orientation. As
@@ -264,17 +263,130 @@ seen below and considering that the site is plotted in a N-S
 orientation, we can, for example, that OTMs facing <code>W</code> best
 described tiles that were on a western slope and so on.</li>
 </ol>
-<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-8-1.png" width="700" style="display: block; margin: auto;"></p>
-</div>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-8-1.png" width="768" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
 <h2 id="predicting-thermal-landscapes">Predicting thermal landscapes<a class="anchor" aria-label="anchor" href="#predicting-thermal-landscapes"></a>
 </h2>
-<p><img src="images/dynamic_thermal_landscape.gif" style="display: block; margin: auto;"></p>
+<p>The final step in the workflow of the <code>throne</code> package is
+to predict thermal landscapes. To do this, the <code>thonre</code>
+package includes the function <code>predict_thermal_landscape</code>
+which takes in the following inherited inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>An <code>otm_splines</code> complex <code>tibble</code> obtained
+through the <code>generate_otm_splines</code>.</p></li>
+<li><p>A <code>matches</code> tibble associating tiles in a study area
+with OTMs that best describe their thermal dynamics obtained using the
+<code>match_data</code> function discussed above.</p></li>
+</ol>
+<p>In addition, the <code>predict_thermal_landscape</code> function will
+require to new user-specified inputs:</p>
+<ol style="list-style-type: decimal">
+<li><p>The day of the year or <code>doy</code> (single or multiple) for
+which a prediction should be generated.</p></li>
+<li><p>The minute of the day or <code>mod</code> (single or multiple) in
+the <code>doy</code> specified for which a prediction should be
+generated.</p></li>
+</ol>
+<p>Once these inputs are specified, the function will go through the
+following general steps:</p>
+<ol style="list-style-type: decimal">
+<li><p>Filter the provided <code>otm_splines</code> for splines
+characterizing OTMs that are also present in the <code>matches</code>
+<code>tibble</code> and among these select only models describing the
+dynamics of that OTM on the <code>doy</code> (single or multiple)
+specified as an argument of the function.</p></li>
+<li><p>Predict the operative temperature at the specified
+<code>mod</code> (single or multiple) and <code>doy</code> for all
+OTMs.</p></li>
+<li><p>Merge the operative temperature prediction with the
+<code>matches</code> <code>tibble</code> to obtain a predicted operative
+temperature for every single tile considered.</p></li>
+</ol>
+<p>Since all the necessary calculations have been carried out before
+hand (i.e., generating the spline models, performing the matching
+between tiles and OTMs etc.) the <code>predict_thermal_landscape</code>
+function is relatively fast and allows the user to <strong>predict the
+entire thermal landscape of their site at any moment while their OTMs
+were deployed</strong>. For example, say that we want to obtain a
+complete thermal landscape prediction every hour of the day for the
+<code>doy = 237</code> (i.e., August 24th), one would simply run:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># obtain prediction</span></span>
+<span><span class="va">prediction_237</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_thermal_landscape.html">predict_thermal_landscape</a></span><span class="op">(</span>matches <span class="op">=</span> <span class="va">matches</span>, otm_splines <span class="op">=</span> <span class="va">otms_splines</span>, </span>
+<span>                                            doy <span class="op">=</span> <span class="fl">237</span>, mod <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1440</span>, by <span class="op">=</span> <span class="fl">60</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## [1] "0.19 % of predictions were removed due to falling outside of the time when OTMs were recording"</span></span></code></pre>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">prediction_237</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 152,834 × 5</span></span></span>
+<span><span class="co">##    latitude longitude   doy   mod pred_op_temp</span></span>
+<span><span class="co">##       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>     39.9     -<span style="color: #BB0000;">120.</span>   237  <span style="text-decoration: underline;">1</span>380         23.0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>     39.9     -<span style="color: #BB0000;">120.</span>   237  <span style="text-decoration: underline;">1</span>320         22.8</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>     39.9     -<span style="color: #BB0000;">120.</span>   237   900         36.0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>     39.9     -<span style="color: #BB0000;">120.</span>   237  <span style="text-decoration: underline;">1</span>080         32.1</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>     39.9     -<span style="color: #BB0000;">120.</span>   237  <span style="text-decoration: underline;">1</span>200         25.9</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>     39.9     -<span style="color: #BB0000;">120.</span>   237  <span style="text-decoration: underline;">1</span>440         22.0</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>     39.9     -<span style="color: #BB0000;">120.</span>   237    60         21.3</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>     39.9     -<span style="color: #BB0000;">120.</span>   237     0         21.5</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>     39.9     -<span style="color: #BB0000;">120.</span>   237  <span style="text-decoration: underline;">1</span>260         24.9</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span>     39.9     -<span style="color: #BB0000;">120.</span>   237   660         34.6</span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 152,824 more rows</span></span></span></code></pre>
+<blockquote>
+<p><strong>NOTE</strong>: The <code>predict_thermal_landscape</code>
+function will not be able to predict thermal landscapes if the specified
+time falls outside of the range when OTMs were measuring. To that end,
+the function will also provide a warning indicating what % of
+predictions were removing due to falling outside of the range when the
+OTMs were recording.</p>
+</blockquote>
+<p>We can plot this prediction using regular <code>ggplot</code> tools
+as easily as:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">prediction_237</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">longitude</span>, y <span class="op">=</span> <span class="va">latitude</span>, fill <span class="op">=</span> <span class="va">pred_op_temp</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_raster</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_fill_viridis</span><span class="op">(</span>option <span class="op">=</span> <span class="st">"magma"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">mod</span><span class="op">/</span><span class="fl">60</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span>axis.text <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>, axis.title <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>        legend.position <span class="op">=</span> <span class="st">"top"</span>,strip.text <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">guides</span><span class="op">(</span>fill <span class="op">=</span> <span class="fu">guide_colorbar</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Predicted Operative Temperature (C)"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-10-1.png" width="768" style="display: block; margin: auto;"></p>
+<p>The plot above And when combined into a single image using tools from
+the <a href="https://gganimate.com/" class="external-link"><code>gganimate</code></a>
+package:</p>
+<p><img src="images/dynamic_thermal_landscape.gif" width="80%" style="display: block; margin: auto;"></p>
+<p>The <code>predict_thermal_landscape</code> function has unlimited
+power to provide complete thermal landscape predictions at an
+unprecedented level of detail.</p>
 </div>
 <div class="section level2">
 <h2 id="predictive-accuracy">Predictive accuracy<a class="anchor" aria-label="anchor" href="#predictive-accuracy"></a>
 </h2>
+<p>As we discuss in the accompanying manuscript, this method is highly
+accurate when predicting thermal landscapes. To that end, we performed a
+validation to compare the predicted operative temperature for all tiles
+containing OTMs using the <code>predict_thermal_landscape</code>
+function to the operative temperatures recorded by the OTMs that were
+actually on those tiles. The average prediction error (i.e.,
+<code>pred_op_temp - op_temp</code>) was XX.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">val_data</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">knot_p</span> <span class="op">==</span> <span class="fl">1</span><span class="op">/</span><span class="fl">7.5</span>, <span class="va">n_flights</span> <span class="op">==</span> <span class="fl">34</span>, <span class="va">n_otms</span> <span class="op">==</span> <span class="fl">33</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">pred_op_temp</span> <span class="op">-</span> <span class="va">obs_op_temp</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">geom_histogram</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>y <span class="op">=</span> <span class="va">..density..</span><span class="op">)</span>, fill <span class="op">=</span> <span class="st">"lightgray"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_density</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">xlab</span><span class="op">(</span><span class="st">"Prediction error (Predicted - Observed Operative Temp., C)"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ylab</span><span class="op">(</span><span class="st">"Density"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Warning: The dot-dot notation (`..density..`) was deprecated in ggplot2 3.4.0.</span></span>
+<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Please use `after_stat(density)` instead.</span></span>
+<span><span class="co">## <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
+<span><span class="co">## <span style="color: #555555;">Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span></span>
+<span><span class="co">## <span style="color: #555555;">generated.</span></span></span></code></pre>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-12-1.png" width="480" style="display: block; margin: auto;"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
