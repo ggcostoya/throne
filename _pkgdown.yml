@@ -11,9 +11,9 @@ navbar:
   - text: Field setup
     menu:
     - text: Drones
-      href: articles/flying_and_collecting_data_from_drones.html
+      href: articles/Drone_data.html
     - text: OTMs
-      href: articles/otms.html
+      href: articles/OTM_data.html
   - text: R Workflow
     menu:
     - text: Reading and processing flight data
@@ -24,6 +24,8 @@ navbar:
       href: articles/correcting_flight_data.html
     - text: Predicting thermal landscapes
       href: articles/predicting_thermal_landscapes.html
+  - text: Case study
+    href: articles/case_study.html
   - text: Reference
     href: reference/index.html
 

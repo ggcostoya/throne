@@ -222,13 +222,15 @@ save(val_data, file = "data/val_data.RData")
 ## Validation summaries ------------------------------------------------------
 
 x <- val_data %>%
-  #filter(mod > 7*60) %>% filter(mod < 19*60) %>%
-  mutate(minute = round(mod/96)) %>%
-  group_by(n_flights, n_otms, knot_p, minute) %>%
-  summarise(obs_op_temp = mean(obs_op_temp), pred_op_temp = mean(pred_op_temp)) %>%
+  filter(mod > 7*60) %>% filter(mod < 19*60) %>%
+  #mutate(minute = round(mod/96)) %>%
+  #group_by(n_flights, n_otms, knot_p, minute) %>%
+  #summarise(obs_op_temp = mean(obs_op_temp), pred_op_temp = mean(pred_op_temp)) %>%
   group_by(n_flights, n_otms, knot_p) %>%
   summarise(mean_error = mean(pred_op_temp - obs_op_temp),
-            sd_error = sd(pred_op_temp - obs_op_temp))
+            sd_error = sd(pred_op_temp - obs_op_temp),
+            abs_mean_error = mean(abs(pred_op_temp - obs_op_temp)),
+            abs_sd_error = sd(abs(pred_op_temp - obs_op_temp)))
 
 
 

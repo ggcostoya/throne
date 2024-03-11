@@ -50,6 +50,30 @@ corr_data_gcps %>%
         panel.grid = element_blank()) +
   labs(colour = "Hour of the day")
 
+
+xlabt <- expression(paste('Operative temperature (',~degree,'C)',sep=''))
+ylabt <- expression('Surface temperature (post-correction, '*~degree*C*')')
+
+correction_data %>%
+  mutate(hour = mod_start/60) %>%
+  ggplot(aes(x = op_temp, y = op_temp_corr, col = hour)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_abline(intercept = 0, slope = 1, linewidth = 1.1, linetype = 2) +
+  geom_smooth(method = "lm", col = "black") +
+  geom_text(x = 48, y = 17, col = "black",label = expression(paste("y = 3.76 + 0.9x , ", R^2 == 0.68))) +
+  scale_color_gradient2(low = "black", mid = "orange", high = "darkblue",midpoint = 12) +
+  xlab(xlabt) +
+  ylab(ylabt) +
+  theme_minimal() +
+  theme(axis.line = element_line(),
+        axis.ticks = element_line(),
+        legend.position = c(0.12, 0.8),
+        panel.grid = element_blank()) +
+  labs(colour = "Hour")
+
+summary(lm(op_temp_corr ~ op_temp, data = correction_data))
+
+
 ## Figure S2 ------------------------------------------------------------------
 
 # load grid extra package
