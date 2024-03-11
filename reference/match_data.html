@@ -34,8 +34,8 @@ temperature model (OTM)."><!-- mathjax --><script src="https://cdnjs.cloudflare.
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-field-setup">Field setup</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-field-setup">
-    <a class="dropdown-item" href="../articles/flying_and_collecting_data_from_drones.html">Drones</a>
-    <a class="dropdown-item" href="../articles/otms.html">OTMs</a>
+    <a class="dropdown-item" href="../articles/Drone_data.html">Drones</a>
+    <a class="dropdown-item" href="../articles/OTM_data.html">OTMs</a>
   </div>
 </li>
 <li class="nav-item dropdown">
@@ -46,6 +46,9 @@ temperature model (OTM)."><!-- mathjax --><script src="https://cdnjs.cloudflare.
     <a class="dropdown-item" href="../articles/correcting_flight_data.html">Correcting flight data</a>
     <a class="dropdown-item" href="../articles/predicting_thermal_landscapes.html">Predicting thermal landscapes</a>
   </div>
+</li>
+<li class="nav-item">
+  <a class="nav-link" href="../articles/case_study.html">Case study</a>
 </li>
 <li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
@@ -110,7 +113,7 @@ and the temperature measurements of the tile.</p></dd>
 
 <p>A matches `tibble` with columns for `latitude`, `longitude`, the `otm_id`
    that best describes the thermal dynamics of that tile and the average absolute
-   `error` between tile measurements and OTM predictions. Columns where `is.na(otm_id)`
+   `error` between tile measurements and OTM predictions. Rows where `is.na(otm_id)`
    indicate tiles where `error` was not `&lt; error_max` for any of the OTMs provided.</p>
     </div>
 
