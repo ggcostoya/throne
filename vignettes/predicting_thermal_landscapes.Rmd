@@ -94,7 +94,7 @@ flights_data_corr %>%
 
 > **NOTE**: The distance between the tile and the OTM is **NOT** weighted for during this step. This is because an OTM that is not necessarily the closest to that tile might actually be able to represent its thermal dynamics much better than one that is closer. For example, a tile that contains a tree might be represented by an OTM that is deployed inside of a tree at 100 m than one that is on a southern facing slope only 2 m away. This approach extends even to a the same tile where an OTM is deployed. Imagine a tile that is mostly facing south but that has a small bush on it. If an OTM is placed precisely on that bush, its thermal dynamics might not be representative of the average dynamics of that tile and an OTM placed elsewhere might actually represent that tile better. In the figure below we show the results of matching our example data set, in only 5 cases the same OTM that was on a tile best described its thermal dynamics. 
 
-```{r, echo = FALSE, fig.height = 3, fig.width = 4, fig.align = 'center'}
+```{r, echo = FALSE, fig.height = 4, fig.width = 5, fig.align = 'center'}
 otms_splines_sub <- otms_splines %>% 
   dplyr::select(otm_id, latitude, longitude) %>% unique()
 otms_splines_sub$longitude <- as.numeric(format(otms_splines_sub$longitude, nsmall = 5))
@@ -235,7 +235,7 @@ prediction_237 %>%
 
 The plot above And when combined into a single image using tools from the [`gganimate`](https://gganimate.com/) package: 
 
-```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
+```{r, echo=FALSE, out.width = '60%', fig.align = 'center'}
 knitr::include_graphics("images/dynamic_thermal_landscape.gif")
 ```
 

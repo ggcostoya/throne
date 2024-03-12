@@ -129,8 +129,10 @@ csd %>%
   theme(legend.position = "top",legend.title = element_blank())
 
 
+doys <- unique(lizard_mr$doy)
+
 full_landscape <- predict_thermal_landscape(matches = c_matches, otm_splines = c_otms_splines,
-                                            doy = doys, mod = seq(8*60, 18*60, by = 60))
+                                            doy = doys, mod = seq(7*60, 20*60, by = 60))
 
 full_landscape_sum <- full_landscape %>%
   group_by(mod) %>%
@@ -158,6 +160,14 @@ ggplot() +
   theme(axis.line = element_line(), axis.ticks = element_line(),
         panel.grid = element_blank()) +
   ggtitle("Body temperatures & Operative Temp. Distribution for August 2022 at HE")
+
+
+c_full_landscape %>%
+  mutate(suitable = ifelse(pred_op_temp >32 & pred_op_temp <34, 1, 0)) %>%
+  ggplot(aes(x = mod/60)) +
+  stat_summary(aes(y = suitable), geom = "line") +
+  geom_density(data = lizard_mr)
+
 
 
 

@@ -16,12 +16,8 @@ devtools::load_all()
 
 In this vignette we illustrate a case study to serve as an example on how to use the tools provided by the `throne` package. In this example we will be looking at a population of western fence lizards (*Sceloporus occidentalis*) living at ~ 2400 m above sea level in the Great Basin Desert of Northern Nevada. 
 
-```{r,echo=FALSE, out.width = '80%', fig.align = 'center'}
-knitr::include_graphics("images/c_study_organism.png")
-```
-
 ```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
-knitr::include_graphics("images/c_study_site.jpg")
+knitr::include_graphics("images/c_study_organism.png")
 ```
 
 This population underwent mark-recapture during the summer of 2022. All individuals were uniquely identified via toe-clipping and, upon each capture the we recorded the location of each individual (i.e., `latitude` and `longitude`) using a Trimble Geo7x GPS with an accuracy of ~0.5 $m^2$, and the time (i.e., `year`, day of the year or `doy` and minute of the day or `mod`). Additionally, for most lizards we recorded a body temperature measurement (`tb`) by inserting a thermocouple probe into the animal's cloaca:
@@ -80,7 +76,7 @@ We flew 3 flights over an ~ 95000 $m^2$ area overlapping with the areas that we 
 c_flights_metadata
 ```
 
-```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
+```{r, echo=FALSE, out.width = '60%', fig.align = 'center'}
 knitr::include_graphics("images/c_study_area.png")
 ```
 
@@ -165,9 +161,10 @@ Which returns a nested `tibble` with all `otm_id` & `doy` specific models (in th
 ```{r}
 c_otms_splines
 ```
+
 ## Correcting flights data
 
-Due to [the inherent differences in the physical properties of the surface temperature measurements from an IR camera and the operative temperature measurements from an OTM] (https://ggcostoya.github.io/throne/articles/correcting_flight_data.html#overview), the next step in the `throne` package workflow is to correct the data obtained via flights using OTM flights data. To achieve this, we will use the `correct_flighs_data` function as follows: 
+Due to [the inherent differences in the physical properties of the surface temperature measurements from an IR camera and the operative temperature measurements from an OTM](https://ggcostoya.github.io/throne/articles/correcting_flight_data.html#overview), the next step in the `throne` package workflow is to correct the data obtained via flights using OTM flights data. To achieve this, we will use the `correct_flighs_data` function as follows: 
 
 ```{r, eval = FALSE}
 c_flights_data_corr <- correct_flights_data(flights-data = c_flights_data, otm_splines = c_otms_splines)
@@ -219,6 +216,7 @@ The result will be a matches `tibble` with the OTM that best describes the dynam
 ```{r}
 c_matches
 ```
+
 ```{r, echo = FALSE, fig.align='center', fig.height = 5, fig.width = 4.5}
 c_matches %>% 
   ggplot(aes(x = longitude, y = latitude, fill = otm_id)) +
@@ -228,21 +226,104 @@ c_matches %>%
 
 # Predicting thermal landscapes
 
-```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
+Making use of all the above, we can finally predict the thermal landscapes of the site using the `predict_thermal_landscape` function of the `throne` package. As an example, below I'll predict the thermal landscape every hour between 6 AM (`mod = 360`) and 9 PM (`mod = 1260`) on June 29th (`doy = 180`). To obtain this prediction I'd simply run: 
+
+```{r}
+ex_pred <- predict_thermal_landscape(matches = c_matches, otm_splines = c_otms_splines, doy = 180, mod = seq(360,1260,by = 60))
+```
+The resulting prediction `tibble` contains over 1.5 million observations: 
+
+```{r}
+ex_pred
+```
+
+And can be easily plotted as follows:
+
+```{r, fig.height=9, fig.width = 8, fig.align='center'}
+ex_pred %>% 
+  filter(!is.na(mod)) %>%
+  ggplot(aes(x = longitude, y = latitude, fill = pred_op_temp)) +
+  geom_raster() +
+  scale_fill_viridis(option = "magma") +
+  facet_wrap(~mod/60) +
+  theme(axis.text = element_blank(), axis.title = element_blank())
+```
+Or visualized as a dynamic landscape for every hour of the day using tools from the `gganimate` package: 
+
+```{r, echo=FALSE, out.width = '60%', fig.align = 'center'}
 knitr::include_graphics("images/case_dynamic_thermal_landscape.gif")
 ```
 
 # Effectiveness of thermoregulatory behavior. 
 
+```{r, eval = FALSE}
+# get sequence of all doy with lizards present 
+doys <- unique(lizard_mr$doy)
 
+# predict full landscape
+c_full_landscape <- predict_thermal_landscape(matches = c_matches, otm_splines = c_otms_splines,
+                                            doy = doys, mod = seq(7*60, 20*60, by = 60))
 
+## NOT RAN HERE TO SAVE COMPUTATION TIME, DATASET INCLUDED in `throne`. 
+```
 
+How do body temperatures compare against the distribution of temperatures available in the site: 
 
+```{r, echo = FALSE, warning = FALSE, message = FALSE, fig.height = 4, fig.width = 6, fig.align = 'center'}
+# get summary statistics 
+full_landscape_sum <- c_full_landscape %>%
+  filter(!is.na(mod)) %>% group_by(mod) %>%
+  summarise(mot = mean(pred_op_temp, na.rm = T),
+            sdot = sd(pred_op_temp, na.rm = T),
+            maxot = max(pred_op_temp, na.rm = T),
+            minot = min(pred_op_temp, na.rm = T))
 
+# plot
+ggplot() +
+  geom_ribbon(data = full_landscape_sum,
+              aes(x = mod/60, ymax = maxot, ymin = minot),
+              fill = "lightgray", alpha = 0.5) +
+  geom_ribbon(data = full_landscape_sum,
+              aes(x = mod/60, ymax = mot + sdot, ymin = mot - sdot),
+              fill = "gray", alpha = 0.5) +
+  geom_line(data = full_landscape_sum, aes(x = mod/60, y = mot)) +
+  geom_point(data = lizard_mr, aes(x = mod/60, y = tb), col = "darkred", alpha = 0.5, size = 4) +
+  geom_smooth(data = lizard_mr, aes(x = mod/60, y = tb), col = "darkred", fill = "red", alpha = 0.1,
+              method = "lm", fullrange = TRUE) +
+  scale_x_continuous(breaks = seq(7,20, by = 1), expand = c(0,0)) +
+  ylab("Operative Temperature (C)") +
+  xlab("Hour of the day") +
+  theme_minimal() +
+  theme(axis.line = element_line(), axis.ticks = element_line(),
+        panel.grid = element_blank())
 
+```
 
+High thermoregulatory accuracy around `33.3`. 
 
+How are they distributed in time and space in relationship to the suitability of the habitat: 
 
+```{r, echo = FALSE, message = FALSE, fig.height=9, fig.width = 8, fig.align='center'}
+# transform mod into hour columns
+lizard_mr$hour <- floor(lizard_mr$mod/60)
+c_full_landscape$hour <- c_full_landscape$mod/60
+
+# plot
+c_full_landscape %>% 
+  filter(!is.na(hour)) %>% 
+  filter(hour > 7, hour < 17) %>%
+  mutate(suitable = ifelse(pred_op_temp >32 & pred_op_temp <34, 1, 0)) %>% 
+  group_by(longitude, latitude, hour) %>% 
+  summarise(mean_suitability = mean(suitable, na.rm = T)) %>% 
+  ungroup() %>%
+  ggplot(aes(x = longitude, y = latitude)) +
+  geom_raster(aes(fill = mean_suitability)) +
+  scale_fill_gradient(low = "gray", high = "forestgreen") +
+  geom_point(data = lizard_mr, col = "darkred") +
+  facet_wrap(~hour) +
+  theme(axis.text = element_blank(), axis.title = element_blank()) 
+```
+More work is needed here! 
 
 
 
