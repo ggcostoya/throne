@@ -19,5 +19,6 @@ Depends:
   gridExtra,
   viridis,
   devtools,
-  metR
+  metR,
+  plotly
 URL: https://ggcostoya.github.io/throne/

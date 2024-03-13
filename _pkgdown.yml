@@ -11,9 +11,9 @@ navbar:
   - text: Field setup
     menu:
     - text: Drones
-      href: articles/Drone_data.html
+      href: articles/drone_setup.html
     - text: OTMs
-      href: articles/OTM_data.html
+      href: articles/otm_setup.html
   - text: R Workflow
     menu:
     - text: Reading and processing flight data

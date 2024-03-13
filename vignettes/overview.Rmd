@@ -11,3 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 devtools::load_all()
 ```
+
+```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
+knitr::include_graphics("images/overview_workflow.png")
+```

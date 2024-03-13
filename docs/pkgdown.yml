@@ -4,13 +4,13 @@ pkgdown_sha: ~
 articles:
   case_study: case_study.html
   correcting_flight_data: correcting_flight_data.html
-  Drone_data: Drone_data.html
-  OTM_data: OTM_data.html
+  drone_setup: drone_setup.html
+  otm_setup: otm_setup.html
   overview: overview.html
   predicting_thermal_landscapes: predicting_thermal_landscapes.html
   rnp_flights_data: rnp_flights_data.html
   rnp_otms_data_gen_otm_splines: rnp_otms_data_gen_otm_splines.html
-last_built: 2024-03-12T18:03Z
+last_built: 2024-03-13T22:51Z
 urls:
   reference: https://ggcostoya.github.io/throne/reference
   article: https://ggcostoya.github.io/throne/articles

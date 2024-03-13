@@ -16,7 +16,7 @@ devtools::load_all()
 
 In this vignette we illustrate a case study to serve as an example on how to use the tools provided by the `throne` package. In this example we will be looking at a population of western fence lizards (*Sceloporus occidentalis*) living at ~ 2400 m above sea level in the Great Basin Desert of Northern Nevada. 
 
-```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
+```{r, echo=FALSE, out.width = '60%', fig.align = 'center'}
 knitr::include_graphics("images/c_study_organism.png")
 ```
 

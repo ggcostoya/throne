@@ -17,7 +17,7 @@ devtools::load_all()
 In this vignette, our goal is to illustrate the process behind the final step in the workflow of the `throne` package, the prediction of spatio-temporally complete thermal landscapes. To achieve this, `throne` uses two functions: `match_data` and `predict_thermal_landscpe`. The first allows the user to match the thermal dynamics of a given tile within their site (i.e., a unique `latitude` and `longitude`) as measured across multiple flights with those of an **operative temperature model** (**OTM**). The second, uses this matches data set and combines it with information from date & OTM specific cubic spline models (obtained using the `gen_otm_splines`) function in this package to predict the temperature of each tile on the site at any moment in time while the OTMs were deployed in the field. In the context of the overall workflow of the package, this is the section that is covered in this vignette: 
 
 ```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
-knitr::include_graphics("images/workflow_predicting_thermal_landscapes.png")
+knitr::include_graphics("images/predict_thermal_landscapes_workflow.png")
 ```
 
 Finally, we also provide some information on the predictive accuracy of this method which, as we present in the accompanying manuscript, is very high. 

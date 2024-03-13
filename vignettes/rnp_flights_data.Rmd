@@ -18,7 +18,7 @@ devtools::load_all()
 The goal of this vignette is to illustrate the process behind the `rnp_flights_data` (**r**ead a**n**d **p**rocess flights data) function of the `throne` package. This function enables to processing of raw `.tif` files obtained by combining images gathered during a flight into a data structure easily manageable in `R` (a [`tibble`](https://tibble.tidyverse.org/)). This `tibble` will later be related to operative temperature model (**OTM**) data to finally predict thermal landscapes. Below, we highlight the section of the package's workflow that is covered in this vignette:
 
 ```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
-knitr::include_graphics("images/workflow_rnp_otms_data_gen_otm_splines.png")
+knitr::include_graphics("images/rnp_flights_data_workflow.png")
 ```
 
 Next, we present how the `rnp_flights_data` function works, some notes on the choice of the parameter `digits` and a worked-through example on how to use the function.
@@ -193,5 +193,3 @@ comparison %>%
 ```
 
 This spatial resolution guarantees that the original `.tif` file is processed at a scale that is relevant for the majority of study organisms for which this package is intended. However, we leave this decision up to the user to consider the spatial scale that is most relevant for their organism. In the image below (figure S1 in the accompanying paper), we illustrate the same flight processed when the argument `digits` is set to 4, 5 and 6 respectively.
-
-# A worked out example
