@@ -2,15 +2,15 @@ pandoc: 3.1.11
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
-  Drone_data: Drone_data.html
-  OTM_data: OTM_data.html
   case_study: case_study.html
   correcting_flight_data: correcting_flight_data.html
+  drone_setup: drone_setup.html
+  otm_setup: otm_setup.html
   overview: overview.html
   predicting_thermal_landscapes: predicting_thermal_landscapes.html
   rnp_flights_data: rnp_flights_data.html
   rnp_otms_data_gen_otm_splines: rnp_otms_data_gen_otm_splines.html
-last_built: 2024-03-12T18:11Z
+last_built: 2024-03-13T23:00Z
 urls:
   reference: https://ggcostoya.github.io/throne/reference
   article: https://ggcostoya.github.io/throne/articles
