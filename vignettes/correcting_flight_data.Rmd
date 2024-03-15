@@ -204,17 +204,6 @@ flights_data_comp %>%
         legend.title = element_blank())
 ```
 
-# A worked out example
-
-Implementing the `correct_flights_data` function is straightforward. Say that the user has a flights `tibble` called `flights_datax` and an OTM splines complex `tibble` called `otm_splinesx`, to correct their flights data the user would simply need to run the following code. 
-
-```{r, eval = FALSE}
-corrected_flights_datax <- correct_flights_data(flights_data = flights_datax, otm_splines = otm_splinesx)
-```
-
-
-
-
 
 
 

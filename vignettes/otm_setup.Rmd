@@ -74,14 +74,14 @@ As an example, the study area we considered to pilot the methodology of the `thr
 ```{r, echo = FALSE, fig.align = 'center', fig.cap = "Figure 3: Elevational profile of our area of study"}
 raster <- rasterFromXYZ(elevation)
 
-Latitude <- seq(39.86829, 39.86924, length.out = 126)
-Longitude <- seq(-119.6277, -119.6264, length.out = 96)
+Latitude <- seq(39.86829, 39.86924, length.out = 96)
+Longitude <- seq(-119.6277, -119.6264, length.out = 126)
 Elevation <- as.matrix(raster)
 
 
-plot_ly(x = ~ Longitude, y = ~Latitude, z = ~Elevation) %>% 
+plot_ly(x = ~Latitude, y = ~Longitude, z = ~Elevation) %>% 
   add_surface(contours = list(z = list(show = TRUE, start = min(elevation$elevation), end = max(elevation$elevation), size = 2))) %>% 
-  layout(scene = list(aspectratio = list(x = 1, y = 1, z = 0.4)))
+  layout(scene = list(aspectratio = list(x = 0.75, y = 1, z = 0.24)))
 
 ```
 

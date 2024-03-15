@@ -8,21 +8,21 @@ navbar:
     href: index.html
   - text: Overview
     href: articles/overview.html
-  - text: Field setup
+  - text: Field workflow
     menu:
-    - text: Drones
+    - text: Collect and process thermal images
       href: articles/drone_setup.html
-    - text: OTMs
+    - text: Collect OTM data
       href: articles/otm_setup.html
   - text: R Workflow
     menu:
-    - text: Reading and processing flight data
+    - text: Read and process flight data
       href: articles/rnp_flights_data.html
-    - text: Reading and processing OTM data
+    - text: Read and process OTM data, and generate OTM splines
       href: articles/rnp_otms_data_gen_otm_splines.html
-    - text: Correcting flight data
+    - text: Correct flight data
       href: articles/correcting_flight_data.html
-    - text: Predicting thermal landscapes
+    - text: Match data and predict thermal landscapes
       href: articles/predicting_thermal_landscapes.html
   - text: Case study
     href: articles/case_study.html

@@ -1,11 +1,14 @@
 Package: throne
 Type: Package
-Title: Thermal drone - OTM integration
+Title: Predicting thermal landscapes in spatio-temporally unprecedented detail
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
+Authors@R: c(person("Karla", "Alujević", email = "alujevic@gmail.com", role = c("aut", "cre")),
+             person("Guillermo", "Garcia-Costoya", email = "ggarciacosto@gmail.com", role = c("aut", "cre")),
+             person("Noa", "Ratia", email = "NoaRatia@hotmail.com", role = c("aut")),
+             person("Michael", "Logan", email = "mike.logan1983@gmail.com", role = c("aut")))
 Description: A package to integrate thermal imaging from drone with operative
-    temperature measurements (OTM) on the ground. 
+    temperature measurements (OTM) on the ground to predict spatio-temporally
+    complete thermal landscapes.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
