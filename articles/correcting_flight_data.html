@@ -45,19 +45,19 @@
   <a class="nav-link" href="../articles/overview.html">Overview</a>
 </li>
 <li class="nav-item dropdown">
-  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-field-setup">Field setup</a>
-  <div class="dropdown-menu" aria-labelledby="dropdown-field-setup">
-    <a class="dropdown-item" href="../articles/drone_setup.html">Drones</a>
-    <a class="dropdown-item" href="../articles/otm_setup.html">OTMs</a>
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-field-workflow">Field workflow</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-field-workflow">
+    <a class="dropdown-item" href="../articles/drone_setup.html">Collect and process thermal images</a>
+    <a class="dropdown-item" href="../articles/otm_setup.html">Collect OTM data</a>
   </div>
 </li>
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-r-workflow">R Workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-r-workflow">
-    <a class="dropdown-item" href="../articles/rnp_flights_data.html">Reading and processing flight data</a>
-    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Reading and processing OTM data</a>
-    <a class="dropdown-item" href="../articles/correcting_flight_data.html">Correcting flight data</a>
-    <a class="dropdown-item" href="../articles/predicting_thermal_landscapes.html">Predicting thermal landscapes</a>
+    <a class="dropdown-item" href="../articles/rnp_flights_data.html">Read and process flight data</a>
+    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Read and process OTM data, and generate OTM splines</a>
+    <a class="dropdown-item" href="../articles/correcting_flight_data.html">Correct flight data</a>
+    <a class="dropdown-item" href="../articles/predicting_thermal_landscapes.html">Match data and predict thermal landscapes</a>
   </div>
 </li>
 <li class="nav-item">
@@ -352,17 +352,6 @@ and wider temperature distributions higher mean temperature and more
 variance:</p>
 <p><img src="correcting_flight_data_files/figure-html/unnamed-chunk-15-1.png" width="700" style="display: block; margin: auto;"></p>
 </div>
-<div class="section level2">
-<h2 id="a-worked-out-example">A worked out example<a class="anchor" aria-label="anchor" href="#a-worked-out-example"></a>
-</h2>
-<p>Implementing the <code>correct_flights_data</code> function is
-straightforward. Say that the user has a flights <code>tibble</code>
-called <code>flights_datax</code> and an OTM splines complex
-<code>tibble</code> called <code>otm_splinesx</code>, to correct their
-flights data the user would simply need to run the following code.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">corrected_flights_datax</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/correct_flights_data.html">correct_flights_data</a></span><span class="op">(</span>flights_data <span class="op">=</span> <span class="va">flights_datax</span>, otm_splines <span class="op">=</span> <span class="va">otm_splinesx</span><span class="op">)</span></span></code></pre></div>
-</div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
 </div>
@@ -371,7 +360,7 @@ flights data the user would simply need to run the following code.</p>
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by The package maintainer.</p>
+<p>Developed by Karla Alujević, Guillermo Garcia-Costoya, Noa Ratia, Michael Logan.</p>
 </div>
 
 <div class="pkgdown-footer-right">
