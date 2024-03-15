@@ -2,10 +2,11 @@ Package: throne
 Type: Package
 Title: Predicting thermal landscapes in spatio-temporally unprecedented detail
 Version: 0.1.0
-Authors@R: c(person("Karla", "Alujević", email = "alujevic@gmail.com", role = c("aut", "cre")),
+Authors@R: c(person("Karla", "Alujević", email = "alujevic@gmail.com", role = c("aut")),
              person("Guillermo", "Garcia-Costoya", email = "ggarciacosto@gmail.com", role = c("aut", "cre")),
              person("Noa", "Ratia", email = "NoaRatia@hotmail.com", role = c("aut")),
              person("Michael", "Logan", email = "mike.logan1983@gmail.com", role = c("aut")))
+Manteiner: person("Guillermo", "Garcia-Costoya", email = "ggarciacosto@gmail.com", role = "cre")
 Description: A package to integrate thermal imaging from drone with operative
     temperature measurements (OTM) on the ground to predict spatio-temporally
     complete thermal landscapes.
