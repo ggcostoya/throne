@@ -21,7 +21,5 @@ responses of organisms to environmental change.
 
 ## Getting started
 
-## How to cite the throne. 
-
-
+(Working on it)
 
