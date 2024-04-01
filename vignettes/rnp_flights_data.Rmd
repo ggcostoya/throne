@@ -15,29 +15,29 @@ devtools::load_all()
 
 # Overview
 
-The goal of this vignette is to illustrate the process behind the `rnp_flights_data` (**r**ead a**n**d **p**rocess flights data) function of the `throne` package. This function enables to processing of raw `.tif` files obtained by combining images gathered during a flight into a data structure easily manageable in `R` (a [`tibble`](https://tibble.tidyverse.org/)). This `tibble` will later be related to operative temperature model (**OTM**) data to finally predict thermal landscapes. Below, we highlight the section of the package's workflow that is covered in this vignette:
+The goal of this vignette is to illustrate the process behind the `rnp_flights_data` (**r**ead a**n**d **p**rocess flights data) function of the `throne` package. This function enables to processing of raw `.tif` files obtained by combining images gathered during a flight drone flight (see the [Flying drones and obtaining thermal orthomosaics vignette](https://ggcostoya.github.io/throne/articles/drone_setup.html)) into a data frame structure easily manageable in `R`. This data frame will later be related to operative temperature model (**OTM**) data to finally predict thermal landscapes. Below, we highlight the section of the package's workflow that is covered in this vignette:
 
 ```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
 knitr::include_graphics("images/rnp_flights_data_workflow.png")
 ```
 
-Next, we present how the `rnp_flights_data` function works, some notes on the choice of the parameter `digits` and a worked-through example on how to use the function.
+Next, we present how the `rnp_flights_data` function works, some notes on the choice of the parameter `digits` which will determine the spatial resolution of the final thermal maps.
 
 # How the `rnp_flights_data` function works
 
-The `rnp_flight_data` function uses the functionality developed by package [`raster`](https://rspatial.org/raster/pkg/index.html) to transform a `.tif` file into a `tibble` (similar to a `data.frame` in `R`). Below we detail the functions inputs, processing and output.
+The `rnp_flight_data` function uses the functionality developed by package [`raster`](https://rspatial.org/raster/pkg/index.html) to transform a `.tif` file into a [`tibble`](https://tibble.tidyverse.org/) (similar to a `data.frame` in `R`). Below we detail the functions inputs, processing and output.
 
 The `rnp_flights_data` takes in 3 inputs:
 
-1.  The **`path`** to the directory where all `.tif` files for flights are stored. The function will process all `.tif` files stored in the folder. If there are many and/or if each file is of considerable size, it will take a substantial amount of time to run. Luckily, it will only need to be ran once!
+1.  The **`path`** to the directory where all thermal orthomosaics (i.e., `.tif` files) for flights are stored. The function will process all files stored in the folder. If there are many and/or if each file is of considerable size, it will take a substantial amount of time to run. Luckily, it will only need to be ran once. 
 
-2.  A `tibble` or `data.frame` with **`metadata`** for each flight. This metadata `tibble` must contain columns for `flight_id`, the `date` when the flight took place (MM/DD/YYYY format), and the time of the day when the flight started and ended (`time_start` & `time_end` columns in HH:MM format). Below is an example metadata `tibble` we include as part of the documentation of the `throne` package:
+2.  A `tibble` or `data.frame` with **`metadata`** for each flight. This metadata file must contain columns for `flight_id`, the `date` when the flight took place (MM/DD/YYYY format), and the time of the day when the flight started and ended (`time_start` & `time_end` columns in HH:MM format). Below is an example metadata `tibble` we include as part of the documentation of the `throne` package:
 
 ```{r, echo = FALSE}
 as_tibble(flights_metadata)
 ```
 
-3.  The number of decimal `digits` to which the final output should be summarized to. Specifying this parameter correctly is essential as it will dictate the spatial resolution of each of the tiles in the eventual thermal landscape. Since we believe this is an absolutely critical issue, we include a section discussing this choice in section \@ref(digits) below.
+3.  The number of decimal `digits` to which the final output should be summarized to. Specifying this parameter correctly for each user's research purpose is crucial, as it will dictate the spatial resolution of each of the tiles in the eventual thermal landscape. Since we believe this is an absolutely critical issue, we include a section discussing this choice below.
 
 To transform the original `.tif` files, the `rnp_flights_data` function goes through the following general steps:
 
@@ -45,15 +45,15 @@ To transform the original `.tif` files, the `rnp_flights_data` function goes thr
 
 2.  Re-project the coordinates of the raster [**Universal Transverse Mercator**(**UTM**)](https://en.wikipedia.org/wiki/Universal_Transverse_Mercator_coordinate_system) coordinate system to a more easy to interpret [**World Geodetic System**(**WGS84**)](https://en.wikipedia.org/wiki/World_Geodetic_System) coordinate system (i.e., from a system based on UTM zones to the widely used decimal latitude and longitude degrees), using the `projectRaster` function also from the `raster` package.
 
-3.  Transform the raster into a `data.frame` via the `rasterToPoints` function once again from the `raster` package. The resulting `data.frame` will have columns for longitude, latitude and IR temperature (i.e., the temperature measured by the drone) and as many rows as combinations of unique longitude and latitude values the initial `.tif` file had. Each combination corresponds to a "tile" within your area of study and the area of this "tile" will be determined by the number of decimal digits of your latitude and longitude measurements as highlighted earlier.
+3.  Transform the raster into a `data.frame` via the `rasterToPoints` function once again from the `raster` package. The resulting `data.frame` will have columns for `longitude`, `latitude` and `ir_temp` with the latter being the surface temperature measured by the drone. The output `data.frame` will have as many rows as combinations of unique longitude and latitude values the initial `.tif` file had. Each combination corresponds to a "tile" within the site under study and the area
 
-4.  Round the number of decimal digits on all latitude and longitude observations according to the `digits` argument.
+4.  Round the number of decimal digits on all tiles according to the `digits` argument.
 
-5.  Average the IR temperature across all observations with the same averaged latitude and longitude.
+5.  Average the surface temperature across all tiles with the same averaged latitude and longitude.
 
 6.  Add the `metadata` corresponding to that flight to the final output. Simultaneously, the `date`, `time_start` and `time_end` columns of the metadata file will be transformed into columns for `year`, day of the year (`doy`), and minute of the day (`mod`) when the flight started (`mod_start`) and ended (`mod_end`).
 
-> **NOTE**: We choose working with `doy` and `mod` to simplify the management of the data as much as possible. Date and time data have unique data formats in the `R` environment that are often difficult to handle for users and that might lead to unintended errors. By using `doy` and `mod`, the user deals with integer columns, much easier to operate with and manipulate. Further, these formats can be easily transformed back into more easily interpretable scales for visualization purposes, [by using the `as.Date` function to transform `doy` (also known as Julian date) back into a YYYY-MM-DD format](https://stackoverflow.com/questions/24200014/convert-day-of-year-to-date) and dividing by 60 for `mod` to get hours.
+> **NOTE**: We choose working with `doy` and `mod` to simplify the management of the data as much as possible. Date and time data have unique data formats in the `R` environment that are often difficult to handle for users which can lead to unintended errors. By using `doy` and `mod`, the user deals with integer columns, much easier to operate with. Further, these formats can be easily transformed back into more easily interpretable temporal scales for visualization purposes, [by using the `as.Date` function to transform `doy` (also known as Julian date) back into a YYYY-MM-DD format](https://stackoverflow.com/questions/24200014/convert-day-of-year-to-date) and dividing by 60 for `mod` to get hours.
 
 The final output is a `tibble` object with columns for longitude, latitude and IR-measured temperature (`ir_temp`). The number of rows of this data set will vary depending on the number of flights that are processed simultaneously, based on the area covered by eacg flight and the number of `digits` specified. For instance, our study area was \~ 2900 $m^2$, which processed setting `digits = 5` led to a `tibble` of \~7500 observations per flight each representing a "tile" of approximately 0.4 $m^2$ at a latitude of approximately 40° (See more details on the choice of the `digits` argument in section \@ref(digits)).
 
