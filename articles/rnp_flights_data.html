@@ -100,35 +100,38 @@
 a<strong>n</strong>d <strong>p</strong>rocess flights data) function of
 the <code>throne</code> package. This function enables to processing of
 raw <code>.tif</code> files obtained by combining images gathered during
-a flight into a data structure easily manageable in <code>R</code> (a <a href="https://tibble.tidyverse.org/" class="external-link"><code>tibble</code></a>). This
-<code>tibble</code> will later be related to operative temperature model
+a flight drone flight (see the <a href="https://ggcostoya.github.io/throne/articles/drone_setup.html">Flying
+drones and obtaining thermal orthomosaics vignette</a>) into a data
+frame structure easily manageable in <code>R</code>. This data frame
+will later be related to operative temperature model
 (<strong>OTM</strong>) data to finally predict thermal landscapes.
 Below, we highlight the section of the package’s workflow that is
 covered in this vignette:</p>
 <p><img src="images/rnp_flights_data_workflow.png" width="80%" style="display: block; margin: auto;"></p>
 <p>Next, we present how the <code>rnp_flights_data</code> function
-works, some notes on the choice of the parameter <code>digits</code> and
-a worked-through example on how to use the function.</p>
+works, some notes on the choice of the parameter <code>digits</code>
+which will determine the spatial resolution of the final thermal
+maps.</p>
 </div>
 <div class="section level2">
 <h2 id="how-the-rnp_flights_data-function-works">How the <code>rnp_flights_data</code> function works<a class="anchor" aria-label="anchor" href="#how-the-rnp_flights_data-function-works"></a>
 </h2>
 <p>The <code>rnp_flight_data</code> function uses the functionality
 developed by package <a href="https://rspatial.org/raster/pkg/index.html" class="external-link"><code>raster</code></a>
-to transform a <code>.tif</code> file into a <code>tibble</code>
-(similar to a <code>data.frame</code> in <code>R</code>). Below we
-detail the functions inputs, processing and output.</p>
+to transform a <code>.tif</code> file into a <a href="https://tibble.tidyverse.org/" class="external-link"><code>tibble</code></a> (similar to
+a <code>data.frame</code> in <code>R</code>). Below we detail the
+functions inputs, processing and output.</p>
 <p>The <code>rnp_flights_data</code> takes in 3 inputs:</p>
 <ol style="list-style-type: decimal">
 <li><p>The <strong><code>path</code></strong> to the directory where all
-<code>.tif</code> files for flights are stored. The function will
-process all <code>.tif</code> files stored in the folder. If there are
-many and/or if each file is of considerable size, it will take a
-substantial amount of time to run. Luckily, it will only need to be ran
-once!</p></li>
+thermal orthomosaics (i.e., <code>.tif</code> files) for flights are
+stored. The function will process all files stored in the folder. If
+there are many and/or if each file is of considerable size, it will take
+a substantial amount of time to run. Luckily, it will only need to be
+ran once.</p></li>
 <li><p>A <code>tibble</code> or <code>data.frame</code> with
 <strong><code>metadata</code></strong> for each flight. This metadata
-<code>tibble</code> must contain columns for <code>flight_id</code>, the
+file must contain columns for <code>flight_id</code>, the
 <code>date</code> when the flight took place (MM/DD/YYYY format), and
 the time of the day when the flight started and ended
 (<code>time_start</code> &amp; <code>time_end</code> columns in HH:MM
@@ -151,11 +154,11 @@ part of the documentation of the <code>throne</code> package:</p></li>
 <span><span class="co">## <span style="color: #949494;"># ℹ 24 more rows</span></span></span></code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li>The number of decimal <code>digits</code> to which the final output
-should be summarized to. Specifying this parameter correctly is
-essential as it will dictate the spatial resolution of each of the tiles
-in the eventual thermal landscape. Since we believe this is an
-absolutely critical issue, we include a section discussing this choice
-in section @ref(digits) below.</li>
+should be summarized to. Specifying this parameter correctly for each
+user’s research purpose is crucial, as it will dictate the spatial
+resolution of each of the tiles in the eventual thermal landscape. Since
+we believe this is an absolutely critical issue, we include a section
+discussing this choice below.</li>
 </ol>
 <p>To transform the original <code>.tif</code> files, the
 <code>rnp_flights_data</code> function goes through the following
@@ -174,16 +177,15 @@ function also from the <code>raster</code> package.</p></li>
 <li><p>Transform the raster into a <code>data.frame</code> via the
 <code>rasterToPoints</code> function once again from the
 <code>raster</code> package. The resulting <code>data.frame</code> will
-have columns for longitude, latitude and IR temperature (i.e., the
-temperature measured by the drone) and as many rows as combinations of
-unique longitude and latitude values the initial <code>.tif</code> file
-had. Each combination corresponds to a “tile” within your area of study
-and the area of this “tile” will be determined by the number of decimal
-digits of your latitude and longitude measurements as highlighted
-earlier.</p></li>
-<li><p>Round the number of decimal digits on all latitude and longitude
-observations according to the <code>digits</code> argument.</p></li>
-<li><p>Average the IR temperature across all observations with the same
+have columns for <code>longitude</code>, <code>latitude</code> and
+<code>ir_temp</code> with the latter being the surface temperature
+measured by the drone. The output <code>data.frame</code> will have as
+many rows as combinations of unique longitude and latitude values the
+initial <code>.tif</code> file had. Each combination corresponds to a
+“tile” within the site under study and the area</p></li>
+<li><p>Round the number of decimal digits on all tiles according to the
+<code>digits</code> argument.</p></li>
+<li><p>Average the surface temperature across all tiles with the same
 averaged latitude and longitude.</p></li>
 <li><p>Add the <code>metadata</code> corresponding to that flight to the
 final output. Simultaneously, the <code>date</code>,
@@ -198,11 +200,10 @@ ended (<code>mod_end</code>).</p></li>
 <code>mod</code> to simplify the management of the data as much as
 possible. Date and time data have unique data formats in the
 <code>R</code> environment that are often difficult to handle for users
-and that might lead to unintended errors. By using <code>doy</code> and
+which can lead to unintended errors. By using <code>doy</code> and
 <code>mod</code>, the user deals with integer columns, much easier to
-operate with and manipulate. Further, these formats can be easily
-transformed back into more easily interpretable scales for visualization
-purposes, <a href="https://stackoverflow.com/questions/24200014/convert-day-of-year-to-date" class="external-link">by
+operate with. Further, these formats can be easily transformed back into
+more easily interpretable temporal scales for visualization purposes, <a href="https://stackoverflow.com/questions/24200014/convert-day-of-year-to-date" class="external-link">by
 using the <code>as.Date</code> function to transform <code>doy</code>
 (also known as Julian date) back into a YYYY-MM-DD format</a> and
 dividing by 60 for <code>mod</code> to get hours.</p>
