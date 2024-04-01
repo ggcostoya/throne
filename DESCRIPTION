@@ -17,8 +17,9 @@ Description: A package to integrate thermal imaging from drone with operative
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Depends:
+  R (>= 4.1.0),
   tidyverse, 
   lubridate,
   terra,

@@ -1,7 +1,13 @@
 url: https://ggcostoya.github.io/throne
+home:
+  links:
+  - text: Browse source code at
+    url: https://github.com/ggcostoya/throne
 template:
   bootstrap: 5
   bootswatch: sandstone
+toc:
+  depth: 3
 navbar:
   left:
   - icon: fa-home fa-lg
@@ -28,4 +34,14 @@ navbar:
     href: articles/case_study.html
   - text: Reference
     href: reference/index.html
+reference:
+  - title: Functions
+    desc: R functions of the throne package
+    contents:
+      - rnp_flights_data
+      - rnp_otms_data
+      - gen_otm_splines
+      - correct_flights_data
+      - match_data
+      - predict_thermal_landscape
 
