@@ -23,7 +23,7 @@ knitr::include_graphics("images/rnp_flights_data_workflow.png")
 
 Next, we present how the `rnp_flights_data` function works, some notes on the choice of the parameter `digits` which will determine the spatial resolution of the final thermal maps.
 
-# How the `rnp_flights_data` function works
+# Reading and processing flights data
 
 The `rnp_flight_data` function uses the functionality developed by package [`raster`](https://rspatial.org/raster/pkg/index.html) to transform a `.tif` file into a [`tibble`](https://tibble.tidyverse.org/) (similar to a `data.frame` in `R`). Below we detail the functions inputs, processing and output.
 
@@ -82,7 +82,38 @@ flights_data %>%
   guides(fill = guide_colorbar("Reflected temperature (°C)"))
 ```
 
-# Choosing the appropriate `digits`. {#digits}
+With data on the elevation profile of the site we can also use tools from the `plotly` package to plot the data from the resulting flight in 3 dimensions. Below is the site on `doy = 236` and `mod = 515` (i.e., August 25th 2024 at 8:35 AM)
+
+```{r, echo = FALSE, fig.align = 'center', fig.cap = "Figure 3: Elevational profile of our area of study"}
+# filter flight data
+flight <- flights_data %>% filter(mod_start == 515)
+
+# merge flight with elevation data
+flight_elev <- merge(elevation, flight, by = c("latitude", "longitude"))
+
+# prepare rasters
+raster_elev <- rasterFromXYZ(flight_elev %>% dplyr::select(longitude, latitude, elevation))
+raster_temp <- rasterFromXYZ(flight_elev %>% dplyr::select(longitude, latitude, ir_temp))
+
+# prepare plot data
+Latitude <- seq(max(flight$latitude), min(flight$latitude), length.out = length(unique(flight$latitude)))
+Longitude <- seq(min(flight$longitude), max(flight$longitude), length.out = length(unique(flight$longitude)))
+Elevation <- as.matrix(raster_elev)
+Temp <- as.matrix(raster_temp)
+
+# plot
+plot_ly(x = ~Longitude, y = ~Latitude, z = ~Elevation) %>%
+  add_surface(surfacecolor = ~Temp, 
+              colors = magma(n = length(unique(flight$ir_temp))),
+              colorbar = list(title = "Surface Temp. (C)"),
+              contours = list(z = list(show = TRUE,
+                                       start = min(elevation$elevation),
+                                       end = max(elevation$elevation), size = 2))) %>%
+  layout(scene = list(aspectratio = list(x = 0.75, y = 1, z = 0.24)))
+
+```
+
+# Choosing the appropriate `digits`
 
 The argument `digits` determines the number of decimal digit places to which latitude and longitude information should be rounded to. This argument will therefore determine the spatial resolution of your final measurement as different latitude and longitude decimal digits correspond to different distances. As a generalization, 1 degree of latitude can be approximated to 111.32 km, a relationship that can be extended to decimal digits as seen below.
 

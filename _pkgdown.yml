@@ -1,8 +1,4 @@
 url: https://ggcostoya.github.io/throne
-home:
-  links:
-  - text: Browse source code at
-    url: https://github.com/ggcostoya/throne
 template:
   bootstrap: 5
   bootswatch: sandstone
@@ -34,14 +30,36 @@ navbar:
     href: articles/case_study.html
   - text: Reference
     href: reference/index.html
+  right:
+  - icon: fa-github
+    href: https://github.com/ggcostoya/throne
 reference:
-  - title: Functions
-    desc: R functions of the throne package
-    contents:
-      - rnp_flights_data
-      - rnp_otms_data
-      - gen_otm_splines
-      - correct_flights_data
-      - match_data
-      - predict_thermal_landscape
+- title: Functions
+  desc: R functions of the throne package
+  contents:
+  - rnp_flights_data
+  - rnp_otms_data
+  - gen_otm_splines
+  - correct_flights_data
+  - match_data
+  - predict_thermal_landscape
+- title: Datasets
+  desc: Datasets used in the throne package
+- subtitle: Example datasets
+  desc: Datasets used as part of the examples in the package and in the validation of method
+  contents:
+  - flights_metadata
+  - flights_data
+  - otms_metadata
+  - otms_data
+  - otms_splines
+- subtitle: Case study datasets
+  desc: Datasets used in the case study
+- subtitle: Other datasets
+  desc: Miscellaneous datasets used in the vignettes
+  contents:
+  - elevation
+  - bad_read_otm
+  - good_read_otm
+
 

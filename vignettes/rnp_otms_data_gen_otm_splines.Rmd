@@ -15,21 +15,19 @@ devtools::load_all()
 
 # Overview
 
-The goal of this vignette is to illustrate the process behind the `rnp_otms_data` (**r**ead a**n**d **p**rocess OTMs data) and `gen_otm_splines` (**gen**erate **OTM** **spline** model**s**) function of the `throne` package. The first function allows the user to read one or multiple raw `.csv` with temperature measurements recorded by an iButton logger inside (or not) of an **operative temperature model** (**OTM**) to a data structure easily manageable in `R` (a [`tibble`](https://tibble.tidyverse.org/)). The second function takes this processed OTM data and generates an OTM & day of year (`doy`) specific cubic spline model that describes the thermal dynamics of each unique OTM each day. These spline models will later be used to both correct the flight data and to ultimately predict thermal landscapes. Below, we highlight the section of the package's workflow that is covered in this vignette:
+The goal of this vignette is to illustrate the process behind the `rnp_otms_data` (**r**ead a**n**d **p**rocess OTMs data) and `gen_otm_splines` (**gen**erate **OTM** **spline** model**s**) function of the `throne` package. The first function allows the user to read one or multiple raw `.csv` (see the ["Collecting OTM data vignette"](https://ggcostoya.github.io/throne/articles/otm_setup.html)with temperature measurements recorded by an temperature logger inside of an **operative temperature model** (**OTM**) to a `data.frame`-like structure  in `R`. The second function takes this processed OTM data and generates an OTM & day of year (`doy`) specific cubic spline model that describes the thermal dynamics of each unique OTM each day. These spline models will later be used to both [correct the flights data](https://ggcostoya.github.io/throne/articles/correcting_flights_data.html) and to ultimately [predict thermal landscapes](https://ggcostoya.github.io/throne/articles/predicting_thermal_landscapes.html). Below, we highlight the section of the package's workflow that is covered in this vignette:
 
 ```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
 knitr::include_graphics("images/rnp_otms_data_workflow.png")
 ```
 
-Next, we will
+# Reading and processing OTMs data
 
-# How the `rnp_otms_data` function works
-
-The `rnp_otms_data` function reads a database of `.csv` files, reads them, manipulates them and ultimately combines them into a large `tibble`. To do so, the function takes in the following inputs:
+The `rnp_otms_data` function reads a database of `.csv` files, reads, manipulates and ultimately combines them into a large data-frame like structure in `R`, a [`tibble`](https://tibble.tidyverse.org/). To do so, the function takes in the following inputs:
 
 1.  The **`path`**, or directory to one or multiple `.csv` files are stored. Each of these `.csv` files is assumed to have at least:
 
-a)  A column for operative temperature measurements. Since different iButton processing softwares structure the outputs differently in the resulting `.csv` file, we require the user to specify the column where the OTM measurements can be found in the `op_temp_col` argument of the function. In our case, we used [OneWire Viewer](https://www.analog.com/en/resources/evaluation-hardware-and-software/1-wire-sdks/viewer.html) which returns the operative temperature in the `3`rd column.
+a)  A column for operative temperature measurements. Since different temperature logger processing software structure the outputs differently in the resulting `.csv` file, we require the user to specify the column where the OTM measurements can be found in the `op_temp_col` argument of the function. In our case, we used [OneWire Viewer](https://www.analog.com/en/resources/evaluation-hardware-and-software/1-wire-sdks/viewer.html) which returns the operative temperature in the `3`rd column.
 
 b)  A column for dates. As with the operative temperature values, we also require the user to specify the `date_col` in their .csv files. OneWireViewer returns the date in the first column in MM/DD/YY HH:MM:SS AM/PM format. By default dates and times will be extracted from this column but other software return date and time in separate columns. If that is the case, the user can specify the `time_col` as an argument of the function.
 
@@ -52,7 +50,7 @@ head(bad_read_otm)
 To transform the raw `.csv` data into an `R` `tibble`, the `rnp_otm_data` function will go through the following general steps:
 
 1.  Read each `.csv` file while skipping as many rows as specified within the `rows_skip` argument.
-2.  Select the columns for time and operative temperature as specified by the `date_col` (`time_col`) and `op_temp_col` arguments.
+2.  Select the columns for time and operative temperature as specified by the `date_col` (and/or `time_col`) and `op_temp_col` arguments.
 3.  Using tools from the `lubridate` package, extract the `year`, day of the year (`doy)` and minute of the day (`doy`) at which each oprative temperature measurement (`op_temp`) was made.
 
 > **NOTE**: We choose working with `doy` and `mod` to simplify the management of the data as much as possible. Date and time data have unique data formats in the `R` environment that are often difficult to handle for users and that might lead to unintended errors. By using `doy` and `mod`, the user deals with integer columns, much easier to operate with and manipulate. Further, these formats can be easily transformed back into more easily interpretable scales for visualization purposes, [by using the `as.Date` function to transform `doy` (also known as Julian date) back into a YYYY-MM-DD format](https://stackoverflow.com/questions/24200014/convert-day-of-year-to-date) and dividing by 60 for `mod` to get hours.

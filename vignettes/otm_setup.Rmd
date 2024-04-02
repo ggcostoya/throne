@@ -72,15 +72,27 @@ Once OTMs are programmed the next step is to deploy them in the field. As a gene
 As an example, the study area we considered to pilot the methodology of the `throne` package is the slope of a small outcrop in the Great Basin Desert. After examining this environment, we considered that placing OTMs in the faces of outcrops (rocks of > 2m in diameter), boulders (1-2 m), rocks (< 1 m), in the ground and inside of small bushes would be an adequate representation of all available micro habitats. Additionally, this outcrop had relatively rough terrain (see below), which generated slopes facing towards all cardinal directions (N, NE, E, SE, S, SW & W) which is why we intentionally placed OTMs facing perpendicularly towards each of these directions. 
 
 ```{r, echo = FALSE, fig.align = 'center', fig.cap = "Figure 3: Elevational profile of our area of study"}
-raster <- rasterFromXYZ(elevation)
+# filter flight data
+flight <- flights_data %>% filter(mod_start == 515)
 
-Latitude <- seq(39.86829, 39.86924, length.out = 96)
-Longitude <- seq(-119.6277, -119.6264, length.out = 126)
-Elevation <- as.matrix(raster)
+# merge flight with elevation data
+flight_elev <- merge(elevation, flight, by = c("latitude", "longitude"))
 
+# prepare rasters
+raster_elev <- rasterFromXYZ(flight_elev %>% dplyr::select(longitude, latitude, elevation))
+raster_temp <- rasterFromXYZ(flight_elev %>% dplyr::select(longitude, latitude, ir_temp))
 
-plot_ly(x = ~Latitude, y = ~Longitude, z = ~Elevation) %>% 
-  add_surface(contours = list(z = list(show = TRUE, start = min(elevation$elevation), end = max(elevation$elevation), size = 2))) %>% 
+# prepare plot data
+Latitude <- seq(max(flight$latitude), min(flight$latitude), length.out = length(unique(flight$latitude)))
+Longitude <- seq(min(flight$longitude), max(flight$longitude), length.out = length(unique(flight$longitude)))
+Elevation <- as.matrix(raster_elev)
+Temp <- as.matrix(raster_temp)
+
+# plot
+plot_ly(x = ~Longitude, y = ~Latitude, z = ~Elevation) %>%
+  add_surface(contours = list(z = list(show = TRUE,
+                                       start = min(elevation$elevation),
+                                       end = max(elevation$elevation), size = 2))) %>%
   layout(scene = list(aspectratio = list(x = 0.75, y = 1, z = 0.24)))
 
 ```

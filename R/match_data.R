@@ -6,10 +6,10 @@
 #' collected across multiple flights to the thermal dynamics of an operative
 #' temperature model (OTM).
 #'
-#' @param flights_data A `tibble` of flights data obtained through the `rnp_flights_data`
-#'    and corrected using the the `correct_flights_data` function. The temperature
-#'    column should be `op_temp` but the function will also work if `ir_temp` is provided.
-#' @param otm_splines A complex `tibble` obtained using the `gen_otm_splines` function.
+#' @param flights_data A \code{tibble} of flights data obtained through \code{rnp_flights_data}
+#'    and corrected using \code{correct_flights_data}. The temperature
+#'    column should be \code{op_temp} but the function will also work if \code{ir_temp} is provided.
+#' @param otm_splines A nested \code{tibble} obtained using \code{gen_otm_splines}
 #' @param coverage_per A numeric between 0 - 1 indicating the minimum coverage that
 #'    a tile should have across all flights provided in order to be included in the matching.
 #'    Coverage is calculated as the number of times temperature was measured in a given tile
@@ -21,10 +21,10 @@
 #'    Error is calculated as the average absolute value between the OTM prediction
 #'    and the temperature measurements of the tile.
 #'
-#' @return A matches `tibble` with columns for `latitude`, `longitude`, the `otm_id`
+#' @return A matches \code{tibble} with columns for \code{latitude}, \code{longitde}, the \code{otm_id}
 #'    that best describes the thermal dynamics of that tile and the average absolute
-#'    `error` between tile measurements and OTM predictions. Rows where `is.na(otm_id)`
-#'    indicate tiles where `error` was not `< error_max` for any of the OTMs provided.
+#'    \code{error} between tile measurements and OTM predictions. Rows where \code{is.na(otm_id)}
+#'    indicate tiles where \code{error} was not \code{< error_max} for any of the OTMs provided.
 #'
 #' @export
 
