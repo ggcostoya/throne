@@ -71,7 +71,14 @@
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off">
 </form>
 
-      <ul class="navbar-nav"></ul>
+      <ul class="navbar-nav">
+<li class="nav-item">
+  <a class="external-link nav-link" href="https://github.com/ggcostoya/throne">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 
     
@@ -101,26 +108,26 @@
 (<strong>gen</strong>erate <strong>OTM</strong> <strong>spline</strong>
 model<strong>s</strong>) function of the <code>throne</code> package.
 The first function allows the user to read one or multiple raw
-<code>.csv</code> with temperature measurements recorded by an iButton
-logger inside (or not) of an <strong>operative temperature
-model</strong> (<strong>OTM</strong>) to a data structure easily
-manageable in <code>R</code> (a <a href="https://tibble.tidyverse.org/" class="external-link"><code>tibble</code></a>). The
-second function takes this processed OTM data and generates an OTM &amp;
-day of year (<code>doy</code>) specific cubic spline model that
-describes the thermal dynamics of each unique OTM each day. These spline
-models will later be used to both correct the flight data and to
-ultimately predict thermal landscapes. Below, we highlight the section
-of the package’s workflow that is covered in this vignette:</p>
+<code>.csv</code> (see the <a href="https://ggcostoya.github.io/throne/articles/otm_setup.html">“Collecting
+OTM data vignette”</a>with temperature measurements recorded by an
+temperature logger inside of an <strong>operative temperature
+model</strong> (<strong>OTM</strong>) to a <code>data.frame</code>-like
+structure in <code>R</code>. The second function takes this processed
+OTM data and generates an OTM &amp; day of year (<code>doy</code>)
+specific cubic spline model that describes the thermal dynamics of each
+unique OTM each day. These spline models will later be used to both <a href="https://ggcostoya.github.io/throne/articles/correcting_flights_data.html">correct
+the flights data</a> and to ultimately <a href="https://ggcostoya.github.io/throne/articles/predicting_thermal_landscapes.html">predict
+thermal landscapes</a>. Below, we highlight the section of the package’s
+workflow that is covered in this vignette:</p>
 <p><img src="images/rnp_otms_data_workflow.png" width="80%" style="display: block; margin: auto;"></p>
-<p>Next, we will</p>
 </div>
 <div class="section level2">
-<h2 id="how-the-rnp_otms_data-function-works">How the <code>rnp_otms_data</code> function works<a class="anchor" aria-label="anchor" href="#how-the-rnp_otms_data-function-works"></a>
+<h2 id="reading-and-processing-otms-data">Reading and processing OTMs data<a class="anchor" aria-label="anchor" href="#reading-and-processing-otms-data"></a>
 </h2>
 <p>The <code>rnp_otms_data</code> function reads a database of
-<code>.csv</code> files, reads them, manipulates them and ultimately
-combines them into a large <code>tibble</code>. To do so, the function
-takes in the following inputs:</p>
+<code>.csv</code> files, reads, manipulates and ultimately combines them
+into a large data-frame like structure in <code>R</code>, a <a href="https://tibble.tidyverse.org/" class="external-link"><code>tibble</code></a>. To do so,
+the function takes in the following inputs:</p>
 <ol style="list-style-type: decimal">
 <li>The <strong><code>path</code></strong>, or directory to one or
 multiple <code>.csv</code> files are stored. Each of these
@@ -128,9 +135,9 @@ multiple <code>.csv</code> files are stored. Each of these
 </ol>
 <ol style="list-style-type: lower-alpha">
 <li><p>A column for operative temperature measurements. Since different
-iButton processing softwares structure the outputs differently in the
-resulting <code>.csv</code> file, we require the user to specify the
-column where the OTM measurements can be found in the
+temperature logger processing software structure the outputs differently
+in the resulting <code>.csv</code> file, we require the user to specify
+the column where the OTM measurements can be found in the
 <code>op_temp_col</code> argument of the function. In our case, we used
 <a href="https://www.analog.com/en/resources/evaluation-hardware-and-software/1-wire-sdks/viewer.html" class="external-link">OneWire
 Viewer</a> which returns the operative temperature in the
@@ -206,7 +213,7 @@ through the following general steps:</p>
 <li>Read each <code>.csv</code> file while skipping as many rows as
 specified within the <code>rows_skip</code> argument.</li>
 <li>Select the columns for time and operative temperature as specified
-by the <code>date_col</code> (<code>time_col</code>) and
+by the <code>date_col</code> (and/or <code>time_col</code>) and
 <code>op_temp_col</code> arguments.</li>
 <li>Using tools from the <code>lubridate</code> package, extract the
 <code>year</code>, day of the year (<code>doy)</code> and minute of the
