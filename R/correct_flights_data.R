@@ -102,7 +102,7 @@ correct_flights_data <- function(flights_data, otm_splines){
   flights_data$op_temp <- flights_data$ir_temp + flights_data$time_corr_factor
 
   # apply temperature correction
-  flights_data$op_temp <- -model$coefficients[1] + (2 - model$coefficients[2])*flights_data$op_temp
+  flights_data$op_temp <- (-model$coefficients[1] + flights_data$op_temp)/model$coefficients[2]
 
   # select columns of interest
   flights_data <- flights_data %>%

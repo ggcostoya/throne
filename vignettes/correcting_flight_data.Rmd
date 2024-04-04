@@ -134,12 +134,13 @@ Although the model's `Intercept` and slope have worsened (from `6.22` to `12.11`
 
 From here, we will apply the second correction by correcting for the temperature value itself. We do this by using the estimates of the linear regression above to correct our IR temperature measurements (already corrected by `year`, `doy` and `mod`, as indicated by the *) into operative measurements following the formula:
 
-$$Operative\;Temperature = - Intercept + (2 - Slope)\cdot IR\; Temperature^*$$
+$$Fully\; corrected\; surface\; temperature = \frac{-Intercept + Time\; corrected\; surface\; temperature}{Slope}$$
+
 If we implement the formula
 
 ```{r}
 # estimate op_temp after correction
-correction_data$op_temp_corr <- -12.11754 + (2 - 0.68946)*correction_data$ir_temp_corr
+correction_data$op_temp_corr <- (-12.11754 + correction_data$ir_temp_corr)/0.68946
 ```
 
 We can see that the `Intercept` of this relationship is now at `3.76` and the slope at `0.9` much closer to the desired values of `0` and `1` respectively. This is also apparent when plotting this relationship with the line of best fit now being very close to the 1:1 line. 
@@ -165,6 +166,7 @@ summary(lm(op_temp_corr ~ op_temp, data = correction_data))
 
 Below is an example of the effects of the correction across some of the flights provided as example data sets in the `throne` package. The columns across panels indicate if the plot shows a thermal landscape of IR temperatures (*Pre-correction*) or corrected IR temperatures now operative temperatures (*Post-correction*). The rows indicate the `mod` of the day when the flight took place:
 
+  
 ```{r, echo = FALSE, fig.align='center', fig.height = 10, fig.width = 8}
 flights_data_comp <- merge(flights_data, flights_data_corr, by = c("longitude", "latitude", "year", "doy", "mod_start", "mod_end"))
 

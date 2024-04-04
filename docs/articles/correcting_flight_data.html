@@ -314,12 +314,13 @@ linear regression above to correct our IR temperature measurements
 (already corrected by <code>year</code>, <code>doy</code> and
 <code>mod</code>, as indicated by the *) into operative measurements
 following the formula:</p>
-<p><span class="math display">\[Operative\;Temperature = - Intercept +
-(2 - Slope)\cdot IR\; Temperature^*\]</span> If we implement the
-formula</p>
+<p><span class="math display">\[Fully\; corrected\; surface\;
+temperature = \frac{-Intercept + Time\; corrected\; surface\;
+temperature}{Slope}\]</span></p>
+<p>If we implement the formula</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># estimate op_temp after correction</span></span>
-<span><span class="va">correction_data</span><span class="op">$</span><span class="va">op_temp_corr</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">12.11754</span> <span class="op">+</span> <span class="op">(</span><span class="fl">2</span> <span class="op">-</span> <span class="fl">0.68946</span><span class="op">)</span><span class="op">*</span><span class="va">correction_data</span><span class="op">$</span><span class="va">ir_temp_corr</span></span></code></pre></div>
+<span><span class="va">correction_data</span><span class="op">$</span><span class="va">op_temp_corr</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="op">-</span><span class="fl">12.11754</span> <span class="op">+</span> <span class="va">correction_data</span><span class="op">$</span><span class="va">ir_temp_corr</span><span class="op">)</span><span class="op">/</span><span class="fl">0.68946</span></span></code></pre></div>
 <p>We can see that the <code>Intercept</code> of this relationship is
 now at <code>3.76</code> and the slope at <code>0.9</code> much closer
 to the desired values of <code>0</code> and <code>1</code> respectively.
@@ -334,16 +335,16 @@ best fit now being very close to the 1:1 line.</p>
 <span><span class="co">## </span></span>
 <span><span class="co">## Residuals:</span></span>
 <span><span class="co">##      Min       1Q   Median       3Q      Max </span></span>
-<span><span class="co">## -20.1051  -3.0285  -0.1041   2.7070  23.9378 </span></span>
+<span><span class="co">## -22.2508  -3.3517  -0.1152   2.9959  26.4926 </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## Coefficients:</span></span>
-<span><span class="co">##             Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
-<span><span class="co">## (Intercept)  3.76298    0.74075    5.08 4.43e-07 ***</span></span>
-<span><span class="co">## op_temp      0.90356    0.01867   48.40  &lt; 2e-16 ***</span></span>
+<span><span class="co">##               Estimate Std. Error t value Pr(&gt;|t|)    </span></span>
+<span><span class="co">## (Intercept) -6.058e-06  8.198e-01     0.0        1    </span></span>
+<span><span class="co">## op_temp      1.000e+00  2.066e-02    48.4   &lt;2e-16 ***</span></span>
 <span><span class="co">## ---</span></span>
 <span><span class="co">## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
 <span><span class="co">## </span></span>
-<span><span class="co">## Residual standard error: 4.488 on 1112 degrees of freedom</span></span>
+<span><span class="co">## Residual standard error: 4.967 on 1112 degrees of freedom</span></span>
 <span><span class="co">## Multiple R-squared:  0.6781, Adjusted R-squared:  0.6778 </span></span>
 <span><span class="co">## F-statistic:  2343 on 1 and 1112 DF,  p-value: &lt; 2.2e-16</span></span></code></pre>
 <p>Below is an example of the effects of the correction across some of

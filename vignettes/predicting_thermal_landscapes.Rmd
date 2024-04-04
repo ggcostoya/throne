@@ -211,7 +211,7 @@ Since all the necessary calculations have been carried out before hand (i.e., ge
 
 ```{r}
 # obtain prediction
-prediction_237 <- predict_thermal_landscape(matches = matches, otm_splines = otms_splines, 
+prediction_237 <- predict_thermal_landscape(matches = matches_20, otm_splines = otms_splines, 
                                             doy = 237, mod = seq(0,1440, by = 60))
 
 prediction_237
@@ -222,6 +222,7 @@ We can plot this prediction using regular `ggplot` tools as easily as:
 
 ```{r, fig.align='center', fig.height=10, fig.width = 8}
 prediction_237 %>% 
+  filter(mod %in% seq(6*60,21*60,by = 60)) %>%
   filter(!is.na(mod)) %>%
   ggplot(aes(x = longitude, y = latitude, fill = pred_op_temp)) +
   geom_raster() +
@@ -245,7 +246,7 @@ The `predict_thermal_landscape` function has unlimited power to provide complete
 
 As we discuss in the accompanying manuscript, this method is highly accurate when predicting thermal landscapes. To that end, we performed a validation to compare the predicted operative temperature for all tiles containing OTMs using the `predict_thermal_landscape` function to the operative temperatures recorded by the OTMs that were actually on those tiles. The average prediction error (i.e., `pred_op_temp - op_temp`) was XX. 
 
-```{r, message = FALSE, fig.align = 'center', fig.width = 5, fig.height = 4}
+```{r, message = FALSE, warning = FALSE, fig.align = 'center', fig.width = 5, fig.height = 4}
 val_data %>% 
   filter(knot_p == 1/7.5, n_flights == 34, n_otms == 33) %>% 
   ggplot(aes(x = pred_op_temp - obs_op_temp)) + 

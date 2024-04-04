@@ -245,16 +245,16 @@ specified as <code>NA</code>.</p>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6,386 × 4</span></span></span>
 <span><span class="co">##    latitude longitude otm_id error</span></span>
 <span><span class="co">##       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   3.60</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   3.61</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM14   2.96</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   2.93</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   3.14</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM02   2.45</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   2.61</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   2.71</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   2.50</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   2.98</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   4.29</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   4.40</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   3.32</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   3.15</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   3.36</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM02   2.73</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   3.18</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   2.96</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   2.94</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span>     39.9     -<span style="color: #BB0000;">120.</span> OTM26   3.54</span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 6,376 more rows</span></span></span></code></pre>
 <p>From this <code>matches</code> data we gather some interesting
 findings. Including that:</p>
@@ -323,12 +323,11 @@ complete thermal landscape prediction every hour of the day for the
 <code>doy = 237</code> (i.e., August 24th), one would simply run:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># obtain prediction</span></span>
-<span><span class="va">prediction_237</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_thermal_landscape.html">predict_thermal_landscape</a></span><span class="op">(</span>matches <span class="op">=</span> <span class="va">matches</span>, otm_splines <span class="op">=</span> <span class="va">otms_splines</span>, </span>
-<span>                                            doy <span class="op">=</span> <span class="fl">237</span>, mod <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1440</span>, by <span class="op">=</span> <span class="fl">60</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] "0.19 % of predictions were removed due to falling outside of the time when OTMs were recording"</span></span></code></pre>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">prediction_237</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 152,834 × 5</span></span></span>
+<span><span class="va">prediction_237</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_thermal_landscape.html">predict_thermal_landscape</a></span><span class="op">(</span>matches <span class="op">=</span> <span class="va">matches_20</span>, otm_splines <span class="op">=</span> <span class="va">otms_splines</span>, </span>
+<span>                                            doy <span class="op">=</span> <span class="fl">237</span>, mod <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1440</span>, by <span class="op">=</span> <span class="fl">60</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">prediction_237</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 159,650 × 5</span></span></span>
 <span><span class="co">##    latitude longitude   doy   mod pred_op_temp</span></span>
 <span><span class="co">##       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">## <span style="color: #BCBCBC;"> 1</span>     39.9     -<span style="color: #BB0000;">120.</span>   237  <span style="text-decoration: underline;">1</span>380         23.0</span></span>
@@ -341,7 +340,7 @@ complete thermal landscape prediction every hour of the day for the
 <span><span class="co">## <span style="color: #BCBCBC;"> 8</span>     39.9     -<span style="color: #BB0000;">120.</span>   237     0         21.5</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;"> 9</span>     39.9     -<span style="color: #BB0000;">120.</span>   237  <span style="text-decoration: underline;">1</span>260         24.9</span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">10</span>     39.9     -<span style="color: #BB0000;">120.</span>   237   660         34.6</span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 152,824 more rows</span></span></span></code></pre>
+<span><span class="co">## <span style="color: #949494;"># ℹ 159,640 more rows</span></span></span></code></pre>
 <blockquote>
 <p><strong>NOTE</strong>: The <code>predict_thermal_landscape</code>
 function will not be able to predict thermal landscapes if the specified
@@ -352,8 +351,9 @@ OTMs were recording.</p>
 </blockquote>
 <p>We can plot this prediction using regular <code>ggplot</code> tools
 as easily as:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prediction_237</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">mod</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">6</span><span class="op">*</span><span class="fl">60</span>,<span class="fl">21</span><span class="op">*</span><span class="fl">60</span>,by <span class="op">=</span> <span class="fl">60</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">longitude</span>, y <span class="op">=</span> <span class="va">latitude</span>, fill <span class="op">=</span> <span class="va">pred_op_temp</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_raster</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
@@ -382,7 +382,7 @@ containing OTMs using the <code>predict_thermal_landscape</code>
 function to the operative temperatures recorded by the OTMs that were
 actually on those tiles. The average prediction error (i.e.,
 <code>pred_op_temp - op_temp</code>) was XX.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">val_data</span> <span class="op">%&gt;%</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">knot_p</span> <span class="op">==</span> <span class="fl">1</span><span class="op">/</span><span class="fl">7.5</span>, <span class="va">n_flights</span> <span class="op">==</span> <span class="fl">34</span>, <span class="va">n_otms</span> <span class="op">==</span> <span class="fl">33</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
 <span>  <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">pred_op_temp</span> <span class="op">-</span> <span class="va">obs_op_temp</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
@@ -391,11 +391,6 @@ actually on those tiles. The average prediction error (i.e.,
 <span>  <span class="fu">xlab</span><span class="op">(</span><span class="st">"Prediction error (Predicted - Observed Operative Temp., C)"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ylab</span><span class="op">(</span><span class="st">"Density"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Warning: The dot-dot notation (`..density..`) was deprecated in ggplot2 3.4.0.</span></span>
-<span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Please use `after_stat(density)` instead.</span></span>
-<span><span class="co">## <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span></span>
-<span><span class="co">## <span style="color: #555555;">Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span></span>
-<span><span class="co">## <span style="color: #555555;">generated.</span></span></span></code></pre>
 <p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-12-1.png" width="480" style="display: block; margin: auto;"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
