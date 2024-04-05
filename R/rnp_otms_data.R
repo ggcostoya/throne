@@ -21,7 +21,7 @@
 #'    from `date_col`.
 #' @param op_temp_col A positive integer indicating the column column in the
 #'    OTM `.csv` file that contains the operative temperature measurement
-#' @param metadata A `tibble` or `data.frame` containing metadata related to each
+#' @param metadata A \code{tibble} or `data.frame` containing metadata related to each
 #'    OTM. It needs to have an `otm_id` character column matching the names of each
 #'    of the OTM files.
 #'

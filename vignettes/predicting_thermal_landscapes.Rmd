@@ -12,6 +12,14 @@ knitr::opts_chunk$set(echo = TRUE)
 devtools::load_all()
 ```
 
+```{r echo = FALSE, message = FALSE}
+library(tidyverse)
+library(gridExtra)
+library(viridis)
+library(metR)
+library(plotly)
+```
+
 # Overview
 
 In this vignette, our goal is to illustrate the process behind the final step in the workflow of the `throne` package, the prediction of spatio-temporally complete thermal landscapes. To achieve this, `throne` uses two functions: `match_data` and `predict_thermal_landscpe`. The first allows the user to match the thermal dynamics of a given tile within their site (i.e., a unique `latitude` and `longitude`) as measured across multiple flights with those of an **operative temperature model** (**OTM**). The second, uses this matches data set and combines it with information from date & OTM specific cubic spline models (obtained using the `gen_otm_splines`) function in this package to predict the temperature of each tile on the site at any moment in time while the OTMs were deployed in the field. In the context of the overall workflow of the package, this is the section that is covered in this vignette: 
@@ -100,7 +108,7 @@ otms_splines_sub <- otms_splines %>%
 otms_splines_sub$longitude <- as.numeric(format(otms_splines_sub$longitude, nsmall = 5))
 otms_splines_sub$latitude <- as.numeric(format(otms_splines_sub$latitude, nsmall = 5))
 
-merge(otms_splines_sub, matches, by = c("latitude", "longitude")) %>% 
+merge(otms_splines_sub, matches_5, by = c("latitude", "longitude")) %>% 
   rename(actual_otm_id = otm_id.x, matched_otm_id = otm_id.y) %>% 
   mutate(same = ifelse(actual_otm_id == matched_otm_id, "Yes", "No")) %>% 
   ggplot(aes(x = matched_otm_id, y = actual_otm_id, fill = as.factor(same))) +
@@ -115,7 +123,7 @@ merge(otms_splines_sub, matches, by = c("latitude", "longitude")) %>%
 4. If the minimum error is above a certain threshold indicated by he `error_max` parameter do not assign any OTM to a tile. In the figure below we show the results of implementing this step with the areas marked in dark blue indicating tiles for which no one OTM could best describe it without exceeding the threshold imposed by `error_max`. It is also important to note that these "problematic" tiles are far from the area of interest for this study (where the OTMs, indicated by black dots, where deployed) and that in this area the error is minimized. 
 
 ```{r, fig.width = 6, fig.height = 4, fig.align = 'center', echo = FALSE}
-matches %>%
+matches_5 %>%
   mutate(isna = ifelse(is.na(error), 1, 0)) %>%
   ggplot(aes(x = longitude, y = latitude)) +
   geom_tile(data = flights_data, fill = "lightgray") +
@@ -135,7 +143,7 @@ matches %>%
 The resulting `matches` `tibble` will have an `otm_id` column indicating the OTM that best describes a given tile (i.e., a combination o `latitude` and `longitude`) as well as a column for the matching `error` for the user to check if desired. In rows where `error > error_max` the `otm_id` will be specified as `NA`. 
 
 ```{r}
-matches
+matches_5
 ```
 
 From this `matches` data we gather some interesting findings. Including that: 
@@ -143,7 +151,7 @@ From this `matches` data we gather some interesting findings. Including that:
 1. Very few OTMs are needed to explain the majority of the sites thermal dynamics. In the example data set, only `5` out of the `33` OTMs deployed were needed to explain more than >50% of the variability of the site and only `21` to explain >95%. 
 
 ```{r, echo = FALSE, message = FALSE, fig.height = 4, fig.width = 6, fig.align='center'}
-matches %>% 
+matches_5 %>% 
   filter(!is.na(otm_id)) %>%
   group_by(otm_id) %>% 
   summarise(tiles_covered = (n()/6102)*100) %>% 
@@ -172,7 +180,7 @@ orientation_colors <- c("N" = "darkblue", "NW" = "#7F468B","W" = "darkorange",
                         "SW" = "#FCCE7B", "S" = "gold", "SE" = "#90B122",
                         "E" = "forestgreen", "NE" = "#11458B", "Flat" = "maroon")
 
-merge(matches, otms_splines_orient, by = c("otm_id"))%>% 
+merge(matches_5, otms_splines_orient, by = c("otm_id"))%>% 
   ggplot(aes(x = longitude, y = latitude)) +
   geom_tile(aes(fill = orientation)) +
   geom_contour(data = elevation, aes(z = elevation), bins = 20, col = "white") +

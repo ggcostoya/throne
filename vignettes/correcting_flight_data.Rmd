@@ -12,6 +12,14 @@ knitr::opts_chunk$set(echo = TRUE)
 devtools::load_all()
 ```
 
+```{r echo = FALSE, message = FALSE}
+library(tidyverse)
+library(gridExtra)
+library(viridis)
+library(metR)
+library(plotly)
+```
+
 # Overview
 
 In this vignette, our aim is to illustrate how to correct temperature data obtained using thermal photogrammetry. By correcting, we are referring to the process of transforming the temperature measurements made via the IR cameras mounted into the drone into **operative temperatures** as measured using an **operative temperature model** (OTM). Below we highlight the section of the package's workflow that is covered in this vignette:

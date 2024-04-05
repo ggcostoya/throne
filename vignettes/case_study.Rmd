@@ -12,6 +12,14 @@ knitr::opts_chunk$set(echo = TRUE)
 devtools::load_all()
 ```
 
+```{r echo = FALSE, message = FALSE}
+library(tidyverse)
+library(gridExtra)
+library(viridis)
+library(metR)
+library(plotly)
+```
+
 # Overview
 
 In this vignette we illustrate a case study to serve as an example on how to use the tools provided by the `throne` package. In this example we will be looking at a population of western fence lizards (*Sceloporus occidentalis*) living at ~ 2400 m above sea level in the Great Basin Desert of Northern Nevada. 

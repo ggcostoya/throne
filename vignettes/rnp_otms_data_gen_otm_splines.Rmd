@@ -13,6 +13,14 @@ knitr::opts_chunk$set(echo = TRUE)
 devtools::load_all()
 ```
 
+```{r echo = FALSE, message = FALSE}
+library(tidyverse)
+library(gridExtra)
+library(viridis)
+library(metR)
+library(plotly)
+```
+
 # Overview
 
 The goal of this vignette is to illustrate the process behind the `rnp_otms_data` (**r**ead a**n**d **p**rocess OTMs data) and `gen_otm_splines` (**gen**erate **OTM** **spline** model**s**) function of the `throne` package. The first function allows the user to read one or multiple raw `.csv` (see the ["Collecting OTM data vignette"](https://ggcostoya.github.io/throne/articles/otm_setup.html)with temperature measurements recorded by an temperature logger inside of an **operative temperature model** (**OTM**) to a `data.frame`-like structure  in `R`. The second function takes this processed OTM data and generates an OTM & day of year (`doy`) specific cubic spline model that describes the thermal dynamics of each unique OTM each day. These spline models will later be used to both [correct the flights data](https://ggcostoya.github.io/throne/articles/correcting_flights_data.html) and to ultimately [predict thermal landscapes](https://ggcostoya.github.io/throne/articles/predicting_thermal_landscapes.html). Below, we highlight the section of the package's workflow that is covered in this vignette:

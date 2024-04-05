@@ -16,6 +16,11 @@ p.caption {
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 devtools::load_all()
+library(throne)
+```
+
+```{r echo = FALSE, message = FALSE}
+library(plotly)
 ```
 
 # Overview
@@ -73,27 +78,27 @@ As an example, the study area we considered to pilot the methodology of the `thr
 
 ```{r, echo = FALSE, fig.align = 'center', fig.cap = "Figure 3: Elevational profile of our area of study"}
 # filter flight data
-flight <- flights_data %>% filter(mod_start == 515)
+flight <- flights_data[flights_data$mod_start == 515,]
 
 # merge flight with elevation data
 flight_elev <- merge(elevation, flight, by = c("latitude", "longitude"))
 
 # prepare rasters
-raster_elev <- rasterFromXYZ(flight_elev %>% dplyr::select(longitude, latitude, elevation))
-raster_temp <- rasterFromXYZ(flight_elev %>% dplyr::select(longitude, latitude, ir_temp))
+raster_elev <- raster::rasterFromXYZ(flight_elev %>% dplyr::select(longitude, latitude, elevation))
+raster_temp <- raster::rasterFromXYZ(flight_elev %>% dplyr::select(longitude, latitude, ir_temp))
 
 # prepare plot data
 Latitude <- seq(max(flight$latitude), min(flight$latitude), length.out = length(unique(flight$latitude)))
 Longitude <- seq(min(flight$longitude), max(flight$longitude), length.out = length(unique(flight$longitude)))
-Elevation <- as.matrix(raster_elev)
-Temp <- as.matrix(raster_temp)
+Elevation <- raster::as.matrix(raster_elev)
+Temp <- raster::as.matrix(raster_temp)
 
 # plot
 plot_ly(x = ~Longitude, y = ~Latitude, z = ~Elevation) %>%
   add_surface(contours = list(z = list(show = TRUE,
                                        start = min(elevation$elevation),
                                        end = max(elevation$elevation), size = 2))) %>%
-  layout(scene = list(aspectratio = list(x = 0.75, y = 1, z = 0.24)))
+  layout(scene = list(aspectratio = list(x = 0.76, y = 1, z = 0.36)))
 
 ```
 

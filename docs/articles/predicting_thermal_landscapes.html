@@ -165,7 +165,7 @@ of our flights. <strong>As a general guideline, we recommend setting
 <code>coverage_per &gt;= 0.9</code></strong>
 </li>
 </ol>
-<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-2-1.png" width="576" style="display: block; margin: auto;"></p>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-3-1.png" width="576" style="display: block; margin: auto;"></p>
 <ol start="2" style="list-style-type: decimal">
 <li>
 <code>error_max</code>, the maximum error between temperature
@@ -197,7 +197,7 @@ between each of the tile’s temperature measurements and those estimated
 by the cubic spline model for that OTM is much smaller than that for
 <code>OTM05</code>.</p></li>
 </ol>
-<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-3-1.png" width="768" style="display: block; margin: auto;"></p>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;"></p>
 <blockquote>
 <p><strong>NOTE</strong>: The distance between the tile and the OTM is
 <strong>NOT</strong> weighted for during this step. This is because an
@@ -214,7 +214,7 @@ represent that tile better. In the figure below we show the results of
 matching our example data set, in only 5 cases the same OTM that was on
 a tile best described its thermal dynamics.</p>
 </blockquote>
-<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-4-1.png" width="480" style="display: block; margin: auto;"></p>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-5-1.png" width="480" style="display: block; margin: auto;"></p>
 <ol start="4" style="list-style-type: decimal">
 <li>If the minimum error is above a certain threshold indicated by he
 <code>error_max</code> parameter do not assign any OTM to a tile. In the
@@ -226,7 +226,7 @@ best describe it without exceeding the threshold imposed by
 (where the OTMs, indicated by black dots, where deployed) and that in
 this area the error is minimized.</li>
 </ol>
-<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-5-1.png" width="576" style="display: block; margin: auto;"></p>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-6-1.png" width="576" style="display: block; margin: auto;"></p>
 <blockquote>
 <p><strong>NOTE</strong>: The figure above shades in light gray all
 tiles that were covered by at least 1 flights but that were not covered
@@ -241,7 +241,7 @@ given tile (i.e., a combination o <code>latitude</code> and
 <code>error &gt; error_max</code> the <code>otm_id</code> will be
 specified as <code>NA</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">matches</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">matches_5</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6,386 × 4</span></span></span>
 <span><span class="co">##    latitude longitude otm_id error</span></span>
 <span><span class="co">##       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
@@ -265,7 +265,7 @@ the <code>33</code> OTMs deployed were needed to explain more than
 &gt;50% of the variability of the site and only <code>21</code> to
 explain &gt;95%.</li>
 </ol>
-<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-7-1.png" width="576" style="display: block; margin: auto;"></p>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-8-1.png" width="576" style="display: block; margin: auto;"></p>
 <ol start="2" style="list-style-type: decimal">
 <li>The matching mechanism will automatically match tiles with a given
 orientation to OTMs deployed in a tile with the same orientation. As
@@ -273,7 +273,7 @@ seen below and considering that the site is plotted in a N-S
 orientation, we can, for example, that OTMs facing <code>W</code> best
 described tiles that were on a western slope and so on.</li>
 </ol>
-<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-8-1.png" width="768" style="display: block; margin: auto;"></p>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-9-1.png" width="768" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
 <h2 id="predicting-thermal-landscapes">Predicting thermal landscapes<a class="anchor" aria-label="anchor" href="#predicting-thermal-landscapes"></a>
@@ -363,7 +363,7 @@ as easily as:</p>
 <span>  <span class="fu">theme</span><span class="op">(</span>axis.text <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>, axis.title <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>        legend.position <span class="op">=</span> <span class="st">"top"</span>,strip.text <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">guides</span><span class="op">(</span>fill <span class="op">=</span> <span class="fu">guide_colorbar</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Predicted Operative Temperature (C)"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-10-1.png" width="768" style="display: block; margin: auto;"></p>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-11-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>The plot above And when combined into a single image using tools from
 the <a href="https://gganimate.com/" class="external-link"><code>gganimate</code></a>
 package:</p>
@@ -391,7 +391,7 @@ actually on those tiles. The average prediction error (i.e.,
 <span>  <span class="fu">xlab</span><span class="op">(</span><span class="st">"Prediction error (Predicted - Observed Operative Temp., C)"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ylab</span><span class="op">(</span><span class="st">"Density"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-12-1.png" width="480" style="display: block; margin: auto;"></p>
+<p><img src="predicting_thermal_landscapes_files/figure-html/unnamed-chunk-13-1.png" width="480" style="display: block; margin: auto;"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

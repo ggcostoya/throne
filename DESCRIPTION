@@ -20,12 +20,16 @@ LazyData: true
 RoxygenNote: 7.3.1
 Depends:
   R (>= 4.1.0),
-  tidyverse, 
-  terra,
+Imports:
+  dplyr,
+  lubridate,
+  magrittr,
   raster,
+  devtools,
+Suggests:
+  ggplot2,
   gridExtra,
   viridis,
-  devtools,
   metR,
   plotly
 URL: https://ggcostoya.github.io/throne/

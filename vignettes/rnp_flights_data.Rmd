@@ -13,6 +13,14 @@ knitr::opts_chunk$set(echo = TRUE)
 devtools::load_all()
 ```
 
+```{r echo = FALSE, message = FALSE}
+library(tidyverse)
+library(gridExtra)
+library(viridis)
+library(metR)
+library(plotly)
+```
+
 # Overview
 
 The goal of this vignette is to illustrate the process behind the `rnp_flights_data` (**r**ead a**n**d **p**rocess flights data) function of the `throne` package. This function enables to processing of raw `.tif` files obtained by combining images gathered during a flight drone flight (see the [Flying drones and obtaining thermal orthomosaics vignette](https://ggcostoya.github.io/throne/articles/drone_setup.html)) into a data frame structure easily manageable in `R`. This data frame will later be related to operative temperature model (**OTM**) data to finally predict thermal landscapes. Below, we highlight the section of the package's workflow that is covered in this vignette:
@@ -92,14 +100,14 @@ flight <- flights_data %>% filter(mod_start == 515)
 flight_elev <- merge(elevation, flight, by = c("latitude", "longitude"))
 
 # prepare rasters
-raster_elev <- rasterFromXYZ(flight_elev %>% dplyr::select(longitude, latitude, elevation))
-raster_temp <- rasterFromXYZ(flight_elev %>% dplyr::select(longitude, latitude, ir_temp))
+raster_elev <- raster::rasterFromXYZ(flight_elev %>% dplyr::select(longitude, latitude, elevation))
+raster_temp <- raster::rasterFromXYZ(flight_elev %>% dplyr::select(longitude, latitude, ir_temp))
 
 # prepare plot data
 Latitude <- seq(max(flight$latitude), min(flight$latitude), length.out = length(unique(flight$latitude)))
 Longitude <- seq(min(flight$longitude), max(flight$longitude), length.out = length(unique(flight$longitude)))
-Elevation <- as.matrix(raster_elev)
-Temp <- as.matrix(raster_temp)
+Elevation <- raster::as.matrix(raster_elev)
+Temp <- raster::as.matrix(raster_temp)
 
 # plot
 plot_ly(x = ~Longitude, y = ~Latitude, z = ~Elevation) %>%
@@ -109,7 +117,7 @@ plot_ly(x = ~Longitude, y = ~Latitude, z = ~Elevation) %>%
               contours = list(z = list(show = TRUE,
                                        start = min(elevation$elevation),
                                        end = max(elevation$elevation), size = 2))) %>%
-  layout(scene = list(aspectratio = list(x = 0.75, y = 1, z = 0.24)))
+  layout(scene = list(aspectratio = list(x = 0.76, y = 1, z = 0.36)))
 
 ```
 
@@ -159,7 +167,7 @@ meters.per.degree.lon <- function(theta) {
 
 # generate longitudes
 lons <- lats
-general_lat <- seq(0,90,by = 15)
+general_lat <- c(seq(0,90,by = 15),39.86)
 lons_lats <- expand.grid(lons, general_lat)
 colnames(lons_lats) <- c("degree_lon", "latitude")
 lons_lats$meter_lon <- lons_lats$degree_lon * meters.per.degree.lon(lons_lats$latitude)
@@ -199,7 +207,7 @@ Based on the above, in the majority of cases, **we recommend setting the argumen
 lat_data$degree <- lat_data$degree_lat
 lons_lats$degree <- lons_lats$degree_lon
 comparison <- merge(lat_data, lons_lats, by = "degree", all = TRUE)
-comparison <- comparison %>% filter(degree == 1e-05)
+comparison <- comparison %>% filter(degree == 1e-04)
 
 # plotting
 comparison %>% 
