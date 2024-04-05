@@ -151,7 +151,7 @@ thermoregulate in this environment.</p></li>
 <p>We deployed a total of 128 operative temperature models (OTMs)
 randomly through the site that recorded <code>1</code> operative
 temperature measurement per hour.</p>
-<p><img src="case_study_files/figure-html/unnamed-chunk-3-1.png" width="576" style="display: block; margin: auto;"></p>
+<p><img src="case_study_files/figure-html/unnamed-chunk-4-1.png" width="576" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
 <h2 id="flights">Flights<a class="anchor" aria-label="anchor" href="#flights"></a>
@@ -220,7 +220,7 @@ a sense of the thermal characteristics of our site:</p>
 <span>  <span class="fu">geom_raster</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">scale_fill_viridis</span><span class="op">(</span>option <span class="op">=</span> <span class="st">"magma"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">facet_grid</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu">vars</span><span class="op">(</span><span class="va">mod_start</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="case_study_files/figure-html/unnamed-chunk-8-1.png" width="960" style="display: block; margin: auto;"></p>
+<p><img src="case_study_files/figure-html/unnamed-chunk-9-1.png" width="960" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="reading-and-processing-otms-data">Reading and processing OTMs data<a class="anchor" aria-label="anchor" href="#reading-and-processing-otms-data"></a>
@@ -286,7 +286,7 @@ only the thermal dynamics of a given OTM (not its position) is the only
 characteristic we use to predict thermal landscapes, we can use OTMs
 that fell outside of our area of interest as long as they were recording
 at the same time the flights took place:</p>
-<p><img src="case_study_files/figure-html/unnamed-chunk-12-1.png" width="384" style="display: block; margin: auto;"></p>
+<p><img src="case_study_files/figure-html/unnamed-chunk-13-1.png" width="384" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="building-otm-spline-models">Building OTM spline models<a class="anchor" aria-label="anchor" href="#building-otm-spline-models"></a>
@@ -358,7 +358,7 @@ original flights (<code>Pre-correction</code>).</p>
 <span>  <span class="fu">ggtitle</span><span class="op">(</span><span class="st">"Post-correction"</span><span class="op">)</span> </span>
 <span>  </span>
 <span><span class="fu">grid.arrange</span><span class="op">(</span><span class="va">pre_corr</span>, <span class="va">post_corr</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<p><img src="case_study_files/figure-html/unnamed-chunk-16-1.png" width="960" style="display: block; margin: auto;"></p>
+<p><img src="case_study_files/figure-html/unnamed-chunk-17-1.png" width="960" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="matching-tiles-to-otm-dynamics">Matching tiles to OTM dynamics<a class="anchor" aria-label="anchor" href="#matching-tiles-to-otm-dynamics"></a>
@@ -379,7 +379,7 @@ below, our flights had a particularly good overlap:</p>
 <span>  <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">longitude</span>, y <span class="op">=</span> <span class="va">latitude</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_raster</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>fill <span class="op">=</span> <span class="va">coverage_per</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">guides</span><span class="op">(</span>fill <span class="op">=</span> <span class="fu">guide_colorbar</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Coverage (%)"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="case_study_files/figure-html/unnamed-chunk-17-1.png" width="576" style="display: block; margin: auto;"></p>
+<p><img src="case_study_files/figure-html/unnamed-chunk-18-1.png" width="576" style="display: block; margin: auto;"></p>
 <p>In our case, we can set <code>coverage_per = 1</code> to ensure that
 only areas covered across all flights are considered although, for a
 greater number of flights we would recommend setting
@@ -414,7 +414,7 @@ best represents it’s thermal dynamics.</p>
 <span><span class="co">## <span style="color: #BCBCBC;"> 9</span>     39.7     -<span style="color: #BB0000;">119.</span> H36     1.86 </span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">10</span>     39.7     -<span style="color: #BB0000;">119.</span> H6      1.32 </span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 98,353 more rows</span></span></span></code></pre>
-<p><img src="case_study_files/figure-html/unnamed-chunk-20-1.png" width="432" style="display: block; margin: auto;"></p>
+<p><img src="case_study_files/figure-html/unnamed-chunk-21-1.png" width="432" style="display: block; margin: auto;"></p>
 </div>
 </div>
 <div class="section level2">
@@ -456,7 +456,7 @@ million observations:</p>
 <span>  <span class="fu">scale_fill_viridis</span><span class="op">(</span>option <span class="op">=</span> <span class="st">"magma"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">mod</span><span class="op">/</span><span class="fl">60</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme</span><span class="op">(</span>axis.text <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>, axis.title <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="case_study_files/figure-html/unnamed-chunk-23-1.png" width="768" style="display: block; margin: auto;">
+<p><img src="case_study_files/figure-html/unnamed-chunk-24-1.png" width="768" style="display: block; margin: auto;">
 Or visualized as a dynamic landscape for every hour of the day using
 tools from the <code>gganimate</code> package:</p>
 <p><img src="images/case_dynamic_thermal_landscape.gif" width="60%" style="display: block; margin: auto;"></p>
@@ -475,11 +475,11 @@ tools from the <code>gganimate</code> package:</p>
 <span><span class="co">## NOT RAN HERE TO SAVE COMPUTATION TIME, DATASET INCLUDED in `throne`. </span></span></code></pre></div>
 <p>How do body temperatures compare against the distribution of
 temperatures available in the site:</p>
-<p><img src="case_study_files/figure-html/unnamed-chunk-26-1.png" width="576" style="display: block; margin: auto;"></p>
+<p><img src="case_study_files/figure-html/unnamed-chunk-27-1.png" width="576" style="display: block; margin: auto;"></p>
 <p>High thermoregulatory accuracy around <code>33.3</code>.</p>
 <p>How are they distributed in time and space in relationship to the
 suitability of the habitat:</p>
-<p><img src="case_study_files/figure-html/unnamed-chunk-27-1.png" width="768" style="display: block; margin: auto;">
+<p><img src="case_study_files/figure-html/unnamed-chunk-28-1.png" width="768" style="display: block; margin: auto;">
 More work is needed here!</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
