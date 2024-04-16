@@ -1,16 +1,15 @@
 pandoc: 3.1.11
-pkgdown: 2.0.7
+pkgdown: 2.0.8
 pkgdown_sha: ~
 articles:
-  case_study: case_study.html
-  correcting_flight_data: correcting_flight_data.html
-  drone_setup: drone_setup.html
-  otm_setup: otm_setup.html
+  collect_n_process_thermal_images: collect_n_process_thermal_images.html
+  collect_otm_data: collect_otm_data.html
+  correct_flights_data: correct_flights_data.html
   overview: overview.html
-  predicting_thermal_landscapes: predicting_thermal_landscapes.html
+  predict_thermal_landscapes: predict_thermal_landscapes.html
   rnp_flights_data: rnp_flights_data.html
   rnp_otms_data_gen_otm_splines: rnp_otms_data_gen_otm_splines.html
-last_built: 2024-04-05T21:58Z
+last_built: 2024-04-16T20:39Z
 urls:
   reference: https://ggcostoya.github.io/throne/reference
   article: https://ggcostoya.github.io/throne/articles
