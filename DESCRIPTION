@@ -36,4 +36,5 @@ Suggests:
   metR,
   plotly,
   devtools,
+  forecats
 URL: https://ggcostoya.github.io/throne/

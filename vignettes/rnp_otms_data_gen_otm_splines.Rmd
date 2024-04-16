@@ -14,7 +14,8 @@ devtools::load_all()
 ```
 
 ```{r echo = FALSE, message = FALSE}
-library(tidyverse)
+library(ggplot2)
+library(dplyr)
 library(gridExtra)
 library(viridis)
 library(metR)
