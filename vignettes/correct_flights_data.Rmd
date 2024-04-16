@@ -13,7 +13,6 @@ devtools::load_all()
 ```
 
 ```{r echo = FALSE, message = FALSE}
-library(tidyverse)
 library(gridExtra)
 library(viridis)
 library(metR)
@@ -173,14 +172,23 @@ summary(lm(op_temp_corr ~ op_temp, data = correction_data))
 ```
 
 Below is an example of the effects of the correction across some of the flights provided as example data sets in the `throne` package. The columns across panels indicate if the plot shows a thermal landscape of IR temperatures (*Pre-correction*) or corrected IR temperatures now operative temperatures (*Post-correction*). The rows indicate the `mod` of the day when the flight took place:
+
+```{r, echo = FALSE, message = FALSE}
+
+```
+
   
 ```{r, echo = FALSE, fig.align='center', fig.height = 10, fig.width = 8}
-flights_data_comp <- merge(flights_data, flights_data_corr, by = c("longitude", "latitude", "year", "doy", "mod_start", "mod_end"))
+# correct the flights data using correct_flights_data function
+flights_data_corrected <- correct_flights_data(flights_data = flights_data, otm_splines = otms_splines)
+
+# merge datasets
+flights_data_comp <- merge(flights_data, flights_data_corrected, by = c("longitude", "latitude", "year", "doy", "mod_start", "mod_end"))
 
 flights_data_comp %>% 
   filter(mod_start %in% c(515, 700, 900, 1026)) %>% 
   mutate(mod_start = round(mod_start/60)) %>%
-  pivot_longer(c("ir_temp", "op_temp"), names_to = "temp_type", values_to = "temp") %>% 
+  tidyr::pivot_longer(c("ir_temp", "op_temp"), names_to = "temp_type", values_to = "temp") %>% 
   mutate(when = ifelse(temp_type == "ir_temp", "Pre-correction", "Post-correction")) %>%
   ggplot(aes(x = longitude, y = latitude, fill = temp)) +
   geom_raster() +

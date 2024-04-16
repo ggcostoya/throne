@@ -28,11 +28,12 @@ Imports:
   stringr,
   tibble,
   utils,
-  devtools
+  tidyr
 Suggests:
   ggplot2,
   gridExtra,
   viridis,
   metR,
-  plotly
+  plotly,
+  devtools,
 URL: https://ggcostoya.github.io/throne/

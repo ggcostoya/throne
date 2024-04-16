@@ -21,6 +21,10 @@ NULL
 #' @export
 NULL
 
+#' @importFrom tidyr pivot_longer
+#' @export
+NULL
+
 #' @importFrom raster projectRaster
 #' @export
 NULL

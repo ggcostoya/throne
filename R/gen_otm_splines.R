@@ -19,23 +19,26 @@
 #'    with the specified number of knots.
 #'
 #' @examples
+#' library(ggplot2)
 #' `%>%` <- magrittr::`%>%`
 #'
 #' # filter data for a specific OTM in a given doy
-#' otm <- otms_data %>% filter(otm_id == "OTM12", doy == 237)
+#' otm <- otms_data %>% dplyr::filter(get("otm_id") == "OTM12") %>%
+#'   dplyr::filter(get("doy") == 237)
 #'
 #' # generate the spline model
 #' otm_spline <- gen_otm_splines(otm_data = otm, knot_p = 1/7.5)
 #'
 #' # obtain a prediction
-#' pred <- tibble(mod = seq(0,1440,by = 1),
+#' pred <- tibble::tibble(mod = seq(0,1440,by = 1),
 #' op_temp = predict(otm_spline$spline[[1]], seq(0,1440,by = 1))$y)
 #'
 #' # plotting
-#' ggplot() +
-#'   geom_point(data = otm, aes(x = mod, y = op_temp), size = 4, alpha = 0.1) +
-#'   geom_line(data = pred, aes(x = mod, y = op_temp), linewidth = 2, col = "red") +
-#'   xlab("Minute of the day (MOD)") + ylab("Operative Temperature (C)")
+#' ggplot2::ggplot() +
+#'   ggplot2::geom_point(data = otm, aes(x = mod, y = op_temp), size = 4, alpha = 0.1) +
+#'   ggplot2::geom_line(data = pred, aes(x = mod, y = op_temp), linewidth = 2, col = "red") +
+#'   ggplot2::xlab("Minute of the day (MOD)") +
+#'   ggplot2::ylab("Operative Temperature (C)")
 #'
 #' @export
 
@@ -52,7 +55,7 @@ gen_otm_splines <- function(otm_data, knot_p){
   if("longitude" %in% colnames(otm_data) ==  FALSE){warning("`longitude` column is missing in `otm_data`. The splines will be generated but complete coordinates are needed to predict thermal landscapes!")}
 
   # check knot_p is valid
-  if(!between(knot_p, 0, 1)){stop("`knot_p` must be between 0 & 1")}
+  if(!dplyr::between(knot_p, 0, 1)){stop("`knot_p` must be between 0 & 1")}
 
   # define empty object to extract unique OTM + doy data
   otm_splines <- otm_data %>% dplyr::select(!c(op_temp, mod)) %>% unique()

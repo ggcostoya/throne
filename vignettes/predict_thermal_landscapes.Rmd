@@ -41,7 +41,8 @@ Additionally, the `match_data` also requires `2` user specified inputs:
 1. `coverage_per`, a numeric value between 0 - 1 indicating the minimum coverage that a tile should have across all flights provided in order to be included in the matching process. The need for this input can be easily visualized by overlapping the area covered by multiple flights in the provided example `flights_data` (see image below). Due to the unique conditions during each of the `34` flights we conducted to perform this study (e.g., wind etc.), the area covered be each flights was variable specially when focusing around the edges. Nonetheless, we foresaw this effect which is why **we ensured that the area covered by each flight would be much larger than the area of interest for our study**, a precaution we recommend all users of this package to follow. Our goal was that the area where we had OTMs would be covered by flights and, as seen above, all OTMs deployed on the ground (black dots) fell on areas that were covered by the vast majority of our flights. **As a general guideline, we recommend setting `coverage_per >= 0.9`**
 
 ```{r, fig.width = 6, fig.height = 4, fig.align='center', echo = FALSE, message = FALSE}
-flights_data_corr %>% 
+# plot
+flights_data %>% 
   group_by(longitude, latitude) %>% 
   summarise(times_covered = n()) %>% 
   ggplot(aes(x = longitude, y = latitude)) +
@@ -82,8 +83,12 @@ for(i in 1:nrow(fig_splines)){
   otm_preds <- rbind(otm_preds, otm_pred_i)
 
 }
+
+# correct the flights data using correct_flights_data function
+flights_data_corrected <- correct_flights_data(flights_data = flights_data, otm_splines = otms_splines)
+
 #plot
-flights_data_corr %>% 
+flights_data_corrected %>% 
   filter(longitude == -119.62715) %>% filter(latitude == 39.86875) %>% 
   ggplot() +
   geom_point(aes(x = mod_start/60, op_temp), size = 2) +
@@ -253,64 +258,6 @@ knitr::include_graphics("images/dynamic_thermal_landscape.gif")
 ```
 
 The `predict_thermal_landscape` function has unlimited power to provide complete thermal landscape predictions at an unprecedented level of detail. 
-
-# Predictive accuracy
-
-As we discuss in the accompanying manuscript, this method is highly accurate when predicting thermal landscapes. To that end, we performed a validation to compare the predicted operative temperature for all tiles containing OTMs using the `predict_thermal_landscape` function to the operative temperatures recorded by the OTMs that were actually on those tiles. The average prediction error (i.e., `pred_op_temp - op_temp`) was XX. 
-
-```{r, message = FALSE, warning = FALSE, fig.align = 'center', fig.width = 5, fig.height = 4}
-val_data %>% 
-  filter(knot_p == 1/7.5, n_flights == 34, n_otms == 33) %>% 
-  ggplot(aes(x = pred_op_temp - obs_op_temp)) + 
-  geom_histogram(aes(y = ..density..), fill = "lightgray") +
-  geom_density() +
-  xlab("Prediction error (Predicted - Observed Operative Temp., C)") +
-  ylab("Density") +
-  theme_minimal()
-  
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

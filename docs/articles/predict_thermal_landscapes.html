@@ -377,27 +377,6 @@ package:</p>
 power to provide complete thermal landscape predictions at an
 unprecedented level of detail.</p>
 </div>
-<div class="section level2">
-<h2 id="predictive-accuracy">Predictive accuracy<a class="anchor" aria-label="anchor" href="#predictive-accuracy"></a>
-</h2>
-<p>As we discuss in the accompanying manuscript, this method is highly
-accurate when predicting thermal landscapes. To that end, we performed a
-validation to compare the predicted operative temperature for all tiles
-containing OTMs using the <code>predict_thermal_landscape</code>
-function to the operative temperatures recorded by the OTMs that were
-actually on those tiles. The average prediction error (i.e.,
-<code>pred_op_temp - op_temp</code>) was XX.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">val_data</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">knot_p</span> <span class="op">==</span> <span class="fl">1</span><span class="op">/</span><span class="fl">7.5</span>, <span class="va">n_flights</span> <span class="op">==</span> <span class="fl">34</span>, <span class="va">n_otms</span> <span class="op">==</span> <span class="fl">33</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">pred_op_temp</span> <span class="op">-</span> <span class="va">obs_op_temp</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">geom_histogram</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>y <span class="op">=</span> <span class="va">..density..</span><span class="op">)</span>, fill <span class="op">=</span> <span class="st">"lightgray"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_density</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">xlab</span><span class="op">(</span><span class="st">"Prediction error (Predicted - Observed Operative Temp., C)"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ylab</span><span class="op">(</span><span class="st">"Density"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="predict_thermal_landscapes_files/figure-html/unnamed-chunk-13-1.png" width="480" style="display: block; margin: auto;"></p>
-</div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
 </div>

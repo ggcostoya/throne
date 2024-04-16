@@ -51,11 +51,14 @@ reference:
   - otms_metadata
   - otms_data
   - otms_splines
+  - matches_5
 - subtitle: Case study datasets
   desc: Datasets used in the case study
 - subtitle: Other datasets
   desc: Miscellaneous datasets used in the vignettes
   contents:
+  - correction_data
+  - matches_20
   - elevation
   - bad_read_otm
   - good_read_otm

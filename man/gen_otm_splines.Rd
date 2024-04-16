@@ -30,19 +30,21 @@ Generate a unique spline model for each OTM on each date (Julian) while the OTM 
 `\%>\%` <- magrittr::`\%>\%`
 
 # filter data for a specific OTM in a given doy
-otm <- otms_data \%>\% filter(otm_id == "OTM12", doy == 237)
+otm <- otms_data \%>\% dplyr::filter(get("otm_id") == "OTM12") \%>\%
+  dplyr::filter(get("doy") == 237)
 
 # generate the spline model
 otm_spline <- gen_otm_splines(otm_data = otm, knot_p = 1/7.5)
 
 # obtain a prediction
-pred <- tibble(mod = seq(0,1440,by = 1),
+pred <- tibble::tibble(mod = seq(0,1440,by = 1),
 op_temp = predict(otm_spline$spline[[1]], seq(0,1440,by = 1))$y)
 
 # plotting
-ggplot() +
-  geom_point(data = otm, aes(x = mod, y = op_temp), size = 4, alpha = 0.1) +
-  geom_line(data = pred, aes(x = mod, y = op_temp), linewidth = 2, col = "red") +
-  xlab("Minute of the day (MOD)") + ylab("Operative Temperature (C)")
+ggplot2::ggplot() +
+  ggplot2::geom_point(data = otm, aes(x = mod, y = op_temp), size = 4, alpha = 0.1) +
+  ggplot2::geom_line(data = pred, aes(x = mod, y = op_temp), linewidth = 2, col = "red") +
+  ggplot2::xlab("Minute of the day (MOD)") +
+  ggplot2::ylab("Operative Temperature (C)")
 
 }
