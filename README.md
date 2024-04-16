@@ -16,7 +16,7 @@ The package is currently under development and not yet available on CRAN, but it
 can be dowloaded directly from GitHub via:
 
 ```R
- devtools::install.github("ggcostoya/throne")
+ devtools::install_github("ggcostoya/throne")
 ```
   
 ## How to cite the package
