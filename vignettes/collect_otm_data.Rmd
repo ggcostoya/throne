@@ -1,5 +1,5 @@
 ---
-title: "Collecting OTM data"
+title: "Collect OTM data"
 output:
   html_document:
     toc: true

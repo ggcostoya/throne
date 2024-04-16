@@ -30,21 +30,18 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-field-workflow">Field workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-field-workflow">
-    <a class="dropdown-item" href="../articles/drone_setup.html">Collect and process thermal images</a>
-    <a class="dropdown-item" href="../articles/otm_setup.html">Collect OTM data</a>
+    <a class="dropdown-item" href="../articles/collect_n_process_thermal_images.html">Collect and process thermal images</a>
+    <a class="dropdown-item" href="../articles/collect_otm_data.html">Collect OTM data</a>
   </div>
 </li>
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-r-workflow">R Workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-r-workflow">
     <a class="dropdown-item" href="../articles/rnp_flights_data.html">Read and process flight data</a>
-    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Read and process OTM data, and generate OTM splines</a>
-    <a class="dropdown-item" href="../articles/correcting_flight_data.html">Correct flight data</a>
-    <a class="dropdown-item" href="../articles/predicting_thermal_landscapes.html">Match data and predict thermal landscapes</a>
+    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Read and process OTM data + Generate OTM splines</a>
+    <a class="dropdown-item" href="../articles/correct_flights_data.html">Correct flight data</a>
+    <a class="dropdown-item" href="../articles/predict_thermal_landscapes.html">Match data and predict thermal landscapes</a>
   </div>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="../articles/case_study.html">Case study</a>
 </li>
 <li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
@@ -107,17 +104,19 @@ the total number of operative measurements in a given day.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">`%&gt;%`</span> <span class="op">&lt;-</span> <span class="fu">magrittr</span><span class="fu">::</span><span class="va">`%&gt;%`</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># filter data for a specific OTM in a given doy</span></span></span>
 <span class="r-in"><span><span class="va">otm</span> <span class="op">&lt;-</span> <span class="va">otms_data</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">otm_id</span> <span class="op">==</span> <span class="st">"OTM12"</span>, <span class="va">doy</span> <span class="op">==</span> <span class="fl">237</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in otms_data %&gt;% filter(otm_id == "OTM12", doy == 237):</span> could not find function "%&gt;%"</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'doy' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># generate the spline model</span></span></span>
 <span class="r-in"><span><span class="va">otm_spline</span> <span class="op">&lt;-</span> <span class="fu">gen_otm_splines</span><span class="op">(</span>otm_data <span class="op">=</span> <span class="va">otm</span>, knot_p <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">7.5</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'otm' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># obtain a prediction</span></span></span>
-<span class="r-in"><span><span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>mod <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1440</span>,by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, op_temp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">otm_spline</span><span class="op">$</span><span class="va">spline</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1440</span>,by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="op">(</span>mod <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1440</span>,by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>op_temp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">otm_spline</span><span class="op">$</span><span class="va">spline</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1440</span>,by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in tibble(mod = seq(0, 1440, by = 1), op_temp = predict(otm_spline$spline[[1]],     seq(0, 1440, by = 1))$y):</span> could not find function "tibble"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># plotting</span></span></span>

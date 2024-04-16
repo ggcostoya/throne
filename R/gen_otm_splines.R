@@ -19,6 +19,7 @@
 #'    with the specified number of knots.
 #'
 #' @examples
+#' `%>%` <- magrittr::`%>%`
 #'
 #' # filter data for a specific OTM in a given doy
 #' otm <- otms_data %>% filter(otm_id == "OTM12", doy == 237)
@@ -27,7 +28,8 @@
 #' otm_spline <- gen_otm_splines(otm_data = otm, knot_p = 1/7.5)
 #'
 #' # obtain a prediction
-#' pred <- tibble(mod = seq(0,1440,by = 1), op_temp = predict(otm_spline$spline[[1]], seq(0,1440,by = 1))$y)
+#' pred <- tibble(mod = seq(0,1440,by = 1),
+#' op_temp = predict(otm_spline$spline[[1]], seq(0,1440,by = 1))$y)
 #'
 #' # plotting
 #' ggplot() +

@@ -15,7 +15,7 @@
 #'  }
 #'
 #' @examples
-#' as_tibble(flights_metadata)
+#' tibble::as_tibble(flights_metadata)
 
 "flights_metadata"
 
@@ -135,7 +135,7 @@
 #' }
 #'
 #' @examples
-#' as_tibble(otms_data)
+#' tibble::as_tibble(otms_data)
 
 "otms_data"
 

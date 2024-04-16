@@ -1,5 +1,5 @@
 ---
-title: "Reading and processing flights data"
+title: "Reading and processing flight data"
 output:
   html_document:
     toc: true

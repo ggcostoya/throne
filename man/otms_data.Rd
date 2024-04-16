@@ -31,6 +31,6 @@ a unique operative temperature measurement recorded by a unique OTM at a given
 moment in time (i.e., unique year, \code{doy} and \code{mod}).
 }
 \examples{
-as_tibble(otms_data)
+tibble::as_tibble(otms_data)
 }
 \keyword{datasets}

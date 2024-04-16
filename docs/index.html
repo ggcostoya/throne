@@ -51,21 +51,18 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-field-workflow">Field workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-field-workflow">
-    <a class="dropdown-item" href="articles/drone_setup.html">Collect and process thermal images</a>
-    <a class="dropdown-item" href="articles/otm_setup.html">Collect OTM data</a>
+    <a class="dropdown-item" href="articles/collect_n_process_thermal_images.html">Collect and process thermal images</a>
+    <a class="dropdown-item" href="articles/collect_otm_data.html">Collect OTM data</a>
   </div>
 </li>
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-r-workflow">R Workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-r-workflow">
     <a class="dropdown-item" href="articles/rnp_flights_data.html">Read and process flight data</a>
-    <a class="dropdown-item" href="articles/rnp_otms_data_gen_otm_splines.html">Read and process OTM data, and generate OTM splines</a>
-    <a class="dropdown-item" href="articles/correcting_flight_data.html">Correct flight data</a>
-    <a class="dropdown-item" href="articles/predicting_thermal_landscapes.html">Match data and predict thermal landscapes</a>
+    <a class="dropdown-item" href="articles/rnp_otms_data_gen_otm_splines.html">Read and process OTM data + Generate OTM splines</a>
+    <a class="dropdown-item" href="articles/correct_flights_data.html">Correct flight data</a>
+    <a class="dropdown-item" href="articles/predict_thermal_landscapes.html">Match data and predict thermal landscapes</a>
   </div>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="articles/case_study.html">Case study</a>
 </li>
 <li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
@@ -93,11 +90,27 @@
 <div class="page-header"><h1 id="throne-predicting-thermal-landscapes-in-spatio-temporally-unprecedented-detail">
 <code>throne</code>: predicting thermal landscapes in spatio-temporally unprecedented detail.<a class="anchor" aria-label="anchor" href="#throne-predicting-thermal-landscapes-in-spatio-temporally-unprecedented-detail"></a>
 </h1></div>
-<p>Accurately quantifying and mapping thermal environments is crucial to predict how environmental change is impacting organisms across ecosystems. There are two major obstacles in accurately describing thermal landscapes: (1) overcoming the mismatch between the scale at which a particular organism experiences thermal variation and the resolution at which environmental data are typically collected, and 2) projecting future thermal landscapes from contemporary ones without substantial measurement gaps in time or space. Here, we present a new method that integrates IR drone photogrammetry with field-deployed OTMs to generate fine-scale, spatiotemporally complete landscapes (maps) of operative temperature. We developed the R package throne which streamlines all necessary corrections to raw drone data and produces operative thermal landscapes with minimal raw data input required by the user. By generating biologically relevant thermal maps at high spatiotemporal resolution, this should enhance the accuracy and accessibility of detailed and biologically relevant thermal landscapes for species around the globe and improve our ability to forecast the responses of organisms to environmental change.</p>
+<p>Accurately quantifying and mapping thermal environments is crucial to predict how environmental change is going to impact organisms. However, describing thermal environments is challenging because 1) there is a mismatch between the resolution of available data and the scale at which organisms experience thermal variation, and 2) available tools can pose a challenge for inexperienced users. Here, we present the <code>throne</code> package, which provides tools to combine spatially discrete but temporally complete measurements from temperature loggers with spatially complete but temporally discrete thermal maps obtained via IR drone photogrammetry to produce spatio-temporally complete thermal landscapes.</p>
 <div class="section level2">
 <h2 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
 </h2>
-<p>(Working on it)</p>
+<p>The package is currently under development and not yet available on CRAN, but it can be dowloaded directly from GitHub via:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span> <span class="fu">devtools</span><span class="fu">::</span><span class="fu">install.github</span><span class="op">(</span><span class="st">"ggcostoya/throne"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="how-to-cite-the-package">How to cite the package<a class="anchor" aria-label="anchor" href="#how-to-cite-the-package"></a>
+</h2>
+<p>If you use <code>throne</code> in your research, please cite the package as:</p>
+<p>Alujević K, Garcia-Costoya G, Ratia N, Schmitz E, Godkin R, Bujan J, Gopal A, Logan M (2024). throne: Predicting thermal landscapes in spatio-temporally unprecedented detail. R package version 1.0, <a href="https://ggcostoya.github.io/throne/" class="uri">https://ggcostoya.github.io/throne/</a>.</p>
+</div>
+<div class="section level2">
+<h2 id="contact">Contact<a class="anchor" aria-label="anchor" href="#contact"></a>
+</h2>
+<p>For questions, suggestions, or bug reports, please open an issue on GitHub or contact</p>
+<ul>
+<li><a href="mailto:ggarciacosto@gmail.com">Guillermo Garcia Costoya</a></li>
+</ul>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">

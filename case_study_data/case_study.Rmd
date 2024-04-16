@@ -18,6 +18,18 @@ library(gridExtra)
 library(viridis)
 library(metR)
 library(plotly)
+
+# load datasets 
+load("C:/Users/ggarc/OneDrive/research/throne/case_study_data/lizard_mr.rda")
+load("C:/Users/ggarc/OneDrive/research/throne/case_study_data/c_otms_data.RData")
+load("C:/Users/ggarc/OneDrive/research/throne/case_study_data/c_otms_metadata.RData")
+load("C:/Users/ggarc/OneDrive/research/throne/case_study_data/c_flights_metadata.RData")
+load("C:/Users/ggarc/OneDrive/research/throne/case_study_data/c_flights_data.RData")
+load("C:/Users/ggarc/OneDrive/research/throne/case_study_data/c_full_landscape.RData")
+load("C:/Users/ggarc/OneDrive/research/throne/case_study_data/c_flights_data_corr.RData")
+load("C:/Users/ggarc/OneDrive/research/throne/case_study_data/c_otms_splines.RData")
+load("C:/Users/ggarc/OneDrive/research/throne/case_study_data/c_example_otm.rda")'
+load("C:/Users/ggarc/OneDrive/research/throne/case_study_data/c_matches.RData")
 ```
 
 # Overview
@@ -331,6 +343,7 @@ c_full_landscape %>%
   facet_wrap(~hour) +
   theme(axis.text = element_blank(), axis.title = element_blank()) 
 ```
+
 More work is needed here! 
 
 

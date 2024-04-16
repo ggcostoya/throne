@@ -1,25 +1,34 @@
 # `throne`: predicting thermal landscapes in spatio-temporally unprecedented detail.
 
-Accurately quantifying and mapping thermal environments is crucial to
-predict how environmental change is impacting organisms across
-ecosystems. There are two major obstacles in accurately describing
-thermal landscapes: (1) overcoming the mismatch between the scale at
-which a particular organism experiences thermal variation and the
-resolution at which environmental data are typically collected, and 2)
-projecting future thermal landscapes from contemporary ones without
-substantial measurement gaps in time or space. Here, we present a new
-method that integrates IR drone photogrammetry with field-deployed OTMs
-to generate fine-scale, spatiotemporally complete landscapes (maps) of
-operative temperature. We developed the R package throne which
-streamlines all necessary corrections to raw drone data and produces
-operative thermal landscapes with minimal raw data input required by the
-user. By generating biologically relevant thermal maps at high
-spatiotemporal resolution, this should enhance the accuracy and
-accessibility of detailed and biologically relevant thermal landscapes
-for species around the globe and improve our ability to forecast the
-responses of organisms to environmental change.
+Accurately quantifying and mapping thermal environments is crucial to predict 
+how environmental change is going to impact organisms. However, describing thermal
+environments is challenging because 1) there is a mismatch between the resolution
+of available data and the scale at which organisms experience thermal variation, and 
+2) available tools can pose a challenge for inexperienced users. Here, we present
+the `throne` package, which provides tools to combine spatially discrete but temporally
+complete measurements from temperature loggers with spatially complete but temporally 
+discrete thermal maps obtained via IR drone photogrammetry to produce spatio-temporally
+complete thermal landscapes. 
 
 ## Getting started
 
-(Working on it)
+The package is currently under development and not yet available on CRAN, but it 
+can be dowloaded directly from GitHub via:
 
+```R
+ devtools::install.github("ggcostoya/throne")
+```
+  
+## How to cite the package
+
+If you use `throne` in your research, please cite the package as:
+
+  Alujević K, Garcia-Costoya G, Ratia N, Schmitz E, Godkin R, Bujan J, Gopal A, 
+  Logan M (2024). throne: Predicting thermal landscapes in spatio-temporally 
+  unprecedented detail. R package version 1.0, https://ggcostoya.github.io/throne/.
+
+## Contact 
+
+For questions, suggestions, or bug reports, please open an issue on GitHub or contact
+
+  - [Guillermo Garcia Costoya](mailto:ggarciacosto@gmail.com)

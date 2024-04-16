@@ -1,5 +1,5 @@
 ---
-title: "Obtaining thermal orthomosaics `(.tif)`"
+title: "Collect and process thermal images"
 output:
   html_document:
     toc: true

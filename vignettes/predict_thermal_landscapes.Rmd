@@ -1,5 +1,5 @@
 ---
-title: "Predicting Thermal Landscapes"
+title: "Match flight to OTM data and Predict Thermal Landscapes"
 output:
   html_document:
     toc: true
@@ -22,24 +22,23 @@ library(plotly)
 
 # Overview
 
-In this vignette, our goal is to illustrate the process behind the final step in the workflow of the `throne` package, the prediction of spatio-temporally complete thermal landscapes. To achieve this, `throne` uses two functions: `match_data` and `predict_thermal_landscpe`. The first allows the user to match the thermal dynamics of a given tile within their site (i.e., a unique `latitude` and `longitude`) as measured across multiple flights with those of an **operative temperature model** (**OTM**). The second, uses this matches data set and combines it with information from date & OTM specific cubic spline models (obtained using the `gen_otm_splines`) function in this package to predict the temperature of each tile on the site at any moment in time while the OTMs were deployed in the field. In the context of the overall workflow of the package, this is the section that is covered in this vignette: 
+In this vignette, our goal is to illustrate the process behind the final step in the workflow of the `throne` package, the prediction of spatio-temporally complete thermal landscapes. To achieve this, `throne` uses two functions: `match_data` and `predict_thermal_landscpe`. The first allows the user to match the thermal dynamics of a given tile within their site (i.e., a unique `latitude` and `longitude`) as measured across multiple flights with those of an **operative temperature model** (**OTM**). The second, uses this matches data set and combines it with information from date & OTM specific cubic spline models (obtained using the `gen_otm_splines` function) to predict the temperature of each tile in the area of interest at any moment in time while the OTMs were deployed in the field. In the context of the overall workflow of the package, this is the section that is covered in this vignette: 
 
 ```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
 knitr::include_graphics("images/predict_thermal_landscapes_workflow.png")
 ```
 
-Finally, we also provide some information on the predictive accuracy of this method which, as we present in the accompanying manuscript, is very high. 
-
 # The `match_data` function
 
-The `match_data` function matches the thermal dynamics of specific tiles (i.e., unique `latitude` and `longitude` combinations) collected across multiple flights to the thermal dynamics of an operative temperature model (OTM). To do so, the function takes in the following inputs inherited from previous functions : 
+The `match_data` function matches the thermal dynamics of specific tiles (i.e., unique `latitude` and `longitude` combinations) collected across multiple flights to the thermal dynamics of an **operative temperature model** (**OTM**). To do so, the function takes in the following inputs inherited from previous functions : 
 
 1. A `flights_data` `tibble` obtained using the `rnp_flights_data`. We **strongly** recommend that this `tibble` undergoes correction using the `correct_flights_data` function in order to ensure that the both the `flights_data` `tibble` and the OTMs are on an operative temperature scale. However, the function will allow the user to use an uncorrected `flights_data` `tibble` if they so choose. 
-2. An `otm_splines` complex `tibble` obtained using the `gen_otm_splines` function. 
+
+2. An `otm_splines` nested `tibble` obtained using the `gen_otm_splines` function. 
 
 Additionally, the `match_data` also requires `2` user specified inputs: 
 
-1. `coverage_per`, a numeric value between 0 - 1 indicating the minimum coverage that a tile should have across all flights provided in order t be included in the matching. The need for this input can be easily visualized by overlapping the area covered by multiple flights in the provided example `flights_data` (see image below). Due to the unique conditions during each of the `34` flights we conducted to perform this study (e.g., wind etc.), the area covered be each flights was variable specially when focusing around the edges. Nonetheless, we foresaw this effect which is why **we ensured that the area covered by each flight would be much larger than the area of interest for our study**, a precaution we recommend all users of this package to follow. Our goal was that the area where we had OTMs would be covered by flights and, as seen above, all OTMs deployed on the ground (black dots) fell on areas that were covered by the vast majority of our flights. **As a general guideline, we recommend setting `coverage_per >= 0.9`**
+1. `coverage_per`, a numeric value between 0 - 1 indicating the minimum coverage that a tile should have across all flights provided in order to be included in the matching process. The need for this input can be easily visualized by overlapping the area covered by multiple flights in the provided example `flights_data` (see image below). Due to the unique conditions during each of the `34` flights we conducted to perform this study (e.g., wind etc.), the area covered be each flights was variable specially when focusing around the edges. Nonetheless, we foresaw this effect which is why **we ensured that the area covered by each flight would be much larger than the area of interest for our study**, a precaution we recommend all users of this package to follow. Our goal was that the area where we had OTMs would be covered by flights and, as seen above, all OTMs deployed on the ground (black dots) fell on areas that were covered by the vast majority of our flights. **As a general guideline, we recommend setting `coverage_per >= 0.9`**
 
 ```{r, fig.width = 6, fig.height = 4, fig.align='center', echo = FALSE, message = FALSE}
 flights_data_corr %>% 
@@ -61,9 +60,9 @@ To match tiles with OTMs that best describe their thermal dynamics, the `match_d
 
 1. It calculates the coverage across all flights for every single tile covered and selects only those tiles that have bee covered as much or more as the `coverage_per` argument specifies. 
 
-2. For each tile, calculate the average absolute error between the temperature measurements of that tile during each flight and the temperature measurements made by every OTMs at the exact same time each flight took place.
+2. For each tile, calculate the average absolute error between the temperature measurements of that tile during each flight and the temperature measurements made by every OTM at the exact same time each flight took place.
 
-3. Select the OTM that minimizes the error between the tile's and the OTMs measurements. In the figure below we illustrate the logic of this approach. The black dots indicate the temperature measurements associated with a given tile (note that these measurements are corrected using the `correct_flights_data` function) across all flights that occurred in the days of the year (`doy`) 236, 237 and 238. The red and blue lines indicate the temperatures predicted by the spline model of 2 OTMs for those same `doy`. In this case, the `match_data` function would choose `OTM25` to better represent the dynamics of that tile as the average different between each of the tile's temperature measurements and those estimated by the cubic spline model for that OTM is much smaller than that for `OTM05`. 
+3. Select the OTM that minimizes the error between the tile's and the OTMs measurements. In the figure below we illustrate the logic of this approach. The black dots indicate the temperature measurements associated with a given tile (note that these measurements are corrected using the `correct_flights_data` function) across all flights conducted in the days of the year (`doy`) 236, 237 and 238. The red and blue lines indicate the temperatures predicted by the spline model of 2 OTMs for those same `doy`. In this case, the `match_data` function would choose `OTM25` to better represent the dynamics of that tile as the average different between each of the tile's temperature measurements and those estimated by the cubic spline model for that OTM is much smaller than that for `OTM05`. 
 
 ```{r, echo = FALSE, fig.align = 'center', fig.height = 3, fig.width = 8}
 # filter 2 OTMs of interest
@@ -100,9 +99,9 @@ flights_data_corr %>%
 
 ```
 
-> **NOTE**: The distance between the tile and the OTM is **NOT** weighted for during this step. This is because an OTM that is not necessarily the closest to that tile might actually be able to represent its thermal dynamics much better than one that is closer. For example, a tile that contains a tree might be represented by an OTM that is deployed inside of a tree at 100 m than one that is on a southern facing slope only 2 m away. This approach extends even to a the same tile where an OTM is deployed. Imagine a tile that is mostly facing south but that has a small bush on it. If an OTM is placed precisely on that bush, its thermal dynamics might not be representative of the average dynamics of that tile and an OTM placed elsewhere might actually represent that tile better. In the figure below we show the results of matching our example data set, in only 5 cases the same OTM that was on a tile best described its thermal dynamics. 
+> **NOTE**: The distance between the tile and the OTM is **NOT** weighted for during this step. This is because an OTM that is not necessarily the closest to that tile might actually be able to represent its thermal dynamics much better than one that is closer. For example, a tile that contains a tree might be represented by an OTM that is deployed inside of a tree at 100 m better than one that is on a southern facing slope only 2 m away. This approach extends even to a the same tile where an OTM is deployed. Imagine a tile that is mostly facing south but that has a small bush on it. If an OTM is placed precisely on that bush, its thermal dynamics might not be representative of the average dynamics of that tile and an OTM placed elsewhere might actually represent that tile better. In the figure below we show the results of matching our example data set, in only 5 cases the same OTM that was on a tile best described its thermal dynamics. 
 
-```{r, echo = FALSE, fig.height = 4, fig.width = 5, fig.align = 'center'}
+```{r, echo = FALSE, fig.height = 5, fig.width = 6, fig.align = 'center'}
 otms_splines_sub <- otms_splines %>% 
   dplyr::select(otm_id, latitude, longitude) %>% unique()
 otms_splines_sub$longitude <- as.numeric(format(otms_splines_sub$longitude, nsmall = 5))
@@ -146,15 +145,17 @@ The resulting `matches` `tibble` will have an `otm_id` column indicating the OTM
 matches_5
 ```
 
+> **NOTE**: The `tibble` presented above was generated considering an `error_max = 5`. The `throne` package also includes another matches data set generated with `error_max = 20` that can be accessed by calling `matches_20`. 
+
 From this `matches` data we gather some interesting findings. Including that: 
 
-1. Very few OTMs are needed to explain the majority of the sites thermal dynamics. In the example data set, only `5` out of the `33` OTMs deployed were needed to explain more than >50% of the variability of the site and only `21` to explain >95%. 
+1. Very few OTMs are needed to explain the majority of the sites thermal dynamics. In the example data set, only `5` out of the `33` OTMs deployed were needed to explain more than >50% of the variability of the site.
 
 ```{r, echo = FALSE, message = FALSE, fig.height = 4, fig.width = 6, fig.align='center'}
 matches_5 %>% 
   filter(!is.na(otm_id)) %>%
   group_by(otm_id) %>% 
-  summarise(tiles_covered = (n()/6102)*100) %>% 
+  summarise(tiles_covered = (n()/5606)*100) %>% 
   ungroup() %>%
   arrange(desc(tiles_covered)) %>% 
   mutate(cum_tiles_covered = cumsum(tiles_covered)) %>%
@@ -180,7 +181,7 @@ orientation_colors <- c("N" = "darkblue", "NW" = "#7F468B","W" = "darkorange",
                         "SW" = "#FCCE7B", "S" = "gold", "SE" = "#90B122",
                         "E" = "forestgreen", "NE" = "#11458B", "Flat" = "maroon")
 
-merge(matches_5, otms_splines_orient, by = c("otm_id"))%>% 
+merge(matches_20, otms_splines_orient, by = c("otm_id"))%>% 
   ggplot(aes(x = longitude, y = latitude)) +
   geom_tile(aes(fill = orientation)) +
   geom_contour(data = elevation, aes(z = elevation), bins = 20, col = "white") +
@@ -193,11 +194,13 @@ merge(matches_5, otms_splines_orient, by = c("otm_id"))%>%
   
 ```
 
+> **NOTE**: In the plot above we use the a `matches` tibble with `error_max = 20` for visualization purposes only. 
+
 # Predicting thermal landscapes
 
 The final step in the workflow of the `throne` package is to predict thermal landscapes. To do this, the `thonre` package includes the function `predict_thermal_landscape` which takes in the following inherited inputs:
 
-1. An `otm_splines` complex `tibble` obtained through the `generate_otm_splines`.
+1. An `otm_splines` nest `tibble` obtained through the `generate_otm_splines`.
 
 2. A `matches` tibble associating tiles in a study area with OTMs that best describe their thermal dynamics obtained using the `match_data` function discussed above. 
 
@@ -215,7 +218,7 @@ Once these inputs are specified, the function will go through the following gene
 
 3. Merge the operative temperature prediction with the `matches` `tibble` to obtain a predicted operative temperature for every single tile considered. 
 
-Since all the necessary calculations have been carried out before hand (i.e., generating the spline models, performing the matching between tiles and OTMs etc.) the `predict_thermal_landscape` function is relatively fast and allows the user to **predict the entire thermal landscape of their site at any moment while their OTMs were deployed**. For example, say that we want to obtain a complete thermal landscape prediction every hour of the day for the `doy = 237` (i.e., August 24th), one would simply run:
+Since all the necessary calculations have been carried out beforehand (i.e., generating the spline models, performing the matching between tiles and OTMs etc.) the `predict_thermal_landscape` function is relatively fast and allows the user to **predict the entire thermal landscape of their site at any moment while their OTMs were deployed**. For example, say that we want to obtain a complete thermal landscape prediction every hour of the day for the `doy = 237` (i.e., August 24th), one would simply run:
 
 ```{r}
 # obtain prediction
@@ -224,6 +227,7 @@ prediction_237 <- predict_thermal_landscape(matches = matches_20, otm_splines = 
 
 prediction_237
 ```
+
 > **NOTE**: The `predict_thermal_landscape` function will not be able to predict thermal landscapes if the specified time falls outside of the range when OTMs were measuring. To that end, the function will also provide a warning indicating what % of predictions were removing due to falling outside of the range when the OTMs were recording. 
 
 We can plot this prediction using regular `ggplot` tools as easily as:

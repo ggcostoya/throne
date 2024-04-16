@@ -109,7 +109,7 @@ match_data <- function(flights_data, otm_splines, coverage_per, error_max){
       filter(year == otm_preds$year[i]) %>% filter(doy == otm_preds$doy[i])
 
     # predict temperatures for the period between mod_start and mod_end
-    prediction <- predict(otm_specific_spline$spline[[1]],c(otm_preds$mod_start[i]:otm_preds$mod_end[i]))$y
+    prediction <- stats::predict(otm_specific_spline$spline[[1]],c(otm_preds$mod_start[i]:otm_preds$mod_end[i]))$y
 
     # get average predicted temperature
     otm_preds$pred_op_temp[i] <- mean(prediction)

@@ -25,7 +25,9 @@ Imports:
   lubridate,
   magrittr,
   raster,
-  devtools,
+  stringr,
+  tibble,
+  utils,
 Suggests:
   ggplot2,
   gridExtra,

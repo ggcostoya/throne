@@ -20,6 +20,6 @@ flights_metadata
 Metadata for example flights
 }
 \examples{
-as_tibble(flights_metadata)
+tibble::as_tibble(flights_metadata)
 }
 \keyword{datasets}

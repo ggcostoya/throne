@@ -47,21 +47,18 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-field-workflow">Field workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-field-workflow">
-    <a class="dropdown-item" href="../articles/drone_setup.html">Collect and process thermal images</a>
-    <a class="dropdown-item" href="../articles/otm_setup.html">Collect OTM data</a>
+    <a class="dropdown-item" href="../articles/collect_n_process_thermal_images.html">Collect and process thermal images</a>
+    <a class="dropdown-item" href="../articles/collect_otm_data.html">Collect OTM data</a>
   </div>
 </li>
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-r-workflow">R Workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-r-workflow">
     <a class="dropdown-item" href="../articles/rnp_flights_data.html">Read and process flight data</a>
-    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Read and process OTM data, and generate OTM splines</a>
-    <a class="dropdown-item" href="../articles/correcting_flight_data.html">Correct flight data</a>
-    <a class="dropdown-item" href="../articles/predicting_thermal_landscapes.html">Match data and predict thermal landscapes</a>
+    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Read and process OTM data + Generate OTM splines</a>
+    <a class="dropdown-item" href="../articles/correct_flights_data.html">Correct flight data</a>
+    <a class="dropdown-item" href="../articles/predict_thermal_landscapes.html">Match data and predict thermal landscapes</a>
   </div>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="../articles/case_study.html">Case study</a>
 </li>
 <li class="nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
@@ -151,7 +148,7 @@ times over an area of interest.</li>
 obtain a thermal orthomosaic (i.e., a <code>.TIF</code> file) for each
 flight.</li>
 </ol>
-<p>To achieve this, we have included a <a href="https://ggcostoya.github.io/throne/articles/drone_setup.html">step-by-step
+<p>To achieve this, we have included a <a href="https://ggcostoya.github.io/throne/articles/collect_n_process_thermal_images.html">step-by-step
 guide</a> on how to perform each of these steps that also includes
 recommendations on the kind of drone and photogrammetry software to
 use.</p>
@@ -161,14 +158,14 @@ use.</p>
 <strong>2. Collect OTM data</strong><a class="anchor" aria-label="anchor" href="#collect-otm-data"></a>
 </h4>
 <p>The second step is to collect operative temperature model (OTM) data.
-We develop on the concept <a href="https://ggcostoya.github.io/throne/articles/otm_setup.html#building-otms">here</a>
+We develop on the concept <a href="https://ggcostoya.github.io/throne/articles/collect_otm_data.html#building-otms">here</a>
 but in short, an operative temperature is a measurement of temperature
 performed inside of an object (i.e., a model) with the same biophysical
 properties as an organism of interest. Measuring operative temperatures
 (as opposed to air or surface temperatures) is critical in order to be
 able to accurately characterize the thermal environment that an organism
 of interest is actually experiencing. To collect operative temperature
-model data we also provide a <a href="https://ggcostoya.github.io/throne/articles/otm_setup.html">step-by-step
+model data we also provide a <a href="https://ggcostoya.github.io/throne/articles/collect_otm_data.html">step-by-step
 guide</a> that goes through the following steps:</p>
 <ol style="list-style-type: decimal">
 <li>Build OTMs</li>
@@ -224,7 +221,7 @@ argument</a></p>
 <strong>6. Correct flight data</strong><a class="anchor" aria-label="anchor" href="#correct-flight-data"></a>
 </h4>
 <p>The sixth step will be the correction of flights data using the newly
-created spline models using the <a href="https://ggcostoya.github.io/throne/articles/correcting_flight_data.html"><code>correct_flights_data</code></a>
+created spline models using the <a href="https://ggcostoya.github.io/throne/reference/correct_flights_data.html"><code>correct_flights_data</code></a>
 function. The need for this correction stems from the fundamental
 difference in the physical properties of the temperature measurements
 collected using an IR thermal imaging camera mounted on a drone and
@@ -232,7 +229,7 @@ those collected using OTMs. The goal of this correction step is to
 transform thermal maps obtained from the flights into operative
 temperature maps. The logic of this process and details on how th
 <code>correct_flights_data</code> function are developed extensively in
-<a href="https://ggcostoya.github.io/throne/articles/correcting_flight_data.html#overview">this
+<a href="https://ggcostoya.github.io/throne/articles/correct_flights_data.html#overview">this
 vignette</a></p>
 </div>
 <div class="section level4">
@@ -241,18 +238,18 @@ vignette</a></p>
 </h4>
 <p>The seventh step of the <code>throne</code> workflow is the matching
 of flights and OTM data. The goal of this step, which can be performed
-using the <code>match_data</code>(<a href="https://ggcostoya.github.io/throne/reference/match_data.html" class="uri">https://ggcostoya.github.io/throne/reference/match_data.html</a>)
+using the <a href="https://ggcostoya.github.io/throne/reference/match_data.html"><code>match_data</code></a>
 function is to link the thermal dynamics of each of the tiles (i.e.,
 unique combination of latitude and longitude values) of the study area
 to the thermal dynamics of an OTM. More details on how the matching
-process is performed can be found <a href="https://ggcostoya.github.io/throne/articles/predicting_thermal_landscapes.html#the-match_data-function">here</a>.</p>
+process is performed can be found <a href="https://ggcostoya.github.io/throne/articles/predict_thermal_landscapes.html#the-match_data-function">here</a>.</p>
 </div>
 <div class="section level4">
 <h4 id="predict-thermal-landscapes">
 <strong>8. Predict thermal landscapes</strong><a class="anchor" aria-label="anchor" href="#predict-thermal-landscapes"></a>
 </h4>
 <p>The last step is the prediction of thermal landscapes which can be
-done using the <a href="https://ggcostoya.github.io/throne/reference/predict_thermal_landscape.html"><code>predict_thermal_landscape</code></a>
+done using the <a href="https://ggcostoya.github.io/throne/reference/predict_thermal_landscapes.html"><code>predict_thermal_landscape</code></a>
 function. Combining the OTM spline models with the “matches” data sets,
 the <code>predict_thermal_landscape</code> function is able to produce a
 thermal landscape of the area of interest for any date and time of day

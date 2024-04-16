@@ -30,7 +30,7 @@ knitr::include_graphics("images/correct_flights_data_workflow.png")
 
 The need from this correction stems from the fundamental difference between temperature estimates made using an IR camera and those made by making physical contact with an object. This is because the IR camera measurement is influenced by a wide range of factors including the object's emissivity, the conditions in which the image is taken (ambient temperature, amount of light etc. see [Playà-Montmany & Tattersall 2021](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13563) for further details).
 
-In contrast, OTMs are designed to record temperature measurements that match the internal body temperature of the organism as closely as possible. This is achieved by enclosing a temperature logger (e.g., an iButton) inside of a structure of a similar size and with similar surface properties to the the organism of interest. This methodology has been used extensively in the field of thermal ecology and recent advances have minimized the costs of production and maximized the accuracy of OTMs (see our past work in [Alujević et al. 2024](https://www.sciencedirect.com/science/article/pii/S0306456523003030%5D)).
+In contrast, OTMs are designed to record temperature measurements that match the internal body temperature of the organism as closely as possible. This is achieved by enclosing a temperature logger (e.g., an iButton) inside of a structure of a similar size and with similar surface and overall thermal properties to the the organism of interest. This methodology has been used extensively in the field of thermal ecology and recent advances have minimized the costs of production and maximized the accuracy of OTMs (see our past work in [Alujević et al. 2024](https://www.sciencedirect.com/science/article/pii/S0306456523003030%5D)).
 
 Due to the above, the IR camera of the drone and the OTM will ultimately record fundamentally different temperature metrics. For the thermal measurements estimated using the drone to be truly representative of what the organism is experiencing, they must be corrected such that they instead describe operative temperatures.
 
@@ -44,7 +44,7 @@ To transform temperature measurements obtained using a drone-mounted IR camera i
 flights_data
 ```
 
-2. An `otm_splines` complex `tibble` obtained through the `generate_otm_splines` function like the one seen below:
+2. An `otm_splines` nested `tibble` obtained through the `gen_otm_splines` function like the one seen below:
 
 ```{r}
 otms_splines
@@ -52,7 +52,7 @@ otms_splines
 
 Both data sets contain `latitude` and `longitude` information. This is a crucial step for the correction process, as the first task will be to filter the `flights_data` to contain only tiles (i.e., unique `latitude` and `longitude` combinations) where OTMs were actually deployed. 
 
-Once these tiles are filtered, we will then use the spline models to estimate the temperature of each OTM at the exact `year`, day of the year (`doy`) and minute of the day (`mod`) at which each of the flights took place. The result will be a `tibble` where each unique `latitude` & `longitude` in each unique `year`, `doy` and `mod` has an IR temperature measurement (`ir_temp`, from the drone) associated with an operative temperature measurement (`op_temp`, from the OTM) as seen below: 
+Once these tiles are filtered, we will use the spline models to estimate the temperature of each OTM at the exact `year`, day of the year (`doy`) and minute of the day (`mod`) at which each of the flights took place. The result will be a `tibble` where each unique `latitude` & `longitude` in each unique `year`, `doy` and `mod` has an IR temperature measurement (`ir_temp`, from the drone) associated with an operative temperature measurement (`op_temp`, from the OTM) as seen below: 
 
 ```{r}
 correction_data
@@ -74,7 +74,7 @@ correction_data %>%
   theme_minimal() +
   theme(axis.line = element_line(),
         axis.ticks = element_line()) +
-  labs(colour = "MOD")
+  labs(colour = "Minute of the day (mod)")
 ```
 
 As shown above, there is a consistent bias between these two measurements, with IR temperatures being generally cooler than operative temperatures when both have high values and the opposite holding true when both have low values. Note that the line of best linear fit is substantially different from the gray line that indicates the ideal 1:1 relationship. This can be easily appreciated when running a simple linear regression between `ir_temp` and `op_temp`.
@@ -151,7 +151,7 @@ If we implement the formula
 correction_data$op_temp_corr <- (-12.11754 + correction_data$ir_temp_corr)/0.68946
 ```
 
-We can see that the `Intercept` of this relationship is now at `3.76` and the slope at `0.9` much closer to the desired values of `0` and `1` respectively. This is also apparent when plotting this relationship with the line of best fit now being very close to the 1:1 line. 
+We can see that the `Intercept` of this relationship is now at practically `0` and the slope at `1`, which is ideal:
 
 ```{r, message = FALSE, echo = FALSE, fig.align='center'}
 correction_data %>% 
@@ -173,13 +173,13 @@ summary(lm(op_temp_corr ~ op_temp, data = correction_data))
 ```
 
 Below is an example of the effects of the correction across some of the flights provided as example data sets in the `throne` package. The columns across panels indicate if the plot shows a thermal landscape of IR temperatures (*Pre-correction*) or corrected IR temperatures now operative temperatures (*Post-correction*). The rows indicate the `mod` of the day when the flight took place:
-
   
 ```{r, echo = FALSE, fig.align='center', fig.height = 10, fig.width = 8}
 flights_data_comp <- merge(flights_data, flights_data_corr, by = c("longitude", "latitude", "year", "doy", "mod_start", "mod_end"))
 
 flights_data_comp %>% 
   filter(mod_start %in% c(515, 700, 900, 1026)) %>% 
+  mutate(mod_start = round(mod_start/60)) %>%
   pivot_longer(c("ir_temp", "op_temp"), names_to = "temp_type", values_to = "temp") %>% 
   mutate(when = ifelse(temp_type == "ir_temp", "Pre-correction", "Post-correction")) %>%
   ggplot(aes(x = longitude, y = latitude, fill = temp)) +
@@ -192,45 +192,3 @@ flights_data_comp %>%
         axis.title = element_blank(), axis.text = element_blank()) +
   guides(fill = guide_colorbar("Temp. (C)"))
 ```
-
-The correction results in a slight shift, generally towards a warmer and wider temperature distributions higher mean temperature and more variance:
-
-```{r, echo = FALSE, fig.align = 'center'}
-flights_data_comp %>% 
-  filter(mod_start %in% c(515, 700, 900, 1026)) %>% 
-  pivot_longer(c("ir_temp", "op_temp"), names_to = "temp_type", values_to = "temp") %>% 
-  mutate(when = ifelse(temp_type == "ir_temp", "Pre-correction", "Post-correction")) %>%
-  ggplot(aes(x = temp, col = when)) +
-  geom_density(aes(fill = when), alpha = 0.5) +
-  facet_grid(rows = vars(mod_start))  +
-  xlab("Temperature (C)") +
-  ylab("Density") +
-  scale_y_continuous(expand = c(0,0)) +
-  coord_cartesian(xlim = c(10,70)) +
-  theme_minimal() +
-  theme(panel.border = element_rect(fill = NA),
-        axis.ticks = element_line(),
-        strip.background = element_rect(fill = NA),
-        legend.title = element_blank())
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

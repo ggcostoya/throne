@@ -49,10 +49,10 @@ rnp_flights_data <- function(path, metadata, digits){
   ## preparing data
 
   # modify format of metadata file and select columns of interest
-  metadata$year <- year(mdy(metadata$date))
+  metadata$year <- lubridate::year(mdy(metadata$date))
   metadata$doy <- yday(mdy(metadata$date))
-  metadata$mod_start <- hour(hm(metadata$time_start))*60 + minute(hm(metadata$time_start))
-  metadata$mod_end <- hour(hm(metadata$time_end))*60 + minute(hm(metadata$time_end))
+  metadata$mod_start <- lubridate::hour(hm(metadata$time_start))*60 + lubridate::minute(hm(metadata$time_start))
+  metadata$mod_end <- lubridate::hour(hm(metadata$time_end))*60 + lubridate::minute(hm(metadata$time_end))
   metadata <- metadata %>% dplyr::select(flight_id, year, doy, mod_start, mod_end)
 
   # list files within path specified

@@ -38,21 +38,18 @@ moment in time (i.e., unique year, doy and mod)."><!-- mathjax --><script src="h
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-field-workflow">Field workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-field-workflow">
-    <a class="dropdown-item" href="../articles/drone_setup.html">Collect and process thermal images</a>
-    <a class="dropdown-item" href="../articles/otm_setup.html">Collect OTM data</a>
+    <a class="dropdown-item" href="../articles/collect_n_process_thermal_images.html">Collect and process thermal images</a>
+    <a class="dropdown-item" href="../articles/collect_otm_data.html">Collect OTM data</a>
   </div>
 </li>
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-r-workflow">R Workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-r-workflow">
     <a class="dropdown-item" href="../articles/rnp_flights_data.html">Read and process flight data</a>
-    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Read and process OTM data, and generate OTM splines</a>
-    <a class="dropdown-item" href="../articles/correcting_flight_data.html">Correct flight data</a>
-    <a class="dropdown-item" href="../articles/predicting_thermal_landscapes.html">Match data and predict thermal landscapes</a>
+    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Read and process OTM data + Generate OTM splines</a>
+    <a class="dropdown-item" href="../articles/correct_flights_data.html">Correct flight data</a>
+    <a class="dropdown-item" href="../articles/predict_thermal_landscapes.html">Match data and predict thermal landscapes</a>
   </div>
-</li>
-<li class="nav-item">
-  <a class="nav-link" href="../articles/case_study.html">Case study</a>
 </li>
 <li class="active nav-item">
   <a class="nav-link" href="../reference/index.html">Reference</a>
@@ -123,8 +120,22 @@ moment in time (i.e., unique year, <code>doy</code> and <code>mod</code>).</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">as_tibble</span><span class="op">(</span><span class="va">otms_data</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in as_tibble(otms_data):</span> could not find function "as_tibble"</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="va">otms_data</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 67,584 × 10</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    otm_id  year   doy   mod op_temp microhabitat orientation latitude longitude</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   367    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   369    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   371    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   373    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   375    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   377    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   379    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   381    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   383    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   385    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 67,574 more rows</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 1 more variable: elevation &lt;dbl&gt;</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

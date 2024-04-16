@@ -7,7 +7,16 @@
     <loc>https://ggcostoya.github.io/throne/articles/case_study.html</loc>
   </url>
   <url>
+    <loc>https://ggcostoya.github.io/throne/articles/collect_n_process_thermal_images.html</loc>
+  </url>
+  <url>
+    <loc>https://ggcostoya.github.io/throne/articles/collect_otm_data.html</loc>
+  </url>
+  <url>
     <loc>https://ggcostoya.github.io/throne/articles/correcting_flight_data.html</loc>
+  </url>
+  <url>
+    <loc>https://ggcostoya.github.io/throne/articles/correct_flights_data.html</loc>
   </url>
   <url>
     <loc>https://ggcostoya.github.io/throne/articles/drone_setup.html</loc>
@@ -23,6 +32,9 @@
   </url>
   <url>
     <loc>https://ggcostoya.github.io/throne/articles/predicting_thermal_landscapes.html</loc>
+  </url>
+  <url>
+    <loc>https://ggcostoya.github.io/throne/articles/predict_thermal_landscapes.html</loc>
   </url>
   <url>
     <loc>https://ggcostoya.github.io/throne/articles/rnp_flights_data.html</loc>

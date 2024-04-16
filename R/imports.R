@@ -25,6 +25,10 @@ NULL
 #' @export
 NULL
 
+#' @importFrom raster rasterToPoints
+#' @export
+NULL
+
 #' @importFrom lubridate hm
 #' @export
 NULL
@@ -36,3 +40,40 @@ NULL
 #' @importFrom lubridate mdy
 #' @export
 NULL
+
+#' @importFrom tibble tibble
+#' @export
+NULL
+
+#' @importFrom tibble as_tibble
+#' @export
+NULL
+
+#' @importFrom stringr str_sub
+#' @export
+NULL
+
+#' @importFrom dplyr rename
+#' @export
+NULL
+
+#' @importFrom utils read.csv
+#' @export
+NULL
+
+#' @importFrom dplyr summarise
+#' @export
+NULL
+
+#' @importFrom dplyr n
+#' @export
+NULL
+
+#' @importFrom dplyr ungroup
+#' @export
+NULL
+
+
+
+
+
