@@ -28,6 +28,7 @@ Imports:
   stringr,
   tibble,
   utils,
+  devtools
 Suggests:
   ggplot2,
   gridExtra,
