@@ -27,7 +27,7 @@ In this vignette, our aim is to illustrate how to correct temperature data obtai
 knitr::include_graphics("images/correct_flights_data_workflow.png")
 ```
 
-The need from this correction stems from the fundamental difference between temperature estimates made using an IR camera and those made by making physical contact with an object. This is because the IR camera measurement is influenced by a wide range of factors including the object's emissivity, the conditions in which the image is taken (ambient temperature, amount of light etc. see [Playà-Montmany & Tattersall 2021](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13563) for further details).
+The need for this correction stems from the fundamental difference between temperature estimates made using an IR camera and an OTM. This is because the IR camera measurement is influenced by a wide range of factors including the object's emissivity, the conditions in which the image is taken (ambient temperature, amount of light etc. see [Playà-Montmany & Tattersall 2021](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13563) for further details).
 
 In contrast, OTMs are designed to record temperature measurements that match the internal body temperature of the organism as closely as possible. This is achieved by enclosing a temperature logger (e.g., an iButton) inside of a structure of a similar size and with similar surface and overall thermal properties to the the organism of interest. This methodology has been used extensively in the field of thermal ecology and recent advances have minimized the costs of production and maximized the accuracy of OTMs (see our past work in [Alujević et al. 2024](https://www.sciencedirect.com/science/article/pii/S0306456523003030%5D)).
 
@@ -37,27 +37,27 @@ Due to the above, the IR camera of the drone and the OTM will ultimately record 
 
 To transform temperature measurements obtained using a drone-mounted IR camera into operative temperature measurements, the `throne` package includes the `correct_flights_data` function. This function will perform a double correction on data obtained through a flight by correcting for 1) differences in light conditions across multiple flights and 2) the inherent difference in physical properties between IR and operative temperature measurements.To perform such correction, the function will take 2 inputs:
 
-1. A `flights_data` `tibble` obtained through the `rnp_flights_data` function like the one below:
+1.  A `flights_data` `tibble` obtained through the `rnp_flights_data` function like the one below:
 
 ```{r}
 flights_data
 ```
 
-2. An `otm_splines` nested `tibble` obtained through the `gen_otm_splines` function like the one seen below:
+2.  An `otm_splines` nested `tibble` obtained through the `gen_otm_splines` function like the one seen below:
 
 ```{r}
 otms_splines
 ```
 
-Both data sets contain `latitude` and `longitude` information. This is a crucial step for the correction process, as the first task will be to filter the `flights_data` to contain only tiles (i.e., unique `latitude` and `longitude` combinations) where OTMs were actually deployed. 
+Both data sets contain `latitude` and `longitude` information. This is a crucial step for the correction process, as the first task will be to filter the `flights_data` to contain only tiles (i.e., unique `latitude` and `longitude` combinations) where OTMs were actually deployed.
 
-Once these tiles are filtered, we will use the spline models to estimate the temperature of each OTM at the exact `year`, day of the year (`doy`) and minute of the day (`mod`) at which each of the flights took place. The result will be a `tibble` where each unique `latitude` & `longitude` in each unique `year`, `doy` and `mod` has an IR temperature measurement (`ir_temp`, from the drone) associated with an operative temperature measurement (`op_temp`, from the OTM) as seen below: 
+Once these tiles are filtered, we will use the spline models to estimate the temperature of each OTM at the exact `year`, day of the year (`doy`) and minute of the day (`mod`) at which each of the flights took place. The result will be a `tibble` where each unique `latitude` & `longitude` in each unique `year`, `doy` and `mod` has an IR temperature measurement (`ir_temp`, from the drone) associated with an operative temperature measurement (`op_temp`, from the OTM) as seen below:
 
 ```{r}
 correction_data
 ```
 
-> The `tibble` above contains the `mod_start` and `mod_end` columns. These are the `mod` when the flight started and when the flight ended. In the example data, all flights were relatively fast (~ 4 minutes) but to cover larger areas flights are going to be longer. In that case, the predicted operative temperature (`op_temp`) for that OTM on that tile is the average temperature for the duration of the flight. 
+> The `tibble` above contains the `mod_start` and `mod_end` columns. These are the `mod` when the flight started and when the flight ended. In the example data, all flights were relatively fast (\~ 4 minutes) but to cover larger areas flights are going to be longer. In that case, the predicted operative temperature (`op_temp`) for that OTM on that tile is the average temperature for the duration of the flight.
 
 Using this data we can visualize the need for a correction:
 
@@ -82,9 +82,9 @@ As shown above, there is a consistent bias between these two measurements, with 
 summary(lm(ir_temp ~ op_temp, data = correction_data))
 ```
 
-The `(Intercept)` and the slope (i.e., the `Estimate` of `op_temp` above) are `6.23` and `0.75`  when, ideally, we would want them to be at `0` and `1` respectively. Further the $R^2$ (`R-squared` in the model's output) of this relationship is `0.625`, for an improved match between these two measurements we would also want $R^2$ to be closer to `1`. 
+The `(Intercept)` and the slope (i.e., the `Estimate` of `op_temp` above) are `6.23` and `0.75` when, ideally, we would want them to be at `0` and `1` respectively. Further the $R^2$ (`R-squared` in the model's output) of this relationship is `0.625`. For a good match between these two measurements we would also want the $R^2$ to be closer to `1`.
 
-It is in this step when we implement the first correction, that has to do with the date and time of each flight. Because flights took place at different days and in different `mod` both the environmental temperature and the light conditions where variable. We can visualize how the bias between measurements (i.e., `op_temp` - `ir_temp`) is different depending on the `mod`. 
+It is in this step that we implement the first correction that has to do with the date and time of each flight. Because flights took place at different days and different `mod` both the environmental temperature and the light conditions where variable. We can visualize how the bias between measurements (i.e., `op_temp` - `ir_temp`) is different depending on the `mod`.
 
 ```{r, echo = FALSE, message=FALSE, fig.align='center'}
 correction_data %>% 
@@ -103,7 +103,7 @@ correction_data %>%
     labs(colour = "MOD")
 ```
 
-Flights closer to the middle of the day (i.e., ~ 11:00 - 13:00 or `mod` 660 - 800) when light conditions are optimal tend to be less biased whereas flights earlier in the morning or the afternoon are more affected by it. Based on this, the first correction will 1) **caculate the average bias for each flight** and 2) **subtract that bias to all `ir_temp` measurements of that flight**. Once this correction is implemented the relationship between `ir_temp` and `op_temp` looks like:     
+Flights closer to the middle of the day (i.e., \~ 11:00 - 13:00 or `mod` 660 - 800) when light conditions are optimal tend to be less biased whereas flights earlier in the morning or the afternoon are more affected by it. Based on this, the first correction will 1) **caculate the average bias for each flight** and 2) **subtract that bias to all `ir_temp` measurements of that flight**. Once this correction is implemented the relationship between `ir_temp` and `op_temp` looks like:
 
 ```{r, echo = FALSE, message = FALSE}
 # get year, doy and mod correction factors
@@ -137,9 +137,9 @@ correction_data %>%
 summary(lm(ir_temp_corr ~ op_temp, data = correction_data))
 ```
 
-Although the model's `Intercept` and slope have worsened (from `6.22` to `12.11` and from `0.74` to `0.69`) the $R^2$ of the model has improved (from `0.625` to `0.678`) as can be appreciated by the reduced amount of error around the line of best fit. 
+Although the model's `Intercept` and slope have worsened (from `6.22` to `12.11` and from `0.74` to `0.69`) the $R^2$ of the model has improved (from `0.625` to `0.678`) as can be appreciated by the reduced amount of error around the line of best fit.
 
-From here, we will apply the second correction by correcting for the temperature value itself. We do this by using the estimates of the linear regression above to correct our IR temperature measurements (already corrected by `year`, `doy` and `mod`, as indicated by the *) into operative measurements following the formula:
+From here, we will apply the second correction by correcting for the temperature value itself. We do this by using the estimates of the linear regression above to correct our IR temperature measurements (already corrected by `year`, `doy` and `mod`, as indicated by the \*) into operative measurements following the formula:
 
 $$Fully\; corrected\; surface\; temperature = \frac{-Intercept + Time\; corrected\; surface\; temperature}{Slope}$$
 
@@ -171,13 +171,12 @@ correction_data %>%
 summary(lm(op_temp_corr ~ op_temp, data = correction_data))
 ```
 
-Below is an example of the effects of the correction across some of the flights provided as example data sets in the `throne` package. The columns across panels indicate if the plot shows a thermal landscape of IR temperatures (*Pre-correction*) or corrected IR temperatures now operative temperatures (*Post-correction*). The rows indicate the `mod` of the day when the flight took place:
+Below is an example of the effects of the correction across some of the flights provided as example data sets in the `throne` package. The columns across panels indicate if the plot shows a thermal landscape of IR temperatures (*Pre-correction*) or corrected IR temperatures temperatures (*Post-correction* i.e., operative temperatures). The rows indicate the `mod` of the day when the flight took place:
 
 ```{r, echo = FALSE, message = FALSE}
 
 ```
 
-  
 ```{r, echo = FALSE, fig.align='center', fig.height = 10, fig.width = 8}
 # correct the flights data using correct_flights_data function
 flights_data_corrected <- correct_flights_data(flights_data = flights_data, otm_splines = otms_splines)

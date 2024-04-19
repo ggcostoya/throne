@@ -3,10 +3,7 @@
 \docType{data}
 \name{matches_20}
 \alias{matches_20}
-\title{A \code{tibble} indicating the OTM that best describe the dynamics of a given tile
-assuming a \code{error_max = 20}. The purpose of the increased error is for visualization
-purposes (i.e., so no empty tiles appear in the plots presented in the documentation
-vignettes).}
+\title{Matches data with \code{error_max = 20}}
 \format{
 A \code{tibble} of 6386 rows and 4 columns
 #' \describe{

@@ -15,6 +15,6 @@ Example used in the vignettes of the package to illustrate what happens when
 a raw OTM file is read correctly
 }
 \examples{
-good_read_otm
+head(good_read_otm)
 }
 \keyword{datasets}

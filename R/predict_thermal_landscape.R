@@ -2,20 +2,20 @@
 
 #' Predict thermal landscape
 #'
-#' @param matches A matches `tibble` obtained using the `match_data` function.
-#' @param otm_splines A complex `tibble` obtained using the `gen_otm_splines` function.
+#' @param matches A matches \code{tibble} obtained using the \code{match_data} function.
+#' @param otm_splines A complex \code{tibble} obtained using the \code{gen_otm_splines} function.
 #' @param doy An integer or vector of integers indicating the day(s) of the year
-#'    (DOY) for which the thermal landscape should be predicted. All elements within
-#'    `doy` must be within the range between when the OTMs started and finished
+#'    (\code{doy}) for which the thermal landscape should be predicted. All elements within
+#'    \code{doy} must be within the range between when the OTMs started and finished
 #'    recording operative temperatures.
 #' @param mod An integer of vector of integers indicating the minute(s) of the
 #'    day (MOD) for which the thermal landscape should be predicted. All elements
-#'    within `mod` must fall within the 0 to 1440 range. If `mod` includes
-#'    values when the OTMs were not recording it will return `NA` and provide a
+#'    within \code{mod} must fall within the 0 to 1440 range. If \code{mod} includes
+#'    values when the OTMs were not recording it will return \code{NA} and provide a
 #'    diagnostics message
 #'
-#' @return A `tibble` with a predicted thermal landscape with `longitude`, `latitude`,
-#'    `doy`, `mod` and predicted operative temperature columns (`pred_op_temp`).
+#' @return A \code{tibble} with a predicted thermal landscape with \code{longitude}, \code{latitude},
+#'    \code{doy}, \code{mod} and predicted operative temperature columns (\code{pred_op_temp}).
 #'
 #' @export
 

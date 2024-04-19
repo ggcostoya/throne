@@ -54,8 +54,8 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-r-workflow">R Workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-r-workflow">
-    <a class="dropdown-item" href="../articles/rnp_flights_data.html">Read and process flight data</a>
-    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Read and process OTM data + Generate OTM splines</a>
+    <a class="dropdown-item" href="../articles/rnp_flights_data.html">Reading and processing flight data</a>
+    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Reading and processing OTM data + Generating OTM splines</a>
     <a class="dropdown-item" href="../articles/correct_flights_data.html">Correct flight data</a>
     <a class="dropdown-item" href="../articles/predict_thermal_landscapes.html">Match data and predict thermal landscapes</a>
   </div>
@@ -109,17 +109,18 @@ landscape of an area of interest</strong>. By thermal landscape, we
 refer to a data set that includes temperature measurements in a
 specified area (i.e., a set of “tiles” described by a unique latitude
 and longitude) across multiple moments in time (i.e., years, days all
-the way down to minutes). To achieve this prediction, the
+the way down to minutes). To generate these predictions, the
 <code>throne</code> package integrates spatially complete but temporally
 discrete thermal data collected via aerial photogrammetry using
-<strong>thermal imaging drones</strong> (hence the <code>throne</code>),
-with spatially discrete but temporally complete operative temperature
-data collected via <strong>operative temperature models</strong> (OTMs).
-Generating spatio-temporally complete thermal landscapes allows users to
-obtain a characterization of the thermal properties of an area of study
-at an unprecedented level of detail. Below is an example of the final
-output of the <code>throne</code> package, a predicted thermal landscape
-over an area of study across all times for an entire day:</p>
+<strong>th</strong>ermal imaging dr<strong>one</strong>s (hence
+<code>throne</code>), with spatially discrete but temporally complete
+operative temperature data collected via <strong>operative temperature
+models</strong> (OTMs). Generating spatio-temporally complete thermal
+landscapes allows users to obtain a characterization of the thermal
+properties of an area of study at an unprecedented level of detail.
+Below is an example of the final output of the <code>throne</code>
+package, a predicted thermal landscape over an area of study across all
+times for an entire day:</p>
 <p><img src="images/case_dynamic_thermal_landscape.gif" width="60%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
@@ -158,14 +159,15 @@ use.</p>
 <strong>2. Collect OTM data</strong><a class="anchor" aria-label="anchor" href="#collect-otm-data"></a>
 </h4>
 <p>The second step is to collect operative temperature model (OTM) data.
-We develop on the concept <a href="https://ggcostoya.github.io/throne/articles/collect_otm_data.html#building-otms">here</a>
+We elaborate on the concept <a href="https://ggcostoya.github.io/throne/articles/collect_otm_data.html#building-otms">here</a>
 but in short, an operative temperature is a measurement of temperature
-performed inside of an object (i.e., a model) with the same biophysical
-properties as an organism of interest. Measuring operative temperatures
-(as opposed to air or surface temperatures) is critical in order to be
-able to accurately characterize the thermal environment that an organism
-of interest is actually experiencing. To collect operative temperature
-model data we also provide a <a href="https://ggcostoya.github.io/throne/articles/collect_otm_data.html">step-by-step
+performed inside of an object (i.e., a model) with zero heat capacity,
+the same size, shape and radiation properties as an organism of
+interest. Measuring operative temperatures (as opposed to air or surface
+temperatures) is critical in order to be able to accurately characterize
+the thermal environment that an organism of interest is actually
+experiencing. To collect operative temperature model data we also
+provide a <a href="https://ggcostoya.github.io/throne/articles/collect_otm_data.html">step-by-step
 guide</a> that goes through the following steps:</p>
 <ol style="list-style-type: decimal">
 <li>Build OTMs</li>
@@ -208,9 +210,8 @@ formatting. More details on how this function works can be found <a href="https:
 which, in the context of the <code>throne</code> package, is performed
 by the <a href="https://ggcostoya.github.io/throne/reference/gen_otm_splines.html"><code>gen_otm_splines</code></a>
 function. In short, this function will fit a unique cubic spline model
-to each OTM considered for each day it was deployed in the field as a
-way to obtain a continuous characterization of its temperature
-fluctuation. In <a href="https://ggcostoya.github.io/throne/articles/rnp_otms_data_gen_otm_splines.html#how-the-rnp_otms_data-function-works">this
+to each OTM for each day it was deployed in the field as a way to obtain
+a continuous characterization of its temperature fluctuation. In <a href="https://ggcostoya.github.io/throne/articles/rnp_otms_data_gen_otm_splines.html#how-the-rnp_otms_data-function-works">this
 vignette</a> we detail how this function works and we provide some
 guidelines on how to choose the appropriate “wiggliness” of the
 resulting model through the <a href="https://ggcostoya.github.io/throne/articles/rnp_otms_data_gen_otm_splines.html#choosing-the-appropriate-knot_p-value-"><code>knot_p</code>
@@ -227,9 +228,9 @@ difference in the physical properties of the temperature measurements
 collected using an IR thermal imaging camera mounted on a drone and
 those collected using OTMs. The goal of this correction step is to
 transform thermal maps obtained from the flights into operative
-temperature maps. The logic of this process and details on how th
-<code>correct_flights_data</code> function are developed extensively in
-<a href="https://ggcostoya.github.io/throne/articles/correct_flights_data.html#overview">this
+temperature maps. The logic of this process and details on how the
+<code>correct_flights_data</code> function works are described
+extensively in <a href="https://ggcostoya.github.io/throne/articles/correct_flights_data.html#overview">this
 vignette</a></p>
 </div>
 <div class="section level4">

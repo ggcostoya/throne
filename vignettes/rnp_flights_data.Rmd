@@ -25,7 +25,7 @@ library(plotly)
 
 # Overview
 
-The goal of this vignette is to illustrate the process behind the `rnp_flights_data` (**r**ead a**n**d **p**rocess flights data) function of the `throne` package. This function enables to processing of raw `.tif` files obtained by combining images gathered during a flight drone flight (see the [Flying drones and obtaining thermal orthomosaics vignette](https://ggcostoya.github.io/throne/articles/drone_setup.html)) into a data frame structure easily manageable in `R`. This data frame will later be related to operative temperature model (**OTM**) data to finally predict thermal landscapes. Below, we highlight the section of the package's workflow that is covered in this vignette:
+The goal of this vignette is to illustrate the process behind the `rnp_flights_data` (**r**ead a**n**d **p**rocess flights data) function of the `throne` package. This function enables processing of raw `.tif` files obtained by combining images collected during a drone flight (see the [Flying drones and obtaining thermal orthomosaics vignette](https://ggcostoya.github.io/throne/articles/drone_setup.html)) into a data frame structure easily manageable in `R`. This data frame will later be related to operative temperature model (**OTM**) data to finally predict thermal landscapes. Below, we highlight the section of the package's workflow that is covered in this vignette:
 
 ```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
 knitr::include_graphics("images/rnp_flights_data_workflow.png")
@@ -39,7 +39,7 @@ The `rnp_flight_data` function uses the functionality developed by package [`ras
 
 The `rnp_flights_data` takes in 3 inputs:
 
-1.  The **`path`** to the directory where all thermal orthomosaics (i.e., `.tif` files) for flights are stored. The function will process all files stored in the folder. If there are many and/or if each file is of considerable size, it will take a substantial amount of time to run. Luckily, it will only need to be ran once. 
+1.  The **`path`** to the directory where all thermal orthomosaics (i.e., `.tif` files) for flights are stored. The function will process all files stored in the folder. If there are many and/or if each file is of considerable size, it will take a substantial amount of time to run. Luckily, it will only need to be ran once.
 
 2.  A `tibble` or `data.frame` with **`metadata`** for each flight. This metadata file must contain columns for `flight_id`, the `date` when the flight took place (MM/DD/YYYY format), and the time of the day when the flight started and ended (`time_start` & `time_end` columns in HH:MM format). Below is an example metadata `tibble` we include as part of the documentation of the `throne` package:
 
@@ -65,7 +65,7 @@ To transform the original `.tif` files, the `rnp_flights_data` function goes thr
 
 > **NOTE**: We choose working with `doy` and `mod` to simplify the management of the data as much as possible. Date and time data have unique data formats in the `R` environment that are often difficult to handle for users which can lead to unintended errors. By using `doy` and `mod`, the user deals with integer columns, much easier to operate with. Further, these formats can be easily transformed back into more easily interpretable temporal scales for visualization purposes, [by using the `as.Date` function to transform `doy` (also known as Julian date) back into a YYYY-MM-DD format](https://stackoverflow.com/questions/24200014/convert-day-of-year-to-date) and dividing by 60 for `mod` to get hours.
 
-The final output is a `tibble` object with columns for longitude, latitude and IR-measured temperature (`ir_temp`). The number of rows of this data set will vary depending on the number of flights that are processed simultaneously, based on the area covered by eacg flight and the number of `digits` specified. For instance, our study area was \~ 2900 $m^2$, which processed setting `digits = 5` led to a `tibble` of \~7500 observations per flight each representing a "tile" of approximately 0.4 $m^2$ at a latitude of approximately 40° (See more details on the choice of the `digits` argument in section \@ref(digits)).
+The final output is a `tibble` object with columns for longitude, latitude and IR-measured temperature (`ir_temp`). The number of rows of this data set will vary depending on the number of flights that are processed simultaneously, based on the area covered by each flight and the number of `digits` specified. For instance, our study area was \~ 2900 $m^2$, which by setting `digits = 5` led to a `tibble` of \~7500 observations per flight each representing a "tile" of approximately 0.4 $m^2$ at a latitude of approximately 40° (see more details on the choice of the `digits` argument in section \@ref(digits)).
 
 ```{r, echo = FALSE, warnings = FALSE}
 flights_data
@@ -92,7 +92,7 @@ flights_data %>%
   guides(fill = guide_colorbar("Reflected temperature (°C)"))
 ```
 
-With data on the elevation profile of the site we can also use tools from the `plotly` package to plot the data from the resulting flight in 3 dimensions. Below is the site on `doy = 236` and `mod = 515` (i.e., August 25th 2024 at 8:35 AM)
+With data on the elevation profile of the site we can also use tools from the `plotly` package to plot the data from the resulting flight in 3 dimensions. Below is the site on `doy = 236` and `mod = 515` (i.e., August 25th 2024 at 8:35 AM).
 
 ```{r, echo = FALSE, fig.align = 'center', fig.cap = "Figure 3: Elevational profile of our area of study"}
 # filter flight data
@@ -204,12 +204,12 @@ grid.arrange(lons_km_plot, lons_m_plot, nrow = 1, ncol = 2)
 
 Based on the above, in the majority of cases, **we recommend setting the argument `digits = 5`**. This will provide a spatial resolution of \~ 1.2 $m^2$ at the equator which will gradually descend to as little as \~ 0.5 $m^2$ at 66° Latitude as seen below.
 
-```{r, echo = FALSE, message = FALSE, fig.width = 6, fig.height = 4, fig.align='center'}
+```{r, echo = FALSE, message = FALSE, fig.align='center'}
 # processing data
 lat_data$degree <- lat_data$degree_lat
 lons_lats$degree <- lons_lats$degree_lon
 comparison <- merge(lat_data, lons_lats, by = "degree", all = TRUE)
-comparison <- comparison %>% filter(degree == 1e-04)
+comparison <- comparison %>% filter(degree == 1e-05)
 
 # plotting
 comparison %>% 
@@ -225,7 +225,7 @@ comparison %>%
   xlab("Latitude (°)") + 
   ylab(bquote("Spatial Resolution ("~m^2~")")) +
   scale_x_continuous(breaks = seq(0,90, by = 10)) +
-  scale_y_continuous(breaks = seq(0,1.2, by = 0.2)) +
+  scale_y_continuous(breaks = seq(0, 1.2, by = 0.1)) +
   theme_minimal() +
   theme(panel.border = element_rect(fill = NA),
         axis.ticks = element_line(),

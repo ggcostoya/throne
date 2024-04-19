@@ -54,8 +54,8 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-r-workflow">R Workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-r-workflow">
-    <a class="dropdown-item" href="../articles/rnp_flights_data.html">Read and process flight data</a>
-    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Read and process OTM data + Generate OTM splines</a>
+    <a class="dropdown-item" href="../articles/rnp_flights_data.html">Reading and processing flight data</a>
+    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Reading and processing OTM data + Generating OTM splines</a>
     <a class="dropdown-item" href="../articles/correct_flights_data.html">Correct flight data</a>
     <a class="dropdown-item" href="../articles/predict_thermal_landscapes.html">Match data and predict thermal landscapes</a>
   </div>
@@ -107,12 +107,11 @@ temperatures</strong> as measured using an <strong>operative temperature
 model</strong> (OTM). Below we highlight the section of the package’s
 workflow that is covered in this vignette:</p>
 <p><img src="images/correct_flights_data_workflow.png" width="80%" style="display: block; margin: auto;"></p>
-<p>The need from this correction stems from the fundamental difference
-between temperature estimates made using an IR camera and those made by
-making physical contact with an object. This is because the IR camera
-measurement is influenced by a wide range of factors including the
-object’s emissivity, the conditions in which the image is taken (ambient
-temperature, amount of light etc. see <a href="https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13563" class="external-link">Playà-Montmany
+<p>The need for this correction stems from the fundamental difference
+between temperature estimates made using an IR camera and an OTM. This
+is because the IR camera measurement is influenced by a wide range of
+factors including the object’s emissivity, the conditions in which the
+image is taken (ambient temperature, amount of light etc. see <a href="https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13563" class="external-link">Playà-Montmany
 &amp; Tattersall 2021</a> for further details).</p>
 <p>In contrast, OTMs are designed to record temperature measurements
 that match the internal body temperature of the organism as closely as
@@ -259,15 +258,15 @@ linear regression between <code>ir_temp</code> and
 <code>6.23</code> and <code>0.75</code> when, ideally, we would want
 them to be at <code>0</code> and <code>1</code> respectively. Further
 the <span class="math inline">\(R^2\)</span> (<code>R-squared</code> in
-the model’s output) of this relationship is <code>0.625</code>, for an
-improved match between these two measurements we would also want <span class="math inline">\(R^2\)</span> to be closer to <code>1</code>.</p>
-<p>It is in this step when we implement the first correction, that has
-to do with the date and time of each flight. Because flights took place
-at different days and in different <code>mod</code> both the
-environmental temperature and the light conditions where variable. We
-can visualize how the bias between measurements (i.e.,
-<code>op_temp</code> - <code>ir_temp</code>) is different depending on
-the <code>mod</code>.</p>
+the model’s output) of this relationship is <code>0.625</code>. For a
+good match between these two measurements we would also want the <span class="math inline">\(R^2\)</span> to be closer to <code>1</code>.</p>
+<p>It is in this step that we implement the first correction that has to
+do with the date and time of each flight. Because flights took place at
+different days and different <code>mod</code> both the environmental
+temperature and the light conditions where variable. We can visualize
+how the bias between measurements (i.e., <code>op_temp</code> -
+<code>ir_temp</code>) is different depending on the
+<code>mod</code>.</p>
 <p><img src="correct_flights_data_files/figure-html/unnamed-chunk-8-1.png" width="700" style="display: block; margin: auto;"></p>
 <p>Flights closer to the middle of the day (i.e., ~ 11:00 - 13:00 or
 <code>mod</code> 660 - 800) when light conditions are optimal tend to be
@@ -346,9 +345,9 @@ is ideal:</p>
 the flights provided as example data sets in the <code>throne</code>
 package. The columns across panels indicate if the plot shows a thermal
 landscape of IR temperatures (<em>Pre-correction</em>) or corrected IR
-temperatures now operative temperatures (<em>Post-correction</em>). The
-rows indicate the <code>mod</code> of the day when the flight took
-place:</p>
+temperatures temperatures (<em>Post-correction</em> i.e., operative
+temperatures). The rows indicate the <code>mod</code> of the day when
+the flight took place:</p>
 <p><img src="correct_flights_data_files/figure-html/unnamed-chunk-16-1.png" width="768" style="display: block; margin: auto;"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

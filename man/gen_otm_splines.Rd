@@ -7,26 +7,27 @@
 gen_otm_splines(otm_data, knot_p)
 }
 \arguments{
-\item{otm_data}{An OTM data `tibble` obtained via the function `rnp_otms_data`.
-It must include columns describing the OTM id (`otm_id`), the day of the
-year (`doy`), the minute of the day (`mod`) in which each operative temperature
-measurement (`op_temp`) was made. The function can run without `latitude` and
-`longitude` columns, but including them is necessary for the `correct_flight_data`,
-`match_data` and `predict_thermal_landscape` functions.}
+\item{otm_data}{An OTM data \code{tibble} obtained via the function \code{rnp_otms_data}.
+It must include columns describing the OTM id (\code{otm_id}), the day of the
+year (\code{doy}), the minute of the day (\code{mod}) in which each operative temperature
+measurement (\code{op_temp}) was made. The function can run without \code{latitude} and
+\code{longitude} columns, but including them is necessary for the \code{correct_flights_data},
+\code{match_data} and \code{predict_thermal_landscape} functions.}
 
 \item{knot_p}{The number of knots the spline model should have to describe the
 temperature dynamics of the OTM for a given day taken as a percentage of
 the total number of operative measurements in a given day.}
 }
 \value{
-A complex `tibble` with columns for `otm_id`, `year`, `doy` and `spline`.
-   The spline column is nested and contains a OTM, year and DOY `smooth.spline` model
+A complex \code{tibble} with columns for \code{otm_id}, \code{year}, \code{doy} and \code{spline}.
+   The spline column is nested and contains a OTM, year and DOY \code{smooth.spline} model
    with the specified number of knots.
 }
 \description{
 Generate a unique spline model for each OTM on each date (Julian) while the OTM was measuring
 }
 \examples{
+library(ggplot2)
 `\%>\%` <- magrittr::`\%>\%`
 
 # filter data for a specific OTM in a given doy
@@ -42,8 +43,8 @@ op_temp = predict(otm_spline$spline[[1]], seq(0,1440,by = 1))$y)
 
 # plotting
 ggplot2::ggplot() +
-  ggplot2::geom_point(data = otm, aes(x = mod, y = op_temp), size = 4, alpha = 0.1) +
-  ggplot2::geom_line(data = pred, aes(x = mod, y = op_temp), linewidth = 2, col = "red") +
+  ggplot2::geom_point(data = otm, ggplot2::aes(x = mod, y = op_temp), size = 4, alpha = 0.1) +
+  ggplot2::geom_line(data = pred, ggplot2::aes(x = mod, y = op_temp), linewidth = 2, col = "red") +
   ggplot2::xlab("Minute of the day (MOD)") +
   ggplot2::ylab("Operative Temperature (C)")
 

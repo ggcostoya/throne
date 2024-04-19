@@ -58,8 +58,8 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-r-workflow">R Workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-r-workflow">
-    <a class="dropdown-item" href="articles/rnp_flights_data.html">Read and process flight data</a>
-    <a class="dropdown-item" href="articles/rnp_otms_data_gen_otm_splines.html">Read and process OTM data + Generate OTM splines</a>
+    <a class="dropdown-item" href="articles/rnp_flights_data.html">Reading and processing flight data</a>
+    <a class="dropdown-item" href="articles/rnp_otms_data_gen_otm_splines.html">Reading and processing OTM data + Generating OTM splines</a>
     <a class="dropdown-item" href="articles/correct_flights_data.html">Correct flight data</a>
     <a class="dropdown-item" href="articles/predict_thermal_landscapes.html">Match data and predict thermal landscapes</a>
   </div>
@@ -87,8 +87,8 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="throne-predicting-thermal-landscapes-in-spatio-temporally-unprecedented-detail">
-<code>throne</code>: predicting thermal landscapes in spatio-temporally unprecedented detail.<a class="anchor" aria-label="anchor" href="#throne-predicting-thermal-landscapes-in-spatio-temporally-unprecedented-detail"></a>
+<div class="page-header"><h1 id="throne-using-aerial-thermography-to-map-terrestrial-thermal-environments-in-unprecedented-detail">
+<code>throne</code>: Using aerial thermography to map terrestrial thermal environments in unprecedented detail<a class="anchor" aria-label="anchor" href="#throne-using-aerial-thermography-to-map-terrestrial-thermal-environments-in-unprecedented-detail"></a>
 </h1></div>
 <p>Accurately quantifying and mapping thermal environments is crucial to predict how environmental change is going to impact organisms. However, describing thermal environments is challenging because 1) there is a mismatch between the resolution of available data and the scale at which organisms experience thermal variation, and 2) available tools can pose a challenge for inexperienced users. Here, we present the <code>throne</code> package, which provides tools to combine spatially discrete but temporally complete measurements from temperature loggers with spatially complete but temporally discrete thermal maps obtained via IR drone photogrammetry to produce spatio-temporally complete thermal landscapes.</p>
 <div class="section level2">
@@ -96,11 +96,13 @@
 </h2>
 <p>The package is currently under development and not yet available on CRAN, but it can be dowloaded directly from GitHub via:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span> <span class="fu">devtools</span><span class="fu">::</span><span class="fu">install.github</span><span class="op">(</span><span class="st">"ggcostoya/throne"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span> <span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"ggcostoya/throne"</span><span class="op">)</span></span></code></pre></div>
+<p>For an overview of how the <code>throne</code> works please visit <a href="https://ggcostoya.github.io/throne/articles/overview.html">this page</a></p>
 </div>
 <div class="section level2">
 <h2 id="how-to-cite-the-package">How to cite the package<a class="anchor" aria-label="anchor" href="#how-to-cite-the-package"></a>
 </h2>
+<p>This package accompanies a manuscript that is currently under review in Methods in Ecology &amp; Evolution.</p>
 <p>If you use <code>throne</code> in your research, please cite the package as:</p>
 <p>Alujević K, Garcia-Costoya G, Ratia N, Schmitz E, Godkin R, Bujan J, Gopal A, Logan M (2024). throne: Predicting thermal landscapes in spatio-temporally unprecedented detail. R package version 1.0, <a href="https://ggcostoya.github.io/throne/" class="uri">https://ggcostoya.github.io/throne/</a>.</p>
 </div>

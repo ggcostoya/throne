@@ -70,7 +70,7 @@
 #' a raw OTM file is read incorrectly.
 #'
 #'@examples
-#'bad_read_otm
+#'head(bad_read_otm)
 
 "bad_read_otm"
 
@@ -82,7 +82,7 @@
 #' a raw OTM file is read correctly
 #'
 #'@examples
-#'good_read_otm
+#'head(good_read_otm)
 
 "good_read_otm"
 
@@ -178,6 +178,8 @@
 
 ### * Correction data
 
+#' Correction data set for documentation
+#'
 #' A \code{tibble} with a comparison between the surface temperatures recorded
 #' by flights on tiles where OTM were deployed and the operative temperatures
 #' recorded by OTMs during the exact same period the flights were taking place
@@ -201,6 +203,8 @@
 
 ### * Matches 5
 
+#' Matches data with \code{error_max = 5}
+#'
 #' A \code{tibble} indicating the OTM that best describe the dynamics of a given tile
 #' assuming a \code{error_max = 5}.
 #'
@@ -221,6 +225,8 @@
 
 ### * Matches 20
 
+#' Matches data with \code{error_max = 20}
+#'
 #' A \code{tibble} indicating the OTM that best describe the dynamics of a given tile
 #' assuming a \code{error_max = 20}. The purpose of the increased error is for visualization
 #' purposes (i.e., so no empty tiles appear in the plots presented in the documentation

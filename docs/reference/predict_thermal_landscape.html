@@ -37,8 +37,8 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-r-workflow">R Workflow</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-r-workflow">
-    <a class="dropdown-item" href="../articles/rnp_flights_data.html">Read and process flight data</a>
-    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Read and process OTM data + Generate OTM splines</a>
+    <a class="dropdown-item" href="../articles/rnp_flights_data.html">Reading and processing flight data</a>
+    <a class="dropdown-item" href="../articles/rnp_otms_data_gen_otm_splines.html">Reading and processing OTM data + Generating OTM splines</a>
     <a class="dropdown-item" href="../articles/correct_flights_data.html">Correct flight data</a>
     <a class="dropdown-item" href="../articles/predict_thermal_landscapes.html">Match data and predict thermal landscapes</a>
   </div>
@@ -79,25 +79,25 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>matches</dt>
-<dd><p>A matches `tibble` obtained using the `match_data` function.</p></dd>
+<dd><p>A matches <code>tibble</code> obtained using the <code>match_data</code> function.</p></dd>
 
 
 <dt>otm_splines</dt>
-<dd><p>A complex `tibble` obtained using the `gen_otm_splines` function.</p></dd>
+<dd><p>A complex <code>tibble</code> obtained using the <code>gen_otm_splines</code> function.</p></dd>
 
 
 <dt>doy</dt>
 <dd><p>An integer or vector of integers indicating the day(s) of the year
-(DOY) for which the thermal landscape should be predicted. All elements within
-`doy` must be within the range between when the OTMs started and finished
+(<code>doy</code>) for which the thermal landscape should be predicted. All elements within
+<code>doy</code> must be within the range between when the OTMs started and finished
 recording operative temperatures.</p></dd>
 
 
 <dt>mod</dt>
 <dd><p>An integer of vector of integers indicating the minute(s) of the
 day (MOD) for which the thermal landscape should be predicted. All elements
-within `mod` must fall within the 0 to 1440 range. If `mod` includes
-values when the OTMs were not recording it will return `NA` and provide a
+within <code>mod</code> must fall within the 0 to 1440 range. If <code>mod</code> includes
+values when the OTMs were not recording it will return <code>NA</code> and provide a
 diagnostics message</p></dd>
 
 </dl></div>
@@ -105,8 +105,9 @@ diagnostics message</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A `tibble` with a predicted thermal landscape with `longitude`, `latitude`,
-   `doy`, `mod` and predicted operative temperature columns (`pred_op_temp`).</p>
+<p>A <code>tibble</code> with a predicted thermal landscape with <code>longitude</code>, <code>latitude</code>,</p>
+<p></p>
+<p><code>doy</code>, <code>mod</code> and predicted operative temperature columns (<code>pred_op_temp</code>).</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

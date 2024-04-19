@@ -7,16 +7,16 @@
 correct_flights_data(flights_data, otm_splines)
 }
 \arguments{
-\item{flights_data}{A `tibble` of flights data obtained through the `rnp_flights_data`
-function. The `tibble` must contain columns for `longitude` and `latitude`.}
+\item{flights_data}{A \code{tibble} of flights data obtained through the \code{rnp_flights_data}
+function. The \code{tibble} must contain columns for `longitude` and `latitude`.}
 
-\item{otm_splines}{A complex `tibble` obtained using the `gen_otm_splines` function.
-The `tibble` must contain columns for `longitude` and `latitude` and all values
-must also be in the `flights_data`}
+\item{otm_splines}{A nested \code{tibble} obtained using the \code{gen_otm_splines} function.
+The \code{tibble} must contain columns for \code{longitude} and \code{latitude} and all values
+must also be in the \code{flights_data}}
 }
 \value{
-A processed `flights_data` `tibble` where IR-measured temperatures (`ir_temp`)
-   has been corrected to operative temperatures (`op_temp`).
+A processed \code{flights_data} \code{tibble} where IR-measured temperatures (\code{ir_temp})
+   has been corrected to operative temperatures (\code{op_temp}).
 }
 \description{
 Correct flights data to transform IR-measured temperatures into operative temperatures

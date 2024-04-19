@@ -1,4 +1,4 @@
-# `throne`: predicting thermal landscapes in spatio-temporally unprecedented detail.
+# `throne`: Using aerial thermography to map terrestrial thermal environments in unprecedented detail
 
 Accurately quantifying and mapping thermal environments is crucial to predict 
 how environmental change is going to impact organisms. However, describing thermal
@@ -18,8 +18,13 @@ can be dowloaded directly from GitHub via:
 ```R
  devtools::install_github("ggcostoya/throne")
 ```
-  
+
+For an overview of how the `throne` works please visit [this page](https://ggcostoya.github.io/throne/articles/overview.html)
+
 ## How to cite the package
+
+This package accompanies a manuscript that is currently under review in Methods in
+Ecology & Evolution. 
 
 If you use `throne` in your research, please cite the package as:
 

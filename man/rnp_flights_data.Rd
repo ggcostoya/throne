@@ -7,25 +7,25 @@
 rnp_flights_data(path, metadata, digits)
 }
 \arguments{
-\item{path}{A character indicating the directory where all `.tif`
-files for flights are stored. The name of each flight `.tif` file must
+\item{path}{A character indicating the directory where all \code{.tif}`
+files for flights are stored. The name of each flight \code{.tif} file must
 have associated metadata for the function to work.}
 
-\item{metadata}{A metadata `tibble` for the flights with information on
-the `flight_id` (character), `date` (MM/DD/YYYY), `time_start`(HH:MM)
-and `time_end`(HH:MM) of each flight.}
+\item{metadata}{A metadata \code{tibble} for the flights with information on
+the \code{flight_id} (character), \code{date} (MM/DD/YYYY), \code{time_start} (HH:MM)
+and \code{time_end} (HH:MM) of each flight.}
 
 \item{digits}{An integer (>0 & <6), indicating the number of decimal digit places
 to which the final output should be summarized to. Will dictate the spatial
 resolution of each of the tiles in the eventual thermal landscape.}
 }
 \value{
-A `tibble` where each row represents a unique tile (a unique combination
-   of `longitude` and `latitude`), with an associated IR temperature measurement
-   (`ir_temp`) for a unique flight. To identify each flight, each row of the
-   return `tibble` also contains information on the `year`, date of the year (`doy`)
-   and the minute of the da (MOD) when the flight started (`mod_start`) and ended (`mod_end`)
+A \code{tibble} where each row represents a unique tile (a unique combination
+   of \code{longitude} and \code{latitude}), with an associated IR surface temperature measurement
+   (\code{ir_temp}) for a unique flight. To identify each flight, each row of the
+   return \code{tibble} also contains information on the \code{year}, date of the year (\code{doy})
+   and the minute of the day (\code{mod}) when the flight started (\code{mod_start}) and ended (\code{mod_end})
 }
 \description{
-Reads and processes data from multiple flights in `.tif` format and adds metadata
+Reads and processes data from multiple flights in \code{.tif} format and adds metadata
 }

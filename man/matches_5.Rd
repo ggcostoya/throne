@@ -3,8 +3,7 @@
 \docType{data}
 \name{matches_5}
 \alias{matches_5}
-\title{A \code{tibble} indicating the OTM that best describe the dynamics of a given tile
-assuming a \code{error_max = 5}.}
+\title{Matches data with \code{error_max = 5}}
 \format{
 A \code{tibble} of 6386 rows and 4 columns
 #' \describe{

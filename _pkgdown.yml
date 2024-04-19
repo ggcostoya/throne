@@ -18,9 +18,9 @@ navbar:
       href: articles/collect_otm_data.html
   - text: R Workflow
     menu:
-    - text: Read and process flight data
+    - text: Reading and processing flight data
       href: articles/rnp_flights_data.html
-    - text: Read and process OTM data + Generate OTM splines
+    - text: Reading and processing OTM data + Generating OTM splines
       href: articles/rnp_otms_data_gen_otm_splines.html
     - text: Correct flight data
       href: articles/correct_flights_data.html

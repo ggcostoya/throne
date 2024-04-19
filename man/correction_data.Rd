@@ -3,9 +3,7 @@
 \docType{data}
 \name{correction_data}
 \alias{correction_data}
-\title{A \code{tibble} with a comparison between the surface temperatures recorded
-by flights on tiles where OTM were deployed and the operative temperatures
-recorded by OTMs during the exact same period the flights were taking place}
+\title{Correction data set for documentation}
 \format{
 A \code{tibble} of 1114 rows and 8 columns:
 \describe{
