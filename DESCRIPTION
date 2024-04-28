@@ -36,5 +36,7 @@ Suggests:
   metR,
   plotly,
   devtools,
-  forcats
+  forcats,
+  knitr
 URL: https://ggcostoya.github.io/throne/
+VignetteBuilder: knitr

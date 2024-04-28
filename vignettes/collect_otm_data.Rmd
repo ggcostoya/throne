@@ -1,10 +1,15 @@
 ---
 title: "Collect and process OTM data"
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Collect and process OTM data}
 output:
   html_document:
     toc: true
     toc_depth: 2
     toc_float: true
+    css: custom.css
 ---
 
 ```{=html}
@@ -26,7 +31,7 @@ library(plotly)
 
 # Overview
 
-In this vignette our goal is to present the co-first step of the workflow presented in the `throne` package, the collection of **operative temperature model** (**OTM**) data.To collect this data we will need to 1) build, 2) program, 3) deploy and 4) read the measurements collected by the OTM. Here, we will provide some general guidelines on how to perform each of this steps such that they integrate adequately with the software developed for the `throne` package. In the context of the whole package's workflow, we highlight the areas covered in this vignette below:
+In this vignette our goal is to present the co-first step of the workflow presented in the `throne` package, the collection of **operative temperature model** (**OTM**) data.To collect this data we will need to 1) build, 2) program, 3) deploy and 4) read the measurements collected by the OTM. Here, we will provide some general guidelines on how to perform each of these steps such that they integrate adequately with the software developed for the `throne` package. In the context of the whole package's workflow, we highlight the areas covered in this vignette below:
 
 ```{r, echo=FALSE, out.width = '80%', fig.align = 'center', fig.cap = "Figure 1. Part of the workflow covered in this vignette"}
 knitr::include_graphics("images/otm_setup_workflow.png")
@@ -36,10 +41,14 @@ knitr::include_graphics("images/otm_setup_workflow.png")
 
 Typically, an OTM is the sum of two components; a body and a temperature logger which is contained inside of the body. The physical properties of the body of the OTM will determine its internal temperature which in turn will be captured by the temperature logger. The goal when building an OTM's body is that it matches the biophysical properties of the organism of interest as accurately as possible such that the temperature measured by the logger closely matches that which the organism would experience if it were on the exact spot where that OTM is deployed. This is the concept of **operative temperature**. To that end, it is recommended that the body is of a similar volume, mass and color of the organism of interest to ensure that properties such conduction and convection and radiative heat transfer are comparable. Many techniques have been employed over the years to achieve a body of such characteristics. For instance, among studies of terrestrial ectotherms (for which OTMs are commonly used), copper pipes were historically considered to be an accurate analog to many organisms. However, as part of a separate study, we showed that 3D printing can surpass the performance of copper pipes at a fraction of the cost. We strongly recommend 3D printing to build OTM bodies as we detail in [Alujević et al. 2024](https://www.sciencedirect.com/science/article/pii/S0306456523003030). As an example, below is a picture of the OTM bodies we used for this study:
 
+```{r, echo=FALSE, out.width = '80%', fig.align = 'center', fig.cap = "Figure 2. An operative temperature model (OTM) used for this study"}
+knitr::include_graphics("images/otm_setup_workflow.png")
+```
+
 The second component of an OTM is the temperature logger. We recommend using iButton temperature loggers. For this study, we used the [thermocron DS1921G-F5#](https://www.embeddeddatasystems.com/Thermochrons-Hygrochron_c_29.html) from Embedded data systems at \~ 50 US Dollars / unit (down to 40 US Dollar / unit if they are ordered in bulk). Other models are available at similar prices so we leave it up to the user to make their own choice. Nonetheless, when choosing a temperature logger model we recommend considering:
 
-1.  That the temperature logger has a **temperature range** that falls outside of the typical range of temperatures that are expected on the area of interest.
-2.  That it has as high recording accuracy.
+1.  That the temperature logger has a **temperature range** that encompasses of the typical range of temperatures that occur in the area of interest.
+2.  That it has as high recording accuracy. For example, a logger that can record temperature changes at 0.1 C intervals would be more accurate than one that can only record temperature changes at 1 C intervals.
 3.  That it has a a thermal resolution that is relevant for the study. For example, an iButton that can only record temperature changes at 10 C intervals would not be optimal when studying micro climatic variation in the order of a few C, but an temperature logger with a resolution of of 0.5 - 1 C might suffice.
 4.  That the temperature logger can store a **number of readings** at a **frequency** that is adequate for the study. Ideally OTMs will be deployed in the field for longer periods of time so the user will need to consider the trade-off between a logging frequency that is relevant to capture the thermal fluctuations of the environment and the number of readings the logger can store at that logging frequency.
 
@@ -76,7 +85,7 @@ Once OTMs are programmed the next step is to deploy them in the field. As a gene
 
 As an example, the study area we considered to pilot the methodology of the `throne` package is the slope of a small outcrop in the Great Basin Desert. After examining this environment, we considered that placing OTMs in the faces of outcrops (rocks of \> 2m in diameter), boulders (1-2 m), rocks (\< 1 m), in the ground and inside of small bushes would be an adequate representation of all available micro habitats. Additionally, this outcrop had relatively rough terrain (see below), which generated slopes facing towards all cardinal directions (N, NE, E, SE, S, SW & W) which is why we intentionally placed OTMs facing perpendicularly towards each of these directions.
 
-```{r, echo = FALSE, fig.align = 'center', fig.cap = "Figure 3: Elevational profile of our area of study"}
+```{r, echo = FALSE, fig.align = 'center', fig.width = 6, fig.height = 6, fig.cap = "Figure 3: Elevational profile of our area of study"}
 # filter flight data
 flight <- flights_data[flights_data$mod_start == 515,]
 
@@ -111,8 +120,12 @@ The last step of the process will be to recover the OTMs from the field and read
 3.  The reader will take a second to display in a graph of the temperatures plotted over time. Once the graph shows up, right-click anywhere within the graph window for a drop-down menu to appear.
 4.  Select **"Save Data to `.csv` File"** and save the file in a directory within your computer. Keep track of this directory as its direction will be the input of subsequent `R` functions as part of the `throne` `R` workflow.
 
-> **NOTE**: The data will remain on the iButton until it is programmed anew. Once you start a new mission, the old mission data will be lost, so we \*\*strongly(( recommend to make sure all data has been correctly downloaded before re-deployment.
+> **NOTE**: The data will remain on the iButton until it is programmed anew. Once you start a new mission, the old mission data will be lost, so we strongly(( recommend to make sure all data has been correctly downloaded before re-deployment.
 
 ```{r, echo=FALSE, out.width = '80%', fig.align = 'center', fig.cap = "Figure 4 Step-by-step process on how to read data logged by an iButton using the OneWireViewer software"}
 knitr::include_graphics("images/otm_setup_onewireviewer2.gif")
 ```
+
+## Note on links to commercial sites
+
+Although we include links to multiple commercial sites throughout this vignette, we do not have any financial interest in recommending any particular product to users of `throne`. The devices and software we list here is what worked for our purposes and what we know how to us.

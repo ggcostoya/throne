@@ -1,5 +1,9 @@
 ---
 title: "Collect and process thermal images"
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Collect and process thermal images}
 output:
   html_document:
     toc: true
@@ -21,7 +25,7 @@ knitr::include_graphics("images/drone_setup_workflow.png")
 
 # Acquiring a thermal imaging drone
 
-Unmanned aerial vehicles (UAVs), colloquially known as “drones”, are rapidly becoming cheaper and more accessible to use. Drones come in all shapes and sizes, from first-person view (FPV) miniature racing quadcopters, to large payload-carrying hexcopters. Hobbyists can purchase and fly smaller drones for recreational purposes for less than \$500 (such as the [DJI Mini SE 2] (<https://www.dji.com/mini-2-se>)), while a drone that is used for commercial (or research) purposes may require higher specifications (up to \$5000+). For example, more expensive drones typically come with more accurate on-board geolocation systems (GNSS or RTK modules), better in-flight stabilization systems for accurate photography, batteries with higher capacity, obstacle detection sensors, and stronger protection against the elements (rain, heat, dust etc.). More importantly, higher-quality drones are designed to reliably carry expensive camera equipment, such as high-resolution visual (RGB) cameras for topography models, near-infrared cameras for mapping vegetation, or infrared cameras (such as FLIR cameras, developed by Teledyne Systems) to build thermal landscape models.
+Unmanned aerial vehicles (UAVs), colloquially known as “drones”, are rapidly becoming cheaper and more accessible to use. Drones come in all shapes and sizes, from first-person view (FPV) miniature racing quadcopters, to large payload-carrying hexcopters. Hobbyists can purchase and fly smaller drones for recreational purposes for less than \$500 (such as the [DJI Mini SE 2](https://www.dji.com/mini-2-se) , while a drone that is used for commercial (or research) purposes may require higher specifications (up to \$5000+). For example, more expensive drones typically come with more accurate on-board geolocation systems (GNSS or RTK modules), better in-flight stabilization systems for accurate photography, batteries with higher capacity, obstacle detection sensors, and stronger protection against the elements (rain, heat, dust etc.). More importantly, higher-quality drones are designed to reliably carry expensive camera equipment, such as high-resolution visual (RGB) cameras for topography models, near-infrared cameras for mapping vegetation, or infrared cameras (such as FLIR cameras, developed by Teledyne Systems) to build thermal landscape models.
 
 When choosing a drone equipped with an infrared camera (“thermal drone”), it is important to note that the camera is typically paired with a particular drone model. Different drones have different gimbal (camera) mounting systems, which means that the cameras themselves are rarely interchangeable. It is also important to note that the paired thermal cameras are typically as expensive - if not more expensive - as the drone itself. The price of the thermal camera is typically determined by its accuracy and resolution (rarely exceeding 640x512 pixels - considerably lower than RGB cameras). Purchasing a thermal drone should therefore be considered an investment that should last for many years for anyone interested in conducting high-resolution thermal research.
 
@@ -31,7 +35,7 @@ Currently, DJI Enterprises dominates the market with many drone options capable 
 
 Once you have acquired a drone with a thermal camera, the next step is to fly the drone to collect thermal images.Commonly, all thermal imaging drones will come with a mission (i.e., flight plan) setting software. In our case, we used [DJI Pilot](https://www.dji.com/downloads/djiapp/dji-pilot) which comes with our drone model, and with an online detailed training course tutorials on [how to set up flights online](https://www.youtube.com/playlist?list=PLQMMtJkQxywvYliYTEjdrgv8NTrXARiAblink). Since each software will be different, we won't provide a tutorial for each but rather we will give some general guidelines on how to conduct missions such that they work as optimally as possible with the software developed for `throne`. Naturally, flight mission details will depend on the UAV's and camera setup, but generally speaking, standard mission planning etiquette applies to collecting data for use within `throne`:
 
-1.  Abide by all local laws and regulations regarding flight altitude, airspace restrictions and drone registration requirements. Check with local authorities what applies in the area of study. For example, if flying in U.S. airspace, adhere to the **Code of Federal Regulations (CFR) Part 107**, and make the flights take place in Class G airspace, unless given explicit permission to fly elsewhere. If used for research purposes, the drone might also need to be registered for commercial use.
+1.  Abide by all local laws and regulations regarding flight altitude, airspace restrictions and drone registration requirements. Check with local authorities what applies in the area of study. For example, if flying in U.S. airspace, adhere to the [**Code of Federal Regulations (CFR) Part 107**](https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107) and make the flights take place in Class G airspace, unless given explicit permission to fly elsewhere. If used for research purposes, the drone might also need to be registered for commercial use.
 
 2.  The default drone flight path ("zig-zag line") is generally fine for most purposes. We recommend avoiding long, narrow flight paths to minimize banding issues (differences between long “strips” of photos), and that users aim to keep flight times as short as possible to make sure that all images are collected within a relatively short span and thus can capture the same thermal conditions.
 
@@ -69,7 +73,7 @@ Having collected your thermal images across multiple flights, the next step is t
 
 6.  Before starting the processing, open "Processing Options" and navigate to *Keypoints Image Scale* under "Initial Processing" and set it to “Full”; navigate to "Point Cloud and Mesh" and the Point Cloud and set the *Image Scale* to 1 (original). These settings increase the density of keypoints and the resolution of the final product, at the cost of processing time (the values can be left unchanged, but note that the quality of subsequent processing steps in `R` will be affected). If desired, we can save this as a custom template for future `throne` flight processes, by clicking "Save Template".
 
-7.  If we do not wish to use (or don't have access to any) ground control points, go ahead and click "Start" on the Processing bar to begin processing your images. The thermal landscape map will be generated during the final step, "3. DSM, Orthomosaic, and Index.". Processing time depends on the specifications of the PC used and the size of the project, but usually lasts a couple of hours. WeYou can adjust the resources (GB of RAM and CPU threads) that PIX4Dmapper will use under "Processing options". Note that the default is to use **all** the PC's available resources.
+7.  If we do not wish to use (or don't have access to any) ground control points, go ahead and click "Start" on the Processing bar to begin processing your images. The thermal landscape map will be generated during the final step, "3. DSM, Orthomosaic, and Index.". Processing time depends on the specifications of the PC used and the size of the project, but usually lasts a couple of hours. We can adjust the resources (GB of RAM and CPU threads) that PIX4Dmapper will use under "Processing options". Note that the default is to use **all** the PC's available resources.
 
 ```{r, echo=FALSE, out.width = '80%', fig.align = 'center', fig.cap = "Figure 3. How to create and start processing a project in Pix4Dmapper"}
 knitr::include_graphics("images/drone_setup_pix4D.gif")
@@ -77,7 +81,7 @@ knitr::include_graphics("images/drone_setup_pix4D.gif")
 
 ## Note on GCPs while processing thermal imagery
 
-If ground control points are used in a project within Pix4D mapper, make sure to import them before starting the processing. PIX4D has [a extensive how-to guides](https://support.pix4d.com/hc/en-us/articles/202558699-Using-GCPs-PIX4Dmapper) on this topic, which applies to generating raster images for `throne` as well. Below is some general advice:
+If ground control points are used in a project within Pix4D mapper, make sure to import them before starting the processing. PIX4D has [extensive how-to guides](https://support.pix4d.com/hc/en-us/articles/202558699-Using-GCPs-PIX4Dmapper) on this topic, which applies to generating raster images for `throne` as well. Below is some general advice:
 
 -   In PIX4Dmapper, the easiest way to import ground control points is by loading a .csv-file that contains the latitude, longitude and altitude of your GCPs, using the "GCP/MTP Manager" after the first processing step ("Initial Processing") has been completed. Make sure the GCPs and the project have the same coordinate system.
 
@@ -94,3 +98,7 @@ knitr::include_graphics("images/drone_setup_gcp_example.png")
 ```
 
 PIX4D will automatically create sub folders for each processing step of your project, contained in its main folder that you specified the directory for when loading in photos. The final thermal orthomosaic image can be found under the project's subfolder named "3_dsm_ortho/2_mosaic". There should be two .tif-files in the folder. Extract the one that is **not** the visual orthomosaic (i.e. non-black-and-white image) and export it to the directory where it can be used in subsequent processing steps within the `R` workflow of `throne`.
+
+## Note on links to commercial sites
+
+Although we include links to multiple commercial sites throughout this vignette, we do not have any financial interest in recommending any particular product to users of `throne`. The devices and software we list here is what worked for our purposes and what we know how to us.

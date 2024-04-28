@@ -1,5 +1,9 @@
 ---
 title: "Reading and processing flight data"
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Reading and processing flight data}
 output:
   html_document:
     toc: true
@@ -59,13 +63,13 @@ To transform the original `.tif` files, the `rnp_flights_data` function goes thr
 
 4.  Round the number of decimal digits on all tiles according to the `digits` argument.
 
-5.  Average the surface temperature across all tiles with the same averaged latitude and longitude.
+5.  Average the surface temperature across all tiles with the same rounded latitude and longitude.
 
 6.  Add the `metadata` corresponding to that flight to the final output. Simultaneously, the `date`, `time_start` and `time_end` columns of the metadata file will be transformed into columns for `year`, day of the year (`doy`), and minute of the day (`mod`) when the flight started (`mod_start`) and ended (`mod_end`).
 
 > **NOTE**: We choose working with `doy` and `mod` to simplify the management of the data as much as possible. Date and time data have unique data formats in the `R` environment that are often difficult to handle for users which can lead to unintended errors. By using `doy` and `mod`, the user deals with integer columns, much easier to operate with. Further, these formats can be easily transformed back into more easily interpretable temporal scales for visualization purposes, [by using the `as.Date` function to transform `doy` (also known as Julian date) back into a YYYY-MM-DD format](https://stackoverflow.com/questions/24200014/convert-day-of-year-to-date) and dividing by 60 for `mod` to get hours.
 
-The final output is a `tibble` object with columns for longitude, latitude and IR-measured temperature (`ir_temp`). The number of rows of this data set will vary depending on the number of flights that are processed simultaneously, based on the area covered by each flight and the number of `digits` specified. For instance, our study area was \~ 2900 $m^2$, which by setting `digits = 5` led to a `tibble` of \~7500 observations per flight each representing a "tile" of approximately 0.4 $m^2$ at a latitude of approximately 40° (see more details on the choice of the `digits` argument in section \@ref(digits)).
+The final output is a `tibble` object with columns for longitude, latitude and IR-measured temperature (`ir_temp`). The number of rows of this data set will vary depending on the number of flights that are processed simultaneously, based on the area covered by each flight and the number of `digits` specified. For instance, our study area was \~ 2900 $m^2$, which by setting `digits = 5` led to a `tibble` of \~7500 observations per flight each representing a "tile" of approximately 0.4 $m^2$ at a latitude of approximately 40° (see more details on the choice of the `digits` argument below.
 
 ```{r, echo = FALSE, warnings = FALSE}
 flights_data
@@ -73,7 +77,7 @@ flights_data
 
 Once the raw `.tif` file is processed, the resulting `tibble` can already be used to quantify the thermal characteristics of a study site from a spatially discrete perspective. To illustrate this, below we plot 4 of the 34 fully processed flights (with `digits = 5`) over the same area we offer in the `throne` package as example data. Panel titles indicate the hour in which the flight took place
 
-```{r, echo = FALSE, message = FALSE, fig.width = 7, fig.height = 7, fig.align='center'}
+```{r, message = FALSE, fig.width = 7, fig.height = 7, fig.align='center'}
 flights_data %>% 
   filter(mod_start %in% c(515, 700, 900, 1026)) %>%
   mutate(hour = round(mod_start/60)) %>%
@@ -94,7 +98,7 @@ flights_data %>%
 
 With data on the elevation profile of the site we can also use tools from the `plotly` package to plot the data from the resulting flight in 3 dimensions. Below is the site on `doy = 236` and `mod = 515` (i.e., August 25th 2024 at 8:35 AM).
 
-```{r, echo = FALSE, fig.align = 'center', fig.cap = "Figure 3: Elevational profile of our area of study"}
+```{r, fig.align = 'center', fig.cap = "Figure 3: Elevational profile of our area of study"}
 # filter flight data
 flight <- flights_data %>% filter(mod_start == 515)
 
@@ -233,4 +237,11 @@ comparison %>%
 
 ```
 
-This spatial resolution guarantees that the original `.tif` file is processed at a scale that is relevant for the majority of study organisms for which this package is intended. However, we leave this decision up to the user to consider the spatial scale that is most relevant for their organism. In the image below (figure S1 in the accompanying paper), we illustrate the same flight processed when the argument `digits` is set to 4, 5 and 6 respectively.
+This spatial resolution guarantees that the original `.tif` file is processed at a scale that is relevant for the majority of study organisms for which this package is intended. However, we leave this decision up to the user to consider the spatial scale that is most relevant for their organism. In the image below we illustrate the same flight processed when the argument `digits` is set to 4, 5 and 6 respectively.
+
+```{r, echo=FALSE, out.width = '80%', fig.align = 'center', fig.cap = "Figure 1. Part of the workflow covered in this vignette"}
+knitr::include_graphics("images/fig_s1.png")
+```
+
+
+

@@ -1,5 +1,9 @@
 ---
 title: "Reading and processing OTM data and Generating OTM spline models"
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Reading and processing OTM data and Generating OTM spline models}
 output:
   html_document:
     toc: true
@@ -36,9 +40,8 @@ The `rnp_otms_data` function reads a database of `.csv` files, manipulates and u
 
 1.  The **`path`**, or directory to one or multiple `.csv` files are stored. Each of these `.csv` files is assumed to have at least:
 
-```{=html}
 <!-- -->
-```
+
 a)  A column for operative temperature measurements. Since different temperature logger processing software structure the outputs differently in the resulting `.csv` file, we require the user to specify the column where the OTM measurements can be found in the `op_temp_col` argument of the function. In our case, we used [OneWire Viewer](https://www.analog.com/en/resources/evaluation-hardware-and-software/1-wire-sdks/viewer.html) which returns the operative temperature in the `3`rd column.
 
 b)  A column for dates. As with the operative temperature values, we also require the user to specify the `date_col` in their .csv files. OneWireViewer returns the date in the first column in `MM/DD/YY HH:MM:SS AM/PM` format. By default dates and times will be extracted from this column but other software return date and time in separate columns. If that is the case, the user can specify the `time_col` as an argument of the function.

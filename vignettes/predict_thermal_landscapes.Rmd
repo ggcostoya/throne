@@ -1,5 +1,9 @@
 ---
 title: "Matching flight to OTM data and Predicting Thermal Landscapes"
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Matching flight to OTM data and Predicting Thermal Landscapes}
 output:
   html_document:
     toc: true

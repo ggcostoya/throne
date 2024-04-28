@@ -1,5 +1,9 @@
 ---
-title: "An overview of `throne`"
+title: "An overview of throne"
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Overview}
 output:
   html_document:
     toc: true
@@ -29,7 +33,7 @@ Below is a diagram of the entire workflow of the `throne` package. In essence, t
 knitr::include_graphics("images/overview_workflow.png")
 ```
 
-The steps of the workflow are discussed in the following sections and we also provide a [case study](https://ggcostoya.github.io/throne/articles/case_study.html) as an example on how to implement this workflow on data from our own study system.
+The steps of the workflow are discussed in the following sections:
 
 ### **1. Collect & process thermal images**
 
