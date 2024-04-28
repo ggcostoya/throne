@@ -44,11 +44,11 @@ correct_flights_data <- function(flights_data, otm_splines){
   for(i in 1:length(flights_list)){
 
     # filter data for flight of interest
-    flight <- flights_data %>% filter(flight_id == flights_list[i])
+    flight <- flights_data %>% filter(get("flight_id") == flights_list[i])
 
     # filter splines for the same doy as flight of interest
-    flight_splines <- otm_splines %>% filter(doy == mean(flight$doy)) %>%
-      mutate(op_temp = rep(NA, nrow(.)))
+    flight_splines <- otm_splines %>% filter(get("doy") == mean(flight$doy)) %>%
+      mutate(op_temp = NA)
 
     # get the mod range when the flight took place
     mod_range <- c(mean(flight$mod_start):mean(flight$mod_end))

@@ -263,3 +263,12 @@ knitr::include_graphics("images/dynamic_thermal_landscape.gif")
 ```
 
 The `predict_thermal_landscape` function has unlimited power to provide complete thermal landscape predictions at an unprecedented level of detail.
+
+If you want to see the entire `throne` pipeline in action, next we present a case study exemplifying how to implement the method. 
+
+<nav aria-label="Page navigation">
+ <ul class="pagination justify-content-end">
+  <li class="page-item"><a class="page-link" href="correct_flights_data.html">Previous: Correct flights data</a></li>
+  <li class="page-item"><a class="page-link" href="example.html">Next: A worked out example</a></li>
+ </ul>
+</nav>

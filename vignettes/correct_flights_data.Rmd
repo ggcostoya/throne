@@ -203,3 +203,15 @@ flights_data_comp %>%
         axis.title = element_blank(), axis.text = element_blank()) +
   guides(fill = guide_colorbar("Temp. (C)"))
 ```
+
+Next, we will introduce the final step of the `throne` workflow. How to use the corrected flights data in combination with the OTM-specific splines to first match the two data types and ultimately predict thermal landscapes. 
+
+<nav aria-label="Page navigation">
+ <ul class="pagination justify-content-end">
+  <li class="page-item"><a class="page-link" href="rnp_otms_data_gen_otm_splines.html">Previous: Read and process OTM data and Generating OTM splines</a></li>
+  <li class="page-item"><a class="page-link" href="predict_thermal_landscapes.html">Next: Match data and Predict thermal landscapes </a></li>
+ </ul>
+</nav>
+
+
+

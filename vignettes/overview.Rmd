@@ -78,6 +78,14 @@ The seventh step of the `throne` workflow is the matching of flights and OTM dat
 
 The last step is the prediction of thermal landscapes which can be done using the [`predict_thermal_landscape`](https://ggcostoya.github.io/throne/reference/predict_thermal_landscapes.html) function. Combining the OTM spline models with the "matches" data sets, the `predict_thermal_landscape` function is able to produce a thermal landscape of the area of interest for any date and time of day for as long as the OTMs were deployed and recording in the field. We discuss the exact process to predict thermal landscapes [here](https://ggcostoya.github.io/throne/articles/predicting_thermal_landscapes.html#predicting-thermal-landscapes) together with some insight on the high predictive accuracy of this method which we also discuss in the accompanying manuscript. 
 
+To start, in the next we introduce the field part of the `throne` workflow focusing on how to collect thermal imagery using a drone. 
+
+<nav aria-label="Page navigation">
+ <ul class="pagination justify-content-end">
+  <li class="page-item">(No previous page)</li>
+  <li class="page-item"><a class="page-link" href="collect_n_process_thermal_images.html">Next: Collect and process thermal imagery </a></li>
+ </ul>
+</nav>
 
 
 

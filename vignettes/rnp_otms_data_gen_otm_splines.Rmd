@@ -140,3 +140,12 @@ As mentioned above, the first factor to consider is the **frequency at which the
 $$ Knot/h = Recordings/h \cdot knot_p$$ For instance, the OTMs we used to validate our methodology were programmed to record a temperature measurement every 2 minutes, leading to a total of 30 observations / hour. Assuming a `knot_p = 0.1` that would indicate that our model has 3 knots / h. As a general recommendation, we recommend setting `knot_p` to a higher value if the frequency of observations is low, but the decision ultimately comes to the user of the methodology. Please reach out to [garciacosto\@gmail.com](mailto:garciacosto@gmail.com){.email} for recommendations.
 
 The second issue that determines the value of `knot_p` is the study organism. Generally, OTMs will equilibrate to the environmental temperature much faster than the organism they represent with this difference in equilibration time being positively correlated to the mass of the organism due to thermal inertia. In other words, the body temperature of an organism that has a lot of thermal inertia will not be exactly that of the OTM. If that is the case, we recommend understanding the thermal properties of the organism of interest when choosing the appropriate `knot_p` value as we did in our pilot study.
+
+Having shown how to read and process both flights and OTM data the next step will be to correct the flights data to trasnform surface temperature to operative temperature temperature measurements. 
+
+<nav aria-label="Page navigation">
+ <ul class="pagination justify-content-end">
+  <li class="page-item"><a class="page-link" href="rnp_flights_data.html">Previous: Read and process flights data</a></li>
+  <li class="page-item"><a class="page-link" href="correct_flights_data.html">Next: Correct flights data</a></li>
+ </ul>
+</nav>

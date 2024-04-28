@@ -1,4 +1,4 @@
-# `throne`: Using aerial thermography to map terrestrial thermal environments in unprecedented detail
+# `throne`: Using aerial thermography to map terrestrial thermal environments in unprecedented detail <img src="man/figures/throne_hex_logo.png" width="200" align="right" />
 
 Accurately quantifying and mapping thermal environments is crucial to predict 
 how environmental change is going to impact organisms. However, describing thermal

@@ -243,5 +243,12 @@ This spatial resolution guarantees that the original `.tif` file is processed at
 knitr::include_graphics("images/fig_s1.png")
 ```
 
+Next, we will present how the `throne` package can read and process OTM data and generate OTM and date specific spline models.
 
+<nav aria-label="Page navigation">
+ <ul class="pagination justify-content-end">
+  <li class="page-item"><a class="page-link" href="collect_otm_data">Previous: Collect OTM data</a></li>
+  <li class="page-item"><a class="page-link" href="rnp_otms_data_gen_otm_splines.html">Next: Read and process OTM data and Generate OTM splines</a></li>
+ </ul>
+</nav>
 
