@@ -118,9 +118,9 @@ rnp_otms_data <- function(path, rows_skip, date_col, time_col, op_temp_col, meta
     # check if `date` column has correct format
     if(all(is.na(mdy_hm(otm_data$date)))){stop("Incorrect format in `date` column, it should be MM/DD/YYYY HH:MM:SS or MM/DD/YYYY HH:MM")}
 
-    otm_data$year <- year(mdy_hm(otm_data$date))
-    otm_data$doy <- yday(mdy_hm(otm_data$date))
-    otm_data$mod <- hour(mdy_hm(otm_data$time)) * 60 + minute(mdy_hm(otm_data$time))
+    otm_data$year <- year(mdy_hms(otm_data$date))
+    otm_data$doy <- yday(mdy_hms(otm_data$date))
+    otm_data$mod <- hour(mdy_hms(otm_data$time)) * 60 + minute(mdy_hms(otm_data$time))
 
   }else{
 
@@ -130,7 +130,7 @@ rnp_otms_data <- function(path, rows_skip, date_col, time_col, op_temp_col, meta
 
     otm_data&year <- year(mdy(otm_data$date))
     otm_data$doy <- yday(mdy(otm_data$date))
-    otm_data$mod <- hour(hm(otm_data$time)) * 60 + minute(mdy_hm(otm_data$time))
+    otm_data$mod <- hour(hms(otm_data$time)) * 60 + minute(hms(otm_data$time))
 
   }
 
