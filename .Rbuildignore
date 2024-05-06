@@ -6,3 +6,4 @@
 ^\.github$
 ^LICENSE\.md$
 ^case_study_data$
+^vignettes\example.Rmd.orig$
