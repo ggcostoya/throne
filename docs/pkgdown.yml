@@ -5,11 +5,12 @@ articles:
   collect_n_process_thermal_images: collect_n_process_thermal_images.html
   collect_otm_data: collect_otm_data.html
   correct_flights_data: correct_flights_data.html
+  example: example.html
   overview: overview.html
   predict_thermal_landscapes: predict_thermal_landscapes.html
   rnp_flights_data: rnp_flights_data.html
   rnp_otms_data_gen_otm_splines: rnp_otms_data_gen_otm_splines.html
-last_built: 2024-04-28T23:51Z
+last_built: 2024-05-06T22:02Z
 urls:
   reference: https://ggcostoya.github.io/throne/reference
   article: https://ggcostoya.github.io/throne/articles

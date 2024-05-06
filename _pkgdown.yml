@@ -26,6 +26,8 @@ navbar:
       href: articles/correct_flights_data.html
     - text: Match data and predict thermal landscapes
       href: articles/predict_thermal_landscapes.html
+  - text: Case study
+    href: articles/example.html
   - text: Reference
     href: reference/index.html
   right:
