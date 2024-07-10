@@ -116,7 +116,7 @@ rnp_otms_data <- function(path, rows_skip, date_col, time_col, op_temp_col, meta
   if(date_col == time_col){
 
     # check if `date` column has correct format
-    if(all(is.na(mdy_hm(otm_data$date)))){stop("Incorrect format in `date` column, it should be MM/DD/YYYY HH:MM:SS or MM/DD/YYYY HH:MM")}
+    if(all(is.na(mdy_hms(otm_data$date)))){stop("Incorrect format in `date` column, it should be MM/DD/YYYY HH:MM:SS or MM/DD/YYYY HH:MM")}
 
     otm_data$year <- year(mdy_hms(otm_data$date))
     otm_data$doy <- yday(mdy_hms(otm_data$date))
