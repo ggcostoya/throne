@@ -80,14 +80,15 @@ a tile should have across all flights provided in order to be included in the ma
 Coverage is calculated as the number of times temperature was measured in a given tile
 divided by the total number of flights. Values &gt;= 0.9 are recommended.
 The function will provide a warning of the number of tiles for which
-coverage is &gt; 0.5.</p></dd>
+coverage is &gt; 0.5. If missing, it defaults to 0.9</p></dd>
 
 
 <dt id="arg-error-max">error_max<a class="anchor" aria-label="anchor" href="#arg-error-max"></a></dt>
 <dd><p>The maximum average absolute error between temperature measurements
 of a tile and an OTM that makes a match between a tile and OTM valid.
 Error is calculated as the average absolute value between the OTM prediction
-and the temperature measurements of the tile.</p></dd>
+and the temperature measurements of the tile. If missing, it defaults to 100,
+a sufficiently large number so all tiles are assigned regardless of error.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -107,7 +108,7 @@ and the temperature measurements of the tile.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer></div>
