@@ -15,11 +15,12 @@
 #'    Coverage is calculated as the number of times temperature was measured in a given tile
 #'    divided by the total number of flights. Values >= 0.9 are recommended.
 #'    The function will provide a warning of the number of tiles for which
-#'    coverage is > 0.5.
+#'    coverage is > 0.5. If missing, it defaults to 0.9
 #' @param error_max The maximum average absolute error between temperature measurements
 #'    of a tile and an OTM that makes a match between a tile and OTM valid.
 #'    Error is calculated as the average absolute value between the OTM prediction
-#'    and the temperature measurements of the tile.
+#'    and the temperature measurements of the tile. If missing, it defaults to 100,
+#'    a sufficiently large number so all tiles are assigned regardless of error.
 #'
 #' @return A matches \code{tibble} with columns for \code{latitude}, \code{longitde}, the \code{otm_id}
 #'    that best describes the thermal dynamics of that tile and the average absolute
@@ -31,6 +32,12 @@
 match_data <- function(flights_data, otm_splines, coverage_per, error_max){
 
   ## intial checks
+
+  # if coverage per is missing set to 0.9
+  if(missing(coverage_per)){coverage_per <- 0.9}
+
+  # if error_max is missing set to 100
+  if(missing(error_max)){error_max <- 100}
 
   # check that coverage_per and error_max arguments are correct
   if(coverage_per > 1 | coverage_per < 0){stop("`coverage_per` must be between 0 - 1")}
@@ -116,14 +123,14 @@ match_data <- function(flights_data, otm_splines, coverage_per, error_max){
 
   }
 
-  ## perform maching
+  ## perform matching
 
   # add column for unique tile id
   flights_data_cov$tile_id <- flights_data_cov$latitude * flights_data_cov$longitude
 
   # build holder dataset
   matches <- flights_data_cov %>%
-    dplyr::select(latitude, longitude, tile_id) %>% unique() %>%
+    dplyr::select(latitude, longitude, tile_id, coverage) %>% unique() %>%
     mutate(otm_id = NA, error = NA) %>% as_tibble()
 
   # loop to estimate best OTM match for each tile
@@ -153,7 +160,7 @@ match_data <- function(flights_data, otm_splines, coverage_per, error_max){
   matches <- matches %>%
     mutate(otm_id = ifelse(error > error_max, NA, otm_id)) %>%
     mutate(error = ifelse(is.na(otm_id), NA, error)) %>%
-    dplyr::select(!tile_id)
+    dplyr::select(latitude, longitude, coverage, error, otm_id)
 
   ## posterior checks about matching
 

@@ -18,12 +18,13 @@ a tile should have across all flights provided in order to be included in the ma
 Coverage is calculated as the number of times temperature was measured in a given tile
 divided by the total number of flights. Values >= 0.9 are recommended.
 The function will provide a warning of the number of tiles for which
-coverage is > 0.5.}
+coverage is > 0.5. If missing, it defaults to 0.9}
 
 \item{error_max}{The maximum average absolute error between temperature measurements
 of a tile and an OTM that makes a match between a tile and OTM valid.
 Error is calculated as the average absolute value between the OTM prediction
-and the temperature measurements of the tile.}
+and the temperature measurements of the tile. If missing, it defaults to 100,
+a sufficiently large number so all tiles are assigned regardless of error.}
 }
 \value{
 A matches \code{tibble} with columns for \code{latitude}, \code{longitde}, the \code{otm_id}
