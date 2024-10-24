@@ -1,24 +1,27 @@
 
-## Correct flights data ##
+## Evaluate flight correction ##
 
-#' Correct flights data
+#' Evaluate flight correction
 #'
-#' Corrects flights data to transform IR-measured temperatures into operative temperatures
+#' Allows users to evaluate the flight correction process
 #'
 #' @param flights_data A \code{tibble} of flights data obtained through the \code{rnp_flights_data}
 #'    function. The \code{tibble} must contain columns for `longitude` and `latitude`.
 #' @param otm_splines A nested \code{tibble} obtained using the \code{gen_otm_splines} function.
 #'    The \code{tibble} must contain columns for \code{longitude} and \code{latitude} and all values
 #'    must also be in the \code{flights_data}
+#' @param summary If set to \code{TRUE}, the function returns a summary dataset of the correction
+#'    process. If set to \code{FALSE} (default), the function returns a raw correction dataset
 #'
-#' @return A processed \code{flights_data} \code{tibble} where IR-measured temperatures (\code{ir_temp})
-#'    has been corrected to operative temperatures (\code{op_temp}).
+#' @return If \code{summary = TRUE}, a summary dataset with information on the mean, median, standard deviation,
+#'    skewness, minimum and maximum bias between surface and operative temperatures
+#'    for every flight considered. If \code{summary = FALSE}, a raw correction dataset with
+#'    all observations of surface temperature (\code{ir_temp}) and operative temperature
+#'    (\code{op_temp}) for all tiles where OTMs were deployed for all flights considered.
 #'
 #' @export
 
-correct_flights_data <- function(flights_data, otm_splines){
-
-  ## correlate data
+eval_flights_correction <- function(flights_data, otm_splines, summary){
 
   # add column to identify each flight based on doy and mod start
   flights_data$flight_id <- paste(flights_data$doy, flights_data$mod_start, sep = "_")
@@ -76,39 +79,42 @@ correct_flights_data <- function(flights_data, otm_splines){
 
   }
 
-  ## get correction factors
+  # evaluate if "summary" is missing or not
+  summary <- if(missing(summary)){
 
-  # year, date and time correction factors
-  time_correction_factors <- corr_data %>%  group_by(year, doy, mod_start) %>%
-    summarise(time_corr_factor = mean(op_temp - ir_temp))
+    return(corr_data)
 
-  # merge date and time correction factors with correlation data
-  corr_data <- as_tibble(merge(corr_data, time_correction_factors,
-                               by = c("year", "doy", "mod_start"), all = TRUE))
 
-  # apply time correction
-  corr_data$ir_temp_corr <- corr_data$ir_temp + corr_data$time_corr_factor
+  }else{
 
-  # fit linear model with corrected ir temperature data
-  model <- lm(corr_data$ir_temp_corr ~ corr_data$op_temp)
+    # send mess
+    print("Summary statistics of bias between op_temp and ir_temp provided")
 
-  ## apply correction
+    # define function to calculate skewness
+    skew <- function(x) {
+      x <- na.omit(x)
+      n <- length(x)
+      mean <- mean(x)
+      sd <- sd(x)
+      skw <- (n / ((n - 1) * (n - 2))) * sum(((x - mean) / sd)^3)
+      return(skw)
+    }
 
-  # merge flights data with time correction factors
-  flights_data <- as_tibble(merge(flights_data, time_correction_factors),
-                            by = c('year', 'doy', 'mod_start'), all = TRUE)
+    # generate evaluation summary statistics
+    eval_summary <- corr_data %>% group_by(year, doy, mod_start, mod_end) %>%
+      summarise(mean_bias = mean(op_temp - ir_temp, na.rm = T),
+                median_bias = median(op_temp - ir_temp, na.rm = T),
+                sd_bias = sd(op_temp - ir_temp, na.rm = T),
+                skewness_bias = skew(op_temp - ir_temp),
+                max_bias = max(op_temp - ir_temp, na.rm = T),
+                min_bias = min(op_temp - ir_temp, na.rm = T),
+                max_abs_bias = max(abs(op_temp - ir_temp), na.rm = T),
+                min_abs_bias = min(abs(op_temp - ir_temp), na.rm = T)) %>%
+      ungroup()
 
-  # apply time correction
-  flights_data$op_temp <- flights_data$ir_temp + flights_data$time_corr_factor
+    return(eval_summary)
 
-  # apply temperature correction
-  flights_data$op_temp <- (-model$coefficients[1] + flights_data$op_temp)/model$coefficients[2]
-
-  # select columns of interest
-  flights_data <- flights_data %>%
-    dplyr::select(longitude, latitude, year, doy, mod_start, mod_end, op_temp)
-
-  return(flights_data)
+  }
 
 }
 

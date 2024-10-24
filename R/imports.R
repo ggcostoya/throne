@@ -77,6 +77,10 @@ NULL
 #' @export
 NULL
 
+#' @importFrom dplyr slice
+#' @export
+NULL
+
 
 
 
