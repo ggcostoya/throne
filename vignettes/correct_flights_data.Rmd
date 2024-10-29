@@ -21,6 +21,7 @@ library(gridExtra)
 library(viridis)
 library(metR)
 library(plotly)
+library(ggplot2)
 ```
 
 # Overview
@@ -39,7 +40,11 @@ Due to the above, the IR camera of the drone and the OTM will ultimately record 
 
 # The `correct_flights_data` function
 
-To transform temperature measurements obtained using a drone-mounted IR camera into operative temperature measurements, the `throne` package includes the `correct_flights_data` function. This function will perform a double correction on data obtained through a flight by correcting for 1) differences in light conditions across multiple flights and 2) the inherent difference in physical properties between IR and operative temperature measurements.To perform such correction, the function will take 2 inputs:
+To transform temperature measurements obtained using a drone-mounted IR camera into operative temperature measurements, the `throne` package includes the `correct_flights_data` function. This function will correct the IR temperature measurements obtained during a flight into operative temperature measurements.
+
+## Inputs
+
+To perform such correction, the function will take 2 inputs:
 
 1.  A `flights_data` `tibble` obtained through the `rnp_flights_data` function like the one below:
 
@@ -55,10 +60,12 @@ otms_splines
 
 Both data sets contain `latitude` and `longitude` information. This is a crucial step for the correction process, as the first task will be to filter the `flights_data` to contain only tiles (i.e., unique `latitude` and `longitude` combinations) where OTMs were actually deployed.
 
-Once these tiles are filtered, we will use the spline models to estimate the temperature of each OTM at the exact `year`, day of the year (`doy`) and minute of the day (`mod`) at which each of the flights took place. The result will be a `tibble` where each unique `latitude` & `longitude` in each unique `year`, `doy` and `mod` has an IR temperature measurement (`ir_temp`, from the drone) associated with an operative temperature measurement (`op_temp`, from the OTM) as seen below:
+## Obtaining correction data and the `eval_flights_correction` function
+
+Once these tiles are filtered, the function will use the day and OTM specific spline models to estimate the temperature of each OTM at the exact `year`, day of the year (`doy`) and minute of the day (`mod`) at which each of the flights took place. The result will be a `tibble` where each unique `latitude` & `longitude` in each unique `year`, `doy` and `mod` has an IR temperature measurement (`ir_temp`, from the drone) associated with an operative temperature measurement (`op_temp`, from the OTM). The `throne` package also contains a function to obtain this data called `eval_flights_correction`. 
 
 ```{r}
-correction_data
+as_tibble(eval_flights_correction(flights_data, otms_splines))
 ```
 
 > The `tibble` above contains the `mod_start` and `mod_end` columns. These are the `mod` when the flight started and when the flight ended. In the example data, all flights were relatively fast (\~ 4 minutes) but to cover larger areas flights are going to be longer. In that case, the predicted operative temperature (`op_temp`) for that OTM on that tile is the average temperature for the duration of the flight.
@@ -66,7 +73,7 @@ correction_data
 Using this data we can visualize the need for a correction:
 
 ```{r, message = FALSE, echo = FALSE, fig.align='center'}
-correction_data %>% 
+eval_flights_correction(flights_data, otms_splines) %>% 
   ggplot(aes(x = op_temp, y = ir_temp, col = mod_start)) +
   geom_point(size = 2, alpha = 0.5) +
   geom_abline(intercept = 0, slope = 1, col = "gray", linewidth = 2) +
@@ -83,12 +90,20 @@ correction_data %>%
 As shown above, there is a consistent bias between these two measurements, with IR temperatures being generally cooler than operative temperatures when both have high values and the opposite holding true when both have low values. Note that the line of best linear fit is substantially different from the gray line that indicates the ideal 1:1 relationship. This can be easily appreciated when running a simple linear regression between `ir_temp` and `op_temp`.
 
 ```{r}
-summary(lm(ir_temp ~ op_temp, data = correction_data))
+# define correction data
+correction_data <- eval_flights_correction(flights_data, otms_splines)
+
+# run linear model between surface and operative temperature
+mod <- lm(ir_temp ~ op_temp, data = correction_data)
+summary(mod)$coefficients
+summary(mod)$r.squared
 ```
 
-The `(Intercept)` and the slope (i.e., the `Estimate` of `op_temp` above) are `6.23` and `0.75` when, ideally, we would want them to be at `0` and `1` respectively. Further the $R^2$ (`R-squared` in the model's output) of this relationship is `0.625`. For a good match between these two measurements we would also want the $R^2$ to be closer to `1`.
+The `(Intercept)` and the slope (i.e., the `Estimate` of `op_temp` above) are `6.23` and `0.75` when, ideally, we would want them to be at `0` and `1` respectively. Further the $R^2$ (`R-squared` in the model's output) of this relationship is `0.625`. For a good match between these two measurements we would also want the $R^2$ to be closer to `1`. To solve this `correct_flights_data` implements a two-step correction approach allowing users to correct the data as they see most appropriate for their system.
 
-It is in this step that we implement the first correction that has to do with the date and time of each flight. Because flights took place at different days and different `mod` both the environmental temperature and the light conditions where variable. We can visualize how the bias between measurements (i.e., `op_temp` - `ir_temp`) is different depending on the `mod`.
+## Time correction
+
+The first step will be to perform a time-specific correction. Because flights took place at different days and different `mod` both the environmental temperature and the light conditions where variable. This leads to consistent biases between between measurements (i.e., `op_temp` - `ir_temp`) by time of the day (i.e., `mod`):
 
 ```{r, echo = FALSE, message=FALSE, fig.align='center'}
 correction_data %>% 
@@ -107,7 +122,7 @@ correction_data %>%
     labs(colour = "MOD")
 ```
 
-Flights closer to the middle of the day (i.e., \~ 11:00 - 13:00 or `mod` 660 - 800) when light conditions are optimal tend to be less biased whereas flights earlier in the morning or the afternoon are more affected by it. Based on this, the first correction will 1) **caculate the average bias for each flight** and 2) **subtract that bias to all `ir_temp` measurements of that flight**. Once this correction is implemented the relationship between `ir_temp` and `op_temp` looks like:
+Flights closer to the middle of the day (i.e., \~ 11:00 - 13:00 or `mod` 660 - 800) when light conditions are optimal tend to be less biased whereas flights earlier in the morning or the afternoon are more affected by it. Based on this, the first correction will 1) **calculate the average bias for each flight** and 2) **add that bias to all `ir_temp` measurements of that flight**. Once this correction is implemented the relationship between `ir_temp` and `op_temp` looks like:
 
 ```{r, echo = FALSE, message = FALSE}
 # get year, doy and mod correction factors
@@ -138,71 +153,179 @@ correction_data %>%
 ```
 
 ```{r}
-summary(lm(ir_temp_corr ~ op_temp, data = correction_data))
+# run linear model between time corrected ir temp and operative temp.
+mod <- lm(ir_temp_corr ~ op_temp, data = correction_data)
+summary(mod)$coefficients
+summary(mod)$r.squared
 ```
 
 Although the model's `Intercept` and slope have worsened (from `6.22` to `12.11` and from `0.74` to `0.69`) the $R^2$ of the model has improved (from `0.625` to `0.678`) as can be appreciated by the reduced amount of error around the line of best fit.
 
-From here, we will apply the second correction by correcting for the temperature value itself. We do this by using the estimates of the linear regression above to correct our IR temperature measurements (already corrected by `year`, `doy` and `mod`, as indicated by the \*) into operative measurements following the formula:
+While we believe this first correction step is beneficial. We leave it up to the users to specify:
 
-$$Fully\; corrected\; surface\; temperature = \frac{-Intercept + Time\; corrected\; surface\; temperature}{Slope}$$
+1. **If they want the function to perform it at all** by setting the parameter `time_correction` of the function to either `TRUE` (for it to be performed) or `FALSE`. 
 
-If we implement the formula
+2. **What metric do they want to use** to summarize the bias of each flight by setting the parameter `time_correction_metric` to either `"mean"`, `"median"` or `"mode"`. For most cases, `"mean`" would be ideal but `"median`" or `"mode`" could be more appropriate if the data is heavily skewed after inspection. 
+
+To further aid in the inspection of the data and inform users on the best approach to follow, the `eval_flights_correction` data also includes the parameter `summary`, which if set to `TRUE`, provides a set of summary statistics of the bias between IR and operative temperatures for each flight consider. Below is an example on how to run `eval_flights_correction` for diagnostic purposes: 
 
 ```{r}
-# estimate op_temp after correction
-correction_data$op_temp_corr <- (-12.11754 + correction_data$ir_temp_corr)/0.68946
+correction_data_summary <- eval_flights_correction(flights_data, otms_splines, summary = TRUE)
+correction_data_summary
 ```
 
-We can see that the `Intercept` of this relationship is now at practically `0` and the slope at `1`, which is ideal:
+Users can also use this summary statistics to visualize the bias within their flights. For instance, below is the mean, median, and mode of the bias for each of the flights in the example dataset together with the maximum and minimum bias observed:
 
 ```{r, message = FALSE, echo = FALSE, fig.align='center'}
+correction_data_summary %>% 
+  pivot_longer(cols = c("mean_bias", "median_bias", "mode_bias"), 
+               names_to = "metric", values_to = "bias") %>% 
+  mutate(Metric = ifelse(metric == "mean_bias", "Mean", 
+                         ifelse(metric == "median_bias", "Median", "Mode"))) %>% 
+  ggplot(aes(x = mod_start)) +
+  geom_ribbon(aes(ymax = max_bias, ymin = min_bias), alpha = 0.25, col = NA) +
+  geom_line(aes(y = bias, col = Metric), linewidth = 1.25, alpha = 0.75) +
+  geom_point(aes(y = bias, fill = Metric), shape = 21, size = 3, col = "black") +
+  geom_hline(yintercept = 0, col = "black", linetype = 2, linewidth = 1) +
+    xlab("MOD") +
+  ylab("Operative - IR Temperature (°C)") +
+  theme_minimal() +
+  theme(axis.line = element_line(),
+        axis.ticks = element_line()) 
+```
+
+## Flight-specific correction
+
+From here, the `correct_flights_data` function will apply a second correction (provided that the user chooses to perform the first correction by setting `time_correction = TRUE`). To achieve this the function will correct based on the temperature value itself. The function will use the estimates of the linear regression between surface and operative temperatures of tiles where OTMs where present and applying them to all surface temperatures measured within a flight. In essence, we ran a linear regression such that:
+
+$$IRT\sim\alpha + \beta OT$$
+Where $IRT$ is the surface temperature (measured via an **IR** camera, thus the abbreviation), $OT$ is the operative temperature, $\alpha$ is the intercept of the relationship and $\beta$ is the slope of the relationship. We can use the estimates for $\alpha$ and $\beta$ to correct $IRT$ into $OT$ as:
+
+$$OT = \frac{IRT - \alpha}{\beta}$$
+Alternatively, `correct_flights_data` also offers the option of performing a flight specific correction. This is achieved by setting the `flight_specific_correction` parameter to `TRUE`. In this case it models $IRT$ not only as a function of $OT$ but also as a function of day of the year ($DOY$) and minute of the day ($MOD$) such that:
+
+$$IRT\sim\alpha + \beta_1 OT + \beta_2 DOY + \beta_3 MOD$$
+
+Where $\beta_1$ is the effect of $OT$, $\beta_2$ is the effect of $DOY$ and $\beta_3$ is the effect of $MOD$ is the minute of the day. We can use the estimates for $\alpha$, $\beta_1$, $\beta_2$ and $\beta_3$ to correct $IRT$ into $OT$ as:
+
+$$OT = \frac{IRT - \alpha - \beta_2 DOY - \beta_3 MOD}{\beta_1} $$
+Below we run multiple linear models to show how each of the corrections influences the relationship between surface and operative temperatures:
+
+```{r}
+# run linear model assuming no time correction or flight specific correction
+mod1 <- lm(ir_temp ~ op_temp, data = correction_data)
+summary(mod1)$coefficients
+summary(mod1)$r.squared
+```
+```{r}
+# run model assuming no time correction but flight specific correction
+mod2 <- lm(ir_temp ~ op_temp + doy + mod_start, data = correction_data)
+summary(mod2)$coefficients
+summary(mod2)$r.squared
+```
+These corrections can be applied on top of the time correction performed earlier:
+
+```{r}
+# run linear model assuming time correction but no flight specific correction
+mod3 <- lm(ir_temp_corr ~ op_temp, data = correction_data) # ir_temp_cor is the time-corrected temperature calculated earlier
+summary(mod3)$coefficients
+summary(mod3)$r.squared
+```
+
+```{r}
+# run linear model assuming time correction but no flight specific correction
+mod4 <- lm(ir_temp_corr ~ op_temp + doy + mod_start, data = correction_data) # ir_temp_cor is the time-corrected temperature calculated earlier
+summary(mod4)$coefficients
+summary(mod4)$r.squared
+```
+As seen above, the $R^2$ value of the models increases when both time and flight specific corrections are applied. We can also visualize this: 
+
+```{r, fig.width = 8, fig.height = 6, message = FALSE, fig.align = 'center'}
+# re-run correction
+correction_data <- eval_flights_correction(flights_data, otms_splines)
+
+# get year, doy and mod correction factors
+time_correction_factors <- correction_data %>%  group_by(year, doy, mod_start) %>%
+    summarise(time_corr_factor = mean(op_temp - ir_temp))
+
+# merge date and time correction factors with correlation data
+correction_data <- as_tibble(merge(correction_data, time_correction_factors,
+                                   by = c("year", "doy", "mod_start"), all = TRUE))
+
+# apply time correction
+correction_data$ir_temp_corr_time <- correction_data$ir_temp + correction_data$time_corr_factor
+
+# apply corrections
+correction_data <- correction_data %>% 
+  mutate(ir_temp_corr_00 = (ir_temp - mod1$coefficients[1])/mod1$coefficients[2],
+         ir_temp_corr_01 = (ir_temp - mod2$coefficients[1] - mod2$coefficients[3]*doy - mod2$coefficients[4]*mod_start) / mod1$coefficients[2],
+         ir_temp_corr_10 = (ir_temp_corr_time - mod3$coefficients[1])/mod3$coefficients[2],
+         ir_temp_corr_11 = (ir_temp_corr_time - mod4$coefficients[1] - mod4$coefficients[3]*doy - mod4$coefficients[4]*mod_start) / mod4$coefficients[2]) %>% 
+  pivot_longer(cols = c(ir_temp, ir_temp_corr_time, ir_temp_corr_00, ir_temp_corr_01, ir_temp_corr_10, ir_temp_corr_11), 
+               names_to = "correction", values_to = "ir_temp_corr") %>% 
+  mutate(correction = ifelse(correction == "ir_temp", "0 - Uncorrected", correction),
+         correction = ifelse(correction == "ir_temp_corr_time", "1 - Time corrected", correction),
+         correction = ifelse(correction == "ir_temp_corr_00", "2 - Temp. corrected", correction),
+         correction = ifelse(correction == "ir_temp_corr_01", "3 - Temp. corrected, FS", correction),
+         correction = ifelse(correction == "ir_temp_corr_10", "4 - Time & Temp. corrected", correction),
+         correction = ifelse(correction == "ir_temp_corr_11", "5 - Time & Temp. corrected, FS", correction))
+
 correction_data %>% 
-  ggplot(aes(x = op_temp, y = op_temp_corr, col = mod_start)) +
+  ggplot(aes(x = op_temp, y = ir_temp_corr, col = mod_start)) +
   geom_point(size = 2, alpha = 0.5) +
   geom_abline(intercept = 0, slope = 1, col = "gray", linewidth = 2) +
   geom_smooth(method = "lm", col = "black") +
   scale_color_gradient2(low = "black", mid = "orange", high = "darkblue",midpoint = 12*60) +
   xlab("Operative Temperature (°C)") +
-  ylab("Fully corrected IR Temperature (°C)") +
+  ylab("Surface Temperature (°C)") +
+  #scale_x_continuous(limits = c(10,65)) +
+  facet_wrap(~correction, scales = "free") +
   theme_minimal() +
   theme(axis.line = element_line(),
         axis.ticks = element_line()) +
   labs(colour = "MOD")
-```
-
-```{r}
-summary(lm(op_temp_corr ~ op_temp, data = correction_data))
-```
-
-Below is an example of the effects of the correction across some of the flights provided as example data sets in the `throne` package. The columns across panels indicate if the plot shows a thermal landscape of IR temperatures (*Pre-correction*) or corrected IR temperatures temperatures (*Post-correction* i.e., operative temperatures). The rows indicate the `mod` of the day when the flight took place:
-
-```{r, echo = FALSE, message = FALSE}
+  
 
 ```
 
-```{r, echo = FALSE, fig.align='center', fig.height = 10, fig.width = 8}
-# correct the flights data using correct_flights_data function
-flights_data_corrected <- correct_flights_data(flights_data = flights_data, otm_splines = otms_splines)
+Where Temp. is short for temperature and "FS" is short for "Flight-specific". Additionally, a temperature correction refers to the second correction (i.e., based on the temperature value itself)
 
-# merge datasets
-flights_data_comp <- merge(flights_data, flights_data_corrected, by = c("longitude", "latitude", "year", "doy", "mod_start", "mod_end"))
+As seen above, applying a temperature and time correction together is the approach that both makes the intercept of the relationship be at $0$ and the slope $1$, while maximizing $R^2$. Performing a flight-specific correction further improves this relationship but not substantially. With this information in hand, we leave it out to the user to decide which correction to apply.
 
-flights_data_comp %>% 
-  filter(mod_start %in% c(515, 700, 900, 1026)) %>% 
-  mutate(mod_start = round(mod_start/60)) %>%
-  tidyr::pivot_longer(c("ir_temp", "op_temp"), names_to = "temp_type", values_to = "temp") %>% 
-  mutate(when = ifelse(temp_type == "ir_temp", "Pre-correction", "Post-correction")) %>%
+## Output
+
+The output of the `correct_flights_data` function is a `tibble` of the same characteristics as the `flight_data` input but substituting the `ir_temp` for an `op_temp` column, corresponding to the surface temperatures now corrected to be equivalent to operative temperatures. Below we show the before and after effect of applying the correction correcting by both time (using the mean bias) and temperature:
+
+```{r, message = FALSE, fig.width = 8, fig.height = 10, fig.align = 'center'}
+# perform correction
+flights_data_corr <- correct_flights_data(flights_data, otms_splines, 
+                                          time_correction = TRUE, 
+                                          time_correction_metric = "mean",
+                                          flight_specific_correction = TRUE)
+# show output of correction
+flights_data_corr
+
+# merge and compare data
+merge(flights_data, flights_data_corr, by = c("longitude", "latitude", "year", "doy", "mod_start", "mod_end")) %>% 
+  filter(mod_start %in% c(539, 732, 1126)) %>% 
+  mutate(hour = round(mod_start/60)) %>% 
+  pivot_longer(cols = c(ir_temp, op_temp), names_to = "type", values_to = "temp") %>%
+  mutate(type = ifelse(type == "ir_temp", "Surface Temperature", "Operative Temperature")) %>%
   ggplot(aes(x = longitude, y = latitude, fill = temp)) +
   geom_raster() +
-  scale_fill_viridis(option = "magma") +
-  facet_grid(rows = vars(mod_start), cols = vars(when)) +
+  scale_fill_viridis(option = "magma", limits = c(5,60)) +
+  facet_grid(cols = vars(type), rows = vars(hour)) +
   theme_minimal() +
-  theme(panel.border = element_rect(fill = NA),
-        strip.background = element_rect(fill = NA),
-        axis.title = element_blank(), axis.text = element_blank()) +
-  guides(fill = guide_colorbar("Temp. (C)"))
+  theme(
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    strip.text = element_text(size = 12, face = "bold"),
+    panel.grid = element_blank()
+  ) +
+  guides(fill = guide_colorbar(title = "Temp. (°C)")) 
 ```
+
+
 
 Next, we will introduce the final step of the `throne` workflow. How to use the corrected flights data in combination with the OTM-specific splines to first match the two data types and ultimately predict thermal landscapes. 
 

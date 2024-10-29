@@ -13,8 +13,8 @@
 #' @param summary If set to \code{TRUE}, the function returns a summary dataset of the correction
 #'    process. If set to \code{FALSE} (default), the function returns a raw correction dataset
 #'
-#' @return If \code{summary = TRUE}, a summary dataset with information on the mean, median, standard deviation,
-#'    skewness, minimum and maximum bias between surface and operative temperatures
+#' @return If \code{summary = TRUE}, a summary dataset with information on the mean, median,
+#'    mode, standard deviation, skewness, minimum and maximum bias between surface and operative temperatures
 #'    for every flight considered. If \code{summary = FALSE}, a raw correction dataset with
 #'    all observations of surface temperature (\code{ir_temp}) and operative temperature
 #'    (\code{op_temp}) for all tiles where OTMs were deployed for all flights considered.
@@ -100,10 +100,23 @@ eval_flights_correction <- function(flights_data, otm_splines, summary){
       return(skw)
     }
 
+    # define function to calculate mode
+    find_mode <- function(x) {
+      x <- na.omit(x)
+      x <- round(x, digits = 1)
+      ux <- unique(x)
+      tab <- tabulate(match(x, ux))
+      most_freq <- ux[tab == max(tab)]
+      mode <- mean(most_freq, na.rm = T) # find mean if multiple modes
+      return(mode)
+    }
+
+
     # generate evaluation summary statistics
     eval_summary <- corr_data %>% group_by(year, doy, mod_start, mod_end) %>%
       summarise(mean_bias = mean(op_temp - ir_temp, na.rm = T),
                 median_bias = median(op_temp - ir_temp, na.rm = T),
+                mode_bias = find_mode(op_temp - ir_temp),
                 sd_bias = sd(op_temp - ir_temp, na.rm = T),
                 skewness_bias = skew(op_temp - ir_temp),
                 max_bias = max(op_temp - ir_temp, na.rm = T),

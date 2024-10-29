@@ -4,7 +4,13 @@
 \alias{correct_flights_data}
 \title{Correct flights data}
 \usage{
-correct_flights_data(flights_data, otm_splines)
+correct_flights_data(
+  flights_data,
+  otm_splines,
+  time_correction,
+  time_correction_metric,
+  flight_specific_correction
+)
 }
 \arguments{
 \item{flights_data}{A \code{tibble} of flights data obtained through the \code{rnp_flights_data}
@@ -13,11 +19,32 @@ function. The \code{tibble} must contain columns for `longitude` and `latitude`.
 \item{otm_splines}{A nested \code{tibble} obtained using the \code{gen_otm_splines} function.
 The \code{tibble} must contain columns for \code{longitude} and \code{latitude} and all values
 must also be in the \code{flights_data}}
+
+\item{time_correction}{A logical value (\code{TRUE} or \code{FALSE})
+indicating whether first correction step should be applied. If set to \code{TRUE},
+the function will add the mean, median or mode (based on \code{time_correction_metric},
+see below) bias between all surface and operative temperatures in tiles where
+OTMs were present to all surface temperature measurements within a flight.
+The goal of applying a time correction is to account for time-specific systematic
+ biases between operative and surface temperatures which may be a by product of the
+inherent nature of thermal imaging (e.g., measurements being influenced by
+light conditions, sensor calibration. etc.). We recommend that
+\code{time_correction = TRUE} if \code{flight_specific_correction = FALSE}.}
+
+\item{time_correction_metric}{A character string indicating the metric to be
+used to perform the time correction. The metric can be either \code{"mean"},
+\code{"median"} or \code{"mode"}.}
+
+\item{flight_specific_correction}{A logical value (\code{TRUE} or \code{FALSE})
+indicating whether the second correction step should be applied to all flights
+or each flight specifically. If set to \code{TRUE} the second correction
+step will also incorporate the effects of day of the year and minute of day
+into the linear model from which the correction will be performed.}
 }
 \value{
 A processed \code{flights_data} \code{tibble} where IR-measured temperatures (\code{ir_temp})
    has been corrected to operative temperatures (\code{op_temp}).
 }
 \description{
-Correct flights data to transform IR-measured temperatures into operative temperatures
+Corrects flights data to transform IR-measured temperatures into operative temperatures
 }
