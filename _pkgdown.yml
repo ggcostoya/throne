@@ -41,6 +41,7 @@ reference:
   - rnp_otms_data
   - gen_otm_splines
   - correct_flights_data
+  - eval_flights_correction
   - match_data
   - predict_thermal_landscape
 - title: Datasets
@@ -59,8 +60,7 @@ reference:
 - subtitle: Other datasets
   desc: Miscellaneous datasets used in the vignettes
   contents:
-  - correction_data
-  - matches_20
+  - matches_100
   - elevation
   - bad_read_otm
   - good_read_otm

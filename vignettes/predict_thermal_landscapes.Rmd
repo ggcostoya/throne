@@ -43,7 +43,7 @@ The `match_data` function matches the thermal dynamics of specific tiles (i.e., 
 
 Additionally, the `match_data` also requires `2` user specified inputs:
 
-1.  `coverage_per`, a numeric value between 0 - 1 indicating the minimum coverage that a tile should have across all flights provided in order to be included in the matching process. The need for this input can be easily visualized by overlapping the area covered by multiple flights in the provided example `flights_data` (see image below). Due to the unique conditions during each of the `34` flights we conducted to perform this study (e.g., wind etc.), the area covered by each flight was variable, specially when focusing around the edges of our study area. Nonetheless, we foresaw this effect which is why **we ensured that the area covered by each flight would be much larger than the area of interest for our study**, a precaution we recommend all users of this package to follow. Our goal was that the area where we had OTMs would be covered by flights and, as seen above, all OTMs deployed on the ground (black dots) fell on areas that were covered by the vast majority of our flights. **As a general guideline, we recommend setting `coverage_per >= 0.9`**
+1.  `coverage_per`, a numeric value between 0 - 1 indicating the minimum coverage that a tile should have across all flights provided in order to be included in the matching process. The need for this input can be easily visualized by overlapping the area covered by multiple flights in the provided example `flights_data` (see image below). Due to the unique conditions during each of the `34` flights we conducted for the example data set of this package (e.g., wind etc.), the area covered by each flight was variable, specially when focusing around the edges of our study area. Nonetheless, we foresaw this effect which is why **we ensured that the area covered by each flight would be much larger than the area of interest**, a precaution we recommend all users to follow. Our goal was that the area where OTMs were deployed would be covered by flights and, as seen above, all OTMs deployed on the ground (black dots) fell on areas that were covered by the vast majority of our flights. **As a general guideline, we recommend setting `coverage_per >= 0.9`**, the value the function will default to if `coverage_per` is not specified. Nonetheless, the function output will also provide a `coverage` column for each tile to further inform the users. 
 
 ```{r, fig.width = 6, fig.height = 4, fig.align='center', echo = FALSE, message = FALSE}
 # plot
@@ -64,7 +64,7 @@ flights_data %>%
 
 To match tiles with OTMs that best describe their thermal dynamics, the `match_data` function goes through the following general steps:
 
-1.  It calculates the coverage across all flights for every single tile covered and selects only those tiles that have bee covered as much or more as the `coverage_per` argument specifies.
+1.  It calculates the coverage across all flights for every single tile covered and selects only those tiles that have been covered as much or more as the `coverage_per` argument specifies.
 
 2.  For each tile, calculate the average absolute error between the temperature measurements of that tile during each flight and the temperature measurements made by every OTM at the exact same time each flight took place.
 
@@ -90,7 +90,11 @@ for(i in 1:nrow(fig_splines)){
 }
 
 # correct the flights data using correct_flights_data function
-flights_data_corrected <- correct_flights_data(flights_data = flights_data, otm_splines = otms_splines)
+flights_data_corrected <- correct_flights_data(flights_data = flights_data, 
+                                               otm_splines = otms_splines,
+                                               time_correction = TRUE,
+                                               time_correction_metric = "mean",
+                                               flight_specific_correction = TRUE)
 
 #plot
 flights_data_corrected %>% 
@@ -129,7 +133,7 @@ merge(otms_splines_sub, matches_5, by = c("latitude", "longitude")) %>%
 
 ```
 
-4.  If the minimum error is above a certain threshold indicated by he `error_max` parameter do not assign any OTM to a tile. In the figure below we show the results of implementing this step with the areas marked in dark blue indicating tiles for which no OTM could describe it without exceeding the threshold imposed by `error_max`. It is also important to note that these "problematic" tiles are far from the area of interest for this study (where the OTMs, indicated by black dots, where deployed) and that in this area the error is minimized.
+4.  If the minimum error is above a certain threshold indicated by the `error_max` parameter do not assign any OTM to a tile. In the figure below we show the results of implementing this step with the areas marked in dark blue indicating tiles for which no OTM could describe it without exceeding the threshold imposed by `error_max` (`error_max = 5` in this case). It is also important to note that these "problematic" tiles are far from the area of interest for this study (where the OTMs, indicated by black dots, where deployed) and that in this area the error is minimized.
 
 ```{r, fig.width = 6, fig.height = 4, fig.align = 'center', echo = FALSE}
 matches_5 %>%
@@ -149,23 +153,60 @@ matches_5 %>%
 
 > **NOTE**: The figure above shows all tiles that were covered by at least 1 flights but that were not covered in at least 90% of flights shaded in light gray. As seen above, the high-coverage area is much smaller than the total area covered in flights.
 
+By default the `match_data` function will set `error_max = 100`. This is a sufficiently large value to ensure that all tiles are match to an OTM. The purpose of this is to be fully transparent with the users and allowing them to decide post-hoc what threshold to use. As an example, below we show the error map but with `error_max = 100` instead of 5. 
+
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center', echo = FALSE}
+matches_100  %>%
+  mutate(isna = ifelse(is.na(error), 1, 0)) %>%
+  ggplot(aes(x = longitude, y = latitude)) +
+  geom_tile(data = flights_data, fill = "lightgray") +
+  geom_tile(aes(fill = error)) +
+  scale_fill_gradient(low = "palegreen", high = "darkorange") +
+  geom_tile(aes(alpha = as.factor(isna)), fill = "darkblue", show.legend = FALSE) +
+  scale_alpha_manual(values = c(0,1)) +
+  geom_point(data = otms_splines, size = 2) +
+  theme_minimal() +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank()) +
+  guides(fill = guide_colorbar(title = "Error (C)"))
+```
+
+As seen above, the `error` never exceeds 10 C. This is a good indication that the OTMs are well suited to describe the thermal dynamics of the area of interest. Below is the distribution of error to further illustrate this point.
+
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center', echo = FALSE}
+matches_100  %>%
+  ggplot(aes(x = error)) +
+  geom_density(fill = "lightgray") +
+  theme_minimal() +
+  theme(
+    axis.line = element_line(),
+    axis.ticks = element_line()
+  ) +
+  scale_x_continuous(limits = c(0, 10), expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  xlab("Matching error (C)") + ylab("Density")
+```
+
 The resulting `matches` `tibble` has the `otm_id` column indicating the OTM that best describes a given tile (i.e., a combination o `latitude` and `longitude`) as well as a column for the matching `error` for the user to inspect if desired. In rows where `error > error_max` the `otm_id` will be specified as `NA`.
 
 ```{r}
 matches_5
 ```
 
-> **NOTE**: The `tibble` presented above was generated considering an `error_max = 5`. The `throne` package also includes another matches data set generated with `error_max = 20` that can be accessed by calling `matches_20`.
+> **NOTE**: The `tibble` presented above was generated considering an `error_max = 5`. The `throne` package also includes another matches data set generated with `error_max = 100` that can be accessed by calling `matches_100`. Both data sets were generated by setting `coverage_per = 0.9`, the default setting. 
 
 From this `matches` data we gather some interesting findings. Including that:
 
 1.  Very few OTMs are needed to explain the majority of the sites thermal dynamics. In the example data set, only `5` out of the `33` deployed OTMs deployed were needed to explain more than over 50% of the thermal variability of the site.
 
 ```{r, echo = FALSE, message = FALSE, fig.height = 4, fig.width = 6, fig.align='center'}
+# define nrow of matches_5
+nrow_matches_5_assigned <- nrow(matches_5[!is.na(matches_5$otm_id),])
+
 matches_5 %>% 
   filter(!is.na(otm_id)) %>%
   group_by(otm_id) %>% 
-  summarise(tiles_covered = (n()/5606)*100) %>% 
+  summarise(tiles_covered = (n()/nrow_matches_5_assigned)*100) %>% 
   ungroup() %>%
   arrange(desc(tiles_covered)) %>% 
   mutate(cum_tiles_covered = cumsum(tiles_covered)) %>%
@@ -191,7 +232,7 @@ orientation_colors <- c("N" = "darkblue", "NW" = "#7F468B","W" = "darkorange",
                         "SW" = "#FCCE7B", "S" = "gold", "SE" = "#90B122",
                         "E" = "forestgreen", "NE" = "#11458B", "Flat" = "maroon")
 
-merge(matches_20, otms_splines_orient, by = c("otm_id"))%>% 
+merge(matches_100, otms_splines_orient, by = c("otm_id"))%>% 
   ggplot(aes(x = longitude, y = latitude)) +
   geom_tile(aes(fill = orientation)) +
   geom_contour(data = elevation, aes(z = elevation), bins = 20, col = "white") +
@@ -204,7 +245,7 @@ merge(matches_20, otms_splines_orient, by = c("otm_id"))%>%
   
 ```
 
-> **NOTE**: In the plot above we use the a `matches` tibble with `error_max = 20` for visualization purposes only.
+> **NOTE**: In the plot above we use the a `matches` tibble with `error_max = 100` for visualization purposes only.
 
 # Predicting thermal landscapes
 
@@ -232,7 +273,7 @@ Since all the necessary calculations have been carried out beforehand (i.e., gen
 
 ```{r}
 # obtain prediction
-prediction_237 <- predict_thermal_landscape(matches = matches_20, otm_splines = otms_splines, 
+prediction_237 <- predict_thermal_landscape(matches = matches_100, otm_splines = otms_splines, 
                                             doy = 237, mod = seq(0,1440, by = 60))
 
 prediction_237

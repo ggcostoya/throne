@@ -176,46 +176,25 @@
 
 "otms_splines"
 
-### * Correction data
-
-#' Correction data set for documentation
-#'
-#' A \code{tibble} with a comparison between the surface temperatures recorded
-#' by flights on tiles where OTM were deployed and the operative temperatures
-#' recorded by OTMs during the exact same period the flights were taking place
-#'
-#' @format A \code{tibble} of 1114 rows and 8 columns:
-#' \describe{
-#' \item{latitude}{A numeric column indicating latitude of a tile}
-#' \item{longitude}{A numeric column indicating longitude of a tile}
-#' \item{year}{A numeric columnindicating the year when the flight took place}
-#' \item{doy}{A numeric column indicating the day of the year when the flight took place}
-#' \item{mod_start}{A numeric column indicating the minute of the day when the flight started}
-#' \item{mod_end}{A numeric column indicating the minute of the day when the flight ended}
-#' \item{ir_temp}{A numeric column indicating the average surface temperature recorded in a tile in a given flight}
-#' \item{op_temp}{A numeric column indicating the average operative temperature recorded by an OTMs in a tile}
-#' }
-#'
-#' @examples
-#' correction_data
-
-"correction_data"
-
 ### * Matches 5
 
 #' Matches data with \code{error_max = 5}
 #'
 #' A \code{tibble} indicating the OTM that best describe the dynamics of a given tile
-#' assuming a \code{error_max = 5}.
+#' assuming a \code{error_max = 5} and a \code{coverage_per = 0.9} (i.e., default settings).
+#' The \code{flights_data} used to perform the matching was corrected using t
+#' he \code{correct_flights_data} function specifying that both a time and a flight-specific
+#' temperature correction should be performed.
 #'
 #' @format A \code{tibble} of 6386 rows and 4 columns
-#' #' \describe{
+#' \describe{
 #' \item{latitude}{A numeric column indicating latitude of a tile}
 #' \item{longitude}{A numeric column indicating longitude of a tile}
+#' \item{coverage}{The percentage of flights in which that tile was coverged}
+#' \item{error}{A numeric column indicating the average absolute error between the thermal dynamics of a tile and the OTM that best described it}
 #' \item{otm_id}{A character column indicating the OTM that best describe the dynamics of a tile,
 #'  a value of \code{NA} indicates that that tile could not be matched with any OTM with an
 #'  \code{error < error_max}}
-#' \item{error}{A numeric column indicating the average absolute error between the thermal dynamics of a tile and the OTM that best described it}
 #' }
 #'
 #' @examples
@@ -223,17 +202,20 @@
 
 "matches_5"
 
-### * Matches 20
+### * Matches 100
 
-#' Matches data with \code{error_max = 20}
+#' Matches data with \code{error_max = 100}
 #'
 #' A \code{tibble} indicating the OTM that best describe the dynamics of a given tile
-#' assuming a \code{error_max = 20}. The purpose of the increased error is for visualization
-#' purposes (i.e., so no empty tiles appear in the plots presented in the documentation
-#' vignettes).
+#' assuming a \code{error_max = 100} and a \code{coverage_per = 0.9} (i.e., default settings).The increased \code{error_max}
+#' is for visualization purposes (i.e., so no empty tiles appear in the plots presented
+#' in the documentation vignettes).The \code{flights_data} used to perform
+#' the matching was corrected using the \code{correct_flights_data} function
+#' specifying that both a time and a flight-specific temperature correction
+#' should be performed.
 #'
 #' @format A \code{tibble} of 6386 rows and 4 columns
-#' #' \describe{
+#' \describe{
 #' \item{latitude}{A numeric column indicating latitude of a tile}
 #' \item{longitude}{A numeric column indicating longitude of a tile}
 #' \item{otm_id}{A character column indicating the OTM that best describe the dynamics of a tile,
@@ -244,9 +226,9 @@
 #' }
 #'
 #' @examples
-#' matches_5
+#' matches_100
 
-"matches_20"
+"matches_100"
 
 
 

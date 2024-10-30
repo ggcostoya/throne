@@ -122,9 +122,9 @@ correction_data %>%
     labs(colour = "MOD")
 ```
 
-Flights closer to the middle of the day (i.e., \~ 11:00 - 13:00 or `mod` 660 - 800) when light conditions are optimal tend to be less biased whereas flights earlier in the morning or the afternoon are more affected by it. Based on this, the first correction will 1) **calculate the average bias for each flight** and 2) **add that bias to all `ir_temp` measurements of that flight**. Once this correction is implemented the relationship between `ir_temp` and `op_temp` looks like:
+Flights closer to the middle of the day (i.e., \~ 11:00 - 13:00 or `mod` 660 - 800) when light conditions are optimal tend to be less biased whereas flights earlier in the morning or the afternoon are more affected by it. Based on this, the first correction will 1) **calculate the average bias for each flight** and 2) **add that bias to all `ir_temp` measurements of that flight**. Once this is implemented the time-specific bias is removed:
 
-```{r, echo = FALSE, message = FALSE}
+```{r, echo = FALSE, message = FALSE, fig.align = 'center'}
 # get year, doy and mod correction factors
 time_correction_factors <- correction_data %>%  group_by(year, doy, mod_start) %>%
     summarise(time_corr_factor = mean(op_temp - ir_temp))
@@ -135,7 +135,25 @@ correction_data <- as_tibble(merge(correction_data, time_correction_factors,
 
 # apply time correction
 correction_data$ir_temp_corr <- correction_data$ir_temp + correction_data$time_corr_factor
+
+# plot correction
+correction_data %>% 
+  ggplot(aes(x = mod_start, y = op_temp - ir_temp_corr, col = mod_start)) +
+  geom_jitter(height = 0, width = 1, size = 2, alpha = 0.5) +
+  geom_hline(yintercept = 0, linewidth = 1.5, linetype = 2) +
+  stat_summary(aes(fill = mod_start), shape = 21, col = "black", size = 1, linewidth = 1) +
+  scale_color_gradient2(low = "black", mid = "orange", high = "darkblue",midpoint = 12*60) +
+  scale_fill_gradient2(low = "black", mid = "orange", high = "darkblue",midpoint = 12*60) +
+  xlab("MOD") +
+  ylab("Operative - IR Temperature (°C)") +
+  theme_minimal() +
+  theme(axis.line = element_line(),
+        axis.ticks = element_line(),
+        legend.position = "none") +
+    labs(colour = "MOD")
 ```
+
+Once this correction is implemented the relationship between `ir_temp` and `op_temp` looks like:
 
 ```{r, message = FALSE, echo = FALSE, fig.align='center'}
 correction_data %>% 
