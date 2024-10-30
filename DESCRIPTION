@@ -37,6 +37,7 @@ Suggests:
   plotly,
   devtools,
   forcats,
-  knitr
+  knitr, 
+  ggpubr
 URL: https://ggcostoya.github.io/throne/
 VignetteBuilder: knitr
