@@ -39,9 +39,9 @@ rnp_flights_data <- function(path, metadata, digits){
   if("time_end" %in% colnames(metadata) == FALSE){stop("Flight `time_end` is column missing in metadata file")}
 
   # check proper formatting on metadata file
-  if(any(is.na(mdy(metadata$date)))){stop("Incorrect `date` column format, it should be MM/DD/YYYY")}
-  if(any(is.na(hm(metadata$time_start)))){stop("Incorrect flight `time_start` column format, it should be HH:MM")}
-  if(any(is.na(hm(metadata$time_end)))){stop("Incorrect flight `time_end` column format, it should be HH:MM")}
+  if(any(is.na(lubridate::mdy(metadata$date)))){stop("Incorrect `date` column format, it should be MM/DD/YYYY")}
+  if(any(is.na(lubridate::hm(metadata$time_start)))){stop("Incorrect flight `time_start` column format, it should be HH:MM")}
+  if(any(is.na(lubridate::hm(metadata$time_end)))){stop("Incorrect flight `time_end` column format, it should be HH:MM")}
 
   # check if digits is an integer
   if(digits %in% !c(1,2,3,4,5,6)){stop("Incorrect value for `digits`, it should be an integer between 1 and 6")}
@@ -49,10 +49,10 @@ rnp_flights_data <- function(path, metadata, digits){
   ## preparing data
 
   # modify format of metadata file and select columns of interest
-  metadata$year <- lubridate::year(mdy(metadata$date))
-  metadata$doy <- yday(mdy(metadata$date))
-  metadata$mod_start <- lubridate::hour(hm(metadata$time_start))*60 + lubridate::minute(hm(metadata$time_start))
-  metadata$mod_end <- lubridate::hour(hm(metadata$time_end))*60 + lubridate::minute(hm(metadata$time_end))
+  metadata$year <- lubridate::year(lubridate::mdy(metadata$date))
+  metadata$doy <- lubridate::yday(lubridate::mdy(metadata$date))
+  metadata$mod_start <- lubridate::hour(lubridate::hm(metadata$time_start))*60 + lubridate::minute(lubridate::hm(metadata$time_start))
+  metadata$mod_end <- lubridate::hour(lubridate::hm(metadata$time_end))*60 + lubridate::minute(lubridate::hm(metadata$time_end))
   metadata <- metadata %>% dplyr::select(flight_id, year, doy, mod_start, mod_end)
 
   # list files within path specified
