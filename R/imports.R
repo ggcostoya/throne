@@ -55,6 +55,11 @@ NULL
 
 #' @importFrom lubridate hour
 #' @export
+NULL
+
+#' @importFrom lubridate minute
+#' @export
+NULL
 
 #' @importFrom tibble tibble
 #' @export
