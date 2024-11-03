@@ -49,6 +49,13 @@ NULL
 #' @export
 NULL
 
+#' @importFrom lubridate year
+#' @export
+NULL
+
+#' @importFrom lubridate hour
+#' @export
+
 #' @importFrom tibble tibble
 #' @export
 NULL
