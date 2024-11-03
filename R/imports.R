@@ -45,6 +45,10 @@ NULL
 #' @export
 NULL
 
+#' @importFrom lubridate mdy_hms
+#' @export
+NULL
+
 #' @importFrom tibble tibble
 #' @export
 NULL
