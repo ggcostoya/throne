@@ -8,15 +8,15 @@
 <title>Matching flight to OTM data and Predicting Thermal Landscapes • throne</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Matching flight to OTM data and Predicting Thermal Landscapes">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">throne</a>
 
@@ -78,76 +78,77 @@
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
 <p>In this vignette, our goal is to illustrate the process behind the
-final step in the workflow of the <code>throne</code> package, the
-prediction of spatio-temporally complete thermal landscapes. To achieve
-this, <code>throne</code> uses two functions: <code>match_data</code>
-and <code>predict_thermal_landscpe</code>. The first allows the user to
+final step of the <code>throne</code> workflow; the prediction of
+spatio-temporally complete thermal landscapes. To achieve this,
+<code>throne</code> uses two functions: <code>match_data</code> and
+<code>predict_thermal_landscpe</code>. The first allows the user to
 match the thermal dynamics of a given tile within their site (i.e., a
-unique <code>latitude</code> and <code>longitude</code>) as measured
-across multiple flights with those of an <strong>operative temperature
-model</strong> (<strong>OTM</strong>). The second, uses this matches
-data set and combines it with information from date &amp; OTM specific
-cubic spline models (obtained using the <code>gen_otm_splines</code>
-function) to predict the temperature of each tile in the area of
-interest at any moment in time while the OTMs were deployed in the
-field. In the context of the overall workflow of the package, this is
-the section that is covered in this vignette:</p>
-<p><img src="images%2Fpredict_thermal_landscapes_workflow.png" width="80%" style="display: block; margin: auto;"></p>
+unique <code>x</code> and <code>y</code> UTM coordinate combination) as
+measured across multiple flights with those of an <strong>operative
+temperature model</strong> (<strong>OTM</strong>). The second, uses this
+matches data set and combines it with information from date &amp; OTM
+specific cubic spline models (obtained using the
+<code>gen_otm_splines</code> function) to predict the temperature of
+each tile in the area of interest at any moment in time while the OTMs
+were deployed in the field. In the context of the overall workflow of
+the package, this is the section that is covered in this vignette:</p>
+<p><img src="images%2Fpredict_thermal_landscape_workflow.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
 <h2 id="the-match_data-function">The <code>match_data</code> function<a class="anchor" aria-label="anchor" href="#the-match_data-function"></a>
 </h2>
 <p>The <code>match_data</code> function matches the thermal dynamics of
-specific tiles (i.e., unique <code>latitude</code> and
-<code>longitude</code> combinations) collected across multiple flights
-to the thermal dynamics of an <strong>operative temperature
-model</strong> (<strong>OTM</strong>). To do so, the function takes in
-the following inputs inherited from previous functions :</p>
+specific tiles collected across multiple flights to the thermal dynamics
+of an <strong>operative temperature model</strong>
+(<strong>OTM</strong>). This will typically be <strong>the longest step
+in the <code>throne</code></strong> pipeline but, if done correctly, the
+user will only need to run it once. Next, we discuss the function’s
+inputs, processes and output</p>
+<div class="section level3">
+<h3 id="inputs">Inputs<a class="anchor" aria-label="anchor" href="#inputs"></a>
+</h3>
+<p>Te <code>match_data</code> function takes in the following
+inputs:</p>
 <ol style="list-style-type: decimal">
-<li><p>A <code>flights_data</code> <code>tibble</code> obtained using
-the <code>rnp_flights_data</code>. We <strong>strongly</strong>
-recommend that this <code>tibble</code> undergoes correction using the
+<li><p>A flight data set obtained using the
+<code>rnp_flights_data</code>. We <strong>strongly</strong> recommend
+that this data undergoes correction using the
 <code>correct_flights_data</code> function in order to ensure that both
-the <code>flights_data</code> <code>tibble</code> and the OTMs are on an
-operative temperature scale. However, the function will allow the user
-to use an uncorrected <code>flights_data</code> <code>tibble</code> if
-they so choose.</p></li>
+flights and OTM data are on an operative temperature scale. However, the
+function will allow the user to use uncorrected data if they so
+choose.</p></li>
 <li><p>An <code>otm_splines</code> nested <code>tibble</code> obtained
 using the <code>gen_otm_splines</code> function.</p></li>
-</ol>
-<p>Additionally, the <code>match_data</code> also requires
-<code>2</code> user specified inputs:</p>
-<ol style="list-style-type: decimal">
-<li>
-<code>coverage_per</code>, a numeric value between 0 - 1 indicating
-the minimum coverage that a tile should have across all flights provided
-in order to be included in the matching process. The need for this input
-can be easily visualized by overlapping the area covered by multiple
-flights in the provided example <code>flights_data</code> (see image
-below). Due to the unique conditions during each of the <code>34</code>
-flights we conducted for the example data set of this package (e.g.,
-wind etc.), the area covered by each flight was variable, specially when
-focusing around the edges of our study area. Nonetheless, we foresaw
-this effect which is why <strong>we ensured that the area covered by
-each flight would be much larger than the area of interest</strong>, a
-precaution we recommend all users to follow. Our goal was that the area
-where OTMs were deployed would be covered by flights and, as seen above,
-all OTMs deployed on the ground (black dots) fell on areas that were
-covered by the vast majority of our flights. <strong>As a general
+<li><p><code>coverage_per</code>, a numeric value between 0 - 1
+indicating the minimum coverage that a tile should have across all
+flights provided in order to be included in the matching process. The
+need for this input can be easily visualized by overlapping the area
+covered by multiple flights in the provided example
+<code>flights_data</code> (see below). Due to the unique conditions
+during each flight, the area covered is variable, specially when
+focusing around the edges of the area of interest. To circumvent this,
+we recommend that <strong>the area covered by each flight should be much
+larger than the area of interest</strong>. With the example data, our
+goal was to encompass the area where OTMs were deployed in the ground
+(black dots), and as seen below, we achieved that. <strong>As a general
 guideline, we recommend setting
 <code>coverage_per &gt;= 0.9</code></strong>, the value the function
 will default to if <code>coverage_per</code> is not specified.
 Nonetheless, the function output will also provide a
 <code>coverage</code> column for each tile to further inform the
-users.</li>
+users.</p></li>
 </ol>
-<p><img src="predict_thermal_landscapes_files/figure-html/unnamed-chunk-3-1.png" width="576" style="display: block; margin: auto;"></p>
-<ol start="2" style="list-style-type: decimal">
+<p><img src="predict_thermal_landscapes_files/figure-html/plot%20coverage%20across%20flights-1.png" width="576" style="display: block; margin: auto;"></p>
+<ol start="4" style="list-style-type: decimal">
 <li>
 <code>error_max</code>, the maximum error between temperature
 measurements of a tile and the OTM that best represents it, which we
 elaborate on below.</li>
 </ol>
+</div>
+<div class="section level3">
+<h3 id="processes">Processes<a class="anchor" aria-label="anchor" href="#processes"></a>
+</h3>
 <p>To match tiles with OTMs that best describe their thermal dynamics,
 the <code>match_data</code> function goes through the following general
 steps:</p>
@@ -166,14 +167,17 @@ associated with a given tile (note that these measurements are corrected
 using the <code>correct_flights_data</code> function) across all flights
 conducted in the days of the year (<code>doy</code>) 236, 237 and 238.
 The red and blue lines indicate the temperatures predicted by the spline
-model of 2 OTMs for those same <code>doy</code>. In this case, the
+model of 2 OTMs for those same <code>doy</code>. Between these two, the
 <code>match_data</code> function would choose <code>OTM25</code> to
 better represent the dynamics of that tile as the average difference
 between each of the tile’s temperature measurements and those estimated
-by the cubic spline model for <code>OTM25</code> is much smaller than
-for <code>OTM05</code>.</p></li>
+by the cubic spline model for <code>OTM25</code> is smaller than for
+<code>OTM05</code>.</p></li>
 </ol>
-<p><img src="predict_thermal_landscapes_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;"></p>
+<pre><code><span><span class="co">## Generating OTM &amp; doy-specific spline models...</span></span></code></pre>
+<pre><code><span><span class="co">##   |                                                                              |                                                                      |   0%  |                                                                              |=                                                                     |   1%  |                                                                              |=                                                                     |   2%  |                                                                              |==                                                                    |   2%  |                                                                              |==                                                                    |   3%  |                                                                              |===                                                                   |   4%  |                                                                              |===                                                                   |   5%  |                                                                              |====                                                                  |   5%  |                                                                              |====                                                                  |   6%  |                                                                              |=====                                                                 |   7%  |                                                                              |=====                                                                 |   8%  |                                                                              |======                                                                |   8%  |                                                                              |======                                                                |   9%  |                                                                              |=======                                                               |  10%  |                                                                              |=======                                                               |  11%  |                                                                              |========                                                              |  11%  |                                                                              |=========                                                             |  12%  |                                                                              |=========                                                             |  13%  |                                                                              |==========                                                            |  14%  |                                                                              |==========                                                            |  15%  |                                                                              |===========                                                           |  15%  |                                                                              |===========                                                           |  16%  |                                                                              |============                                                          |  17%  |                                                                              |============                                                          |  18%  |                                                                              |=============                                                         |  18%  |                                                                              |=============                                                         |  19%  |                                                                              |==============                                                        |  20%  |                                                                              |==============                                                        |  21%  |                                                                              |===============                                                       |  21%  |                                                                              |===============                                                       |  22%  |                                                                              |================                                                      |  23%  |                                                                              |=================                                                     |  24%  |                                                                              |==================                                                    |  25%  |                                                                              |==================                                                    |  26%  |                                                                              |===================                                                   |  27%  |                                                                              |====================                                                  |  28%  |                                                                              |====================                                                  |  29%  |                                                                              |=====================                                                 |  30%  |                                                                              |=====================                                                 |  31%  |                                                                              |======================                                                |  31%  |                                                                              |======================                                                |  32%  |                                                                              |=======================                                               |  33%  |                                                                              |========================                                              |  34%  |                                                                              |=========================                                             |  35%  |                                                                              |=========================                                             |  36%  |                                                                              |==========================                                            |  37%  |                                                                              |===========================                                           |  38%  |                                                                              |===========================                                           |  39%  |                                                                              |============================                                          |  40%  |                                                                              |=============================                                         |  41%  |                                                                              |=============================                                         |  42%  |                                                                              |==============================                                        |  43%  |                                                                              |==============================                                        |  44%  |                                                                              |===============================                                       |  44%  |                                                                              |================================                                      |  45%  |                                                                              |================================                                      |  46%  |                                                                              |=================================                                     |  47%  |                                                                              |==================================                                    |  48%  |                                                                              |==================================                                    |  49%  |                                                                              |===================================                                   |  50%  |                                                                              |====================================                                  |  51%  |                                                                              |====================================                                  |  52%  |                                                                              |=====================================                                 |  53%  |                                                                              |======================================                                |  54%  |                                                                              |======================================                                |  55%  |                                                                              |=======================================                               |  56%  |                                                                              |========================================                              |  56%  |                                                                              |========================================                              |  57%  |                                                                              |=========================================                             |  58%  |                                                                              |=========================================                             |  59%  |                                                                              |==========================================                            |  60%  |                                                                              |===========================================                           |  61%  |                                                                              |===========================================                           |  62%  |                                                                              |============================================                          |  63%  |                                                                              |=============================================                         |  64%  |                                                                              |=============================================                         |  65%  |                                                                              |==============================================                        |  66%  |                                                                              |===============================================                       |  67%  |                                                                              |================================================                      |  68%  |                                                                              |================================================                      |  69%  |                                                                              |=================================================                     |  69%  |                                                                              |=================================================                     |  70%  |                                                                              |==================================================                    |  71%  |                                                                              |==================================================                    |  72%  |                                                                              |===================================================                   |  73%  |                                                                              |====================================================                  |  74%  |                                                                              |====================================================                  |  75%  |                                                                              |=====================================================                 |  76%  |                                                                              |======================================================                |  77%  |                                                                              |=======================================================               |  78%  |                                                                              |=======================================================               |  79%  |                                                                              |========================================================              |  79%  |                                                                              |========================================================              |  80%  |                                                                              |=========================================================             |  81%  |                                                                              |=========================================================             |  82%  |                                                                              |==========================================================            |  82%  |                                                                              |==========================================================            |  83%  |                                                                              |===========================================================           |  84%  |                                                                              |===========================================================           |  85%  |                                                                              |============================================================          |  85%  |                                                                              |============================================================          |  86%  |                                                                              |=============================================================         |  87%  |                                                                              |=============================================================         |  88%  |                                                                              |==============================================================        |  89%  |                                                                              |===============================================================       |  89%  |                                                                              |===============================================================       |  90%  |                                                                              |================================================================      |  91%  |                                                                              |================================================================      |  92%  |                                                                              |=================================================================     |  92%  |                                                                              |=================================================================     |  93%  |                                                                              |==================================================================    |  94%  |                                                                              |==================================================================    |  95%  |                                                                              |===================================================================   |  95%  |                                                                              |===================================================================   |  96%  |                                                                              |====================================================================  |  97%  |                                                                              |====================================================================  |  98%  |                                                                              |===================================================================== |  98%  |                                                                              |===================================================================== |  99%  |                                                                              |======================================================================| 100%</span></span></code></pre>
+<pre><code><span><span class="co">## Spline generation complete</span></span></code></pre>
+<p><img src="predict_thermal_landscapes_files/figure-html/plot%20match%20between%20OTM%20and%20flight%20temperature-1.png" width="768" style="display: block; margin: auto;"></p>
 <blockquote>
 <p><strong>NOTE</strong>: The distance between the tile and the OTM is
 <strong>NOT</strong> weighted for during this step. This is because an
@@ -191,7 +195,6 @@ we show the results of matching our example data set, where only in 5
 cases the same OTM that was on a tile best described its thermal
 dynamics.</p>
 </blockquote>
-<p><img src="predict_thermal_landscapes_files/figure-html/unnamed-chunk-5-1.png" width="576" style="display: block; margin: auto;"></p>
 <ol start="4" style="list-style-type: decimal">
 <li>If the minimum error is above a certain threshold indicated by the
 <code>error_max</code> parameter do not assign any OTM to a tile. In the
@@ -203,55 +206,47 @@ also important to note that these “problematic” tiles are far from the
 area of interest for this study (where the OTMs, indicated by black
 dots, where deployed) and that in this area the error is minimized.</li>
 </ol>
-<p><img src="predict_thermal_landscapes_files/figure-html/unnamed-chunk-6-1.png" width="576" style="display: block; margin: auto;"></p>
+<p><img src="predict_thermal_landscapes_files/figure-html/plot%20matching%20error-1.png" width="576" style="display: block; margin: auto;"></p>
 <blockquote>
 <p><strong>NOTE</strong>: The figure above shows all tiles that were
 covered by at least 1 flights but that were not covered in at least 90%
 of flights shaded in light gray. As seen above, the high-coverage area
 is much smaller than the total area covered in flights.</p>
 </blockquote>
-<p>By default the <code>match_data</code> function will set
-<code>error_max = 100</code>. This is a sufficiently large value to
-ensure that all tiles are match to an OTM. The purpose of this is to be
-fully transparent with the users and allowing them to decide post-hoc
-what threshold to use. As an example, below we show the error map but
-with <code>error_max = 100</code> instead of 5.</p>
-<p><img src="predict_thermal_landscapes_files/figure-html/unnamed-chunk-7-1.png" width="576" style="display: block; margin: auto;"></p>
-<p>As seen above, the <code>error</code> never exceeds 10 C. This is a
-good indication that the OTMs are well suited to describe the thermal
+<p>As seen above, <code>error</code> rarely exceeds 10 C. This is a good
+indication that the OTMs are well suited to describe the thermal
 dynamics of the area of interest. Below is the distribution of error to
 further illustrate this point.</p>
-<p><img src="predict_thermal_landscapes_files/figure-html/unnamed-chunk-8-1.png" width="576" style="display: block; margin: auto;"></p>
-<p>The resulting <code>matches</code> <code>tibble</code> has the
-<code>otm_id</code> column indicating the OTM that best describes a
-given tile (i.e., a combination o <code>latitude</code> and
-<code>longitude</code>) as well as a column for the matching
-<code>error</code> for the user to inspect if desired. In rows where
+<p><img src="predict_thermal_landscapes_files/figure-html/plot%20error%20distribution-1.png" width="480" style="display: block; margin: auto;"></p>
+<p>The resulting <code>matches</code> has the <code>otm_id</code> column
+indicating the OTM that best describes a given tile (i.e., a combination
+of <code>x</code> and <code>y</code> coordinates) as well as a columns
+for the matching <code>error</code> and the <code>coverage</code> across
+flights for the user to inspect if desired. In rows where
 <code>error &gt; error_max</code> the <code>otm_id</code> will be
-specified as <code>NA</code>.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">matches_5</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6,386 × 5</span></span></span>
-<span><span class="co">##    latitude longitude coverage error otm_id</span></span>
-<span><span class="co">##       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>     39.9     -<span style="color: #BB0000;">120.</span>    0.912  4.38 OTM26 </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>     39.9     -<span style="color: #BB0000;">120.</span>    0.912  4.55 OTM26 </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>     39.9     -<span style="color: #BB0000;">120.</span>    0.912  3.48 OTM26 </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>     39.9     -<span style="color: #BB0000;">120.</span>    0.941  3.26 OTM26 </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>     39.9     -<span style="color: #BB0000;">120.</span>    0.941  3.55 OTM26 </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>     39.9     -<span style="color: #BB0000;">120.</span>    0.941  2.85 OTM02 </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>     39.9     -<span style="color: #BB0000;">120.</span>    0.941  3.31 OTM26 </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>     39.9     -<span style="color: #BB0000;">120.</span>    0.912  3.11 OTM26 </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>     39.9     -<span style="color: #BB0000;">120.</span>    0.912  2.96 OTM26 </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span>     39.9     -<span style="color: #BB0000;">120.</span>    0.912  3.66 OTM26 </span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 6,376 more rows</span></span></span></code></pre>
+specified as <code>NA</code>. Below we show how the function would be
+run and its output:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># mock code to show how match_data would need to be ran</span></span>
+<span><span class="va">matches</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/match_data.html">match_data</a></span><span class="op">(</span>flights_data <span class="op">=</span> <span class="va">flights_data_corrected</span>,</span>
+<span>                      otm_splines <span class="op">=</span> <span class="va">otms_splines</span>,</span>
+<span>                      error_max <span class="op">=</span> <span class="fl">10</span>, <span class="co"># allowing a maximum error of 10 C as an example</span></span>
+<span>                      coverage_per <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span> <span class="co"># setting coverage across flights to 90%</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">throne</span><span class="fu">::</span><span class="va"><a href="../reference/matches.html">matches</a></span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##          x       y coverage    error otm_id</span></span>
+<span><span class="co">## 597 275257 4416488      0.9 5.308257  OTM02</span></span>
+<span><span class="co">## 606 275257 4416489      0.9 5.431529  OTM37</span></span>
+<span><span class="co">## 615 275257 4416490      0.9 9.308441  OTM11</span></span>
+<span><span class="co">## 648 275257 4416494      1.0 7.471241  OTM02</span></span>
+<span><span class="co">## 658 275257 4416495      0.9 7.124999  OTM11</span></span>
+<span><span class="co">## 667 275257 4416496      0.9 7.685370  OTM02</span></span></code></pre>
 <blockquote>
-<p><strong>NOTE</strong>: The <code>tibble</code> presented above was
-generated considering an <code>error_max = 5</code>. The
-<code>throne</code> package also includes another matches data set
-generated with <code>error_max = 100</code> that can be accessed by
-calling <code>matches_100</code>. Both data sets were generated by
-setting <code>coverage_per = 0.9</code>, the default setting.</p>
+<p><strong>NOTE</strong>: The <code>matches</code> data set presented
+above was generated considering with <code>error_max = 100</code> that
+can be accessed by calling <code>matches</code>. Both data sets were
+generated by setting <code>coverage_per = 0.9</code>, the default
+setting.</p>
 </blockquote>
 <p>From this <code>matches</code> data we gather some interesting
 findings. Including that:</p>
@@ -261,7 +256,7 @@ thermal dynamics. In the example data set, only <code>5</code> out of
 the <code>33</code> deployed OTMs deployed were needed to explain more
 than over 50% of the thermal variability of the site.</li>
 </ol>
-<p><img src="predict_thermal_landscapes_files/figure-html/unnamed-chunk-10-1.png" width="576" style="display: block; margin: auto;"></p>
+<p><img src="predict_thermal_landscapes_files/figure-html/plot%20distribution%20of%20assignment%20by%20OTM-1.png" width="576" style="display: block; margin: auto;"></p>
 <ol start="2" style="list-style-type: decimal">
 <li>The matching mechanism will automatically match tiles with a given
 orientation to OTMs deployed in a tile with the same orientation. As
@@ -269,79 +264,80 @@ seen below and considering that the site is plotted in a N-S
 orientation, we can, for example, see that OTMs facing <code>W</code>
 best described tiles that were on a western slope and so on.</li>
 </ol>
-<p><img src="predict_thermal_landscapes_files/figure-html/unnamed-chunk-11-1.png" width="768" style="display: block; margin: auto;"></p>
-<blockquote>
-<p><strong>NOTE</strong>: In the plot above we use the a
-<code>matches</code> tibble with <code>error_max = 100</code> for
-visualization purposes only.</p>
-</blockquote>
+<p><img src="predict_thermal_landscapes_files/figure-html/plot%20microclimate%20spatial%20distribution-1.png" width="576" style="display: block; margin: auto;"></p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="predicting-thermal-landscapes">Predicting thermal landscapes<a class="anchor" aria-label="anchor" href="#predicting-thermal-landscapes"></a>
 </h2>
 <p>The final step in the workflow of the <code>throne</code> package is
-to predict thermal landscapes. To do this, the <code>thonre</code>
-package includes the function <code>predict_thermal_landscape</code>
-which takes in the following inherited inputs:</p>
+to predict thermal landscapes. To do this, the package includes the
+function <code>predict_thermal_landscape</code>. Next, we will discuss
+the function’s inputs, processes and outputs.</p>
+<div class="section level3">
+<h3 id="inputs-1">Inputs<a class="anchor" aria-label="anchor" href="#inputs-1"></a>
+</h3>
 <ol style="list-style-type: decimal">
 <li><p>An <code>otm_splines</code> nested <code>tibble</code> obtained
 through the <code>generate_otm_splines</code>.</p></li>
-<li><p>A <code>matches</code> tibble associating tiles in a study area
+<li><p>A <code>matches</code> data set associating tiles in a study area
 with OTMs that best describe their thermal dynamics obtained using the
 <code>match_data</code> function discussed above.</p></li>
-</ol>
-<p>In addition, the <code>predict_thermal_landscape</code> function will
-require the following user-specified inputs:</p>
-<ol style="list-style-type: decimal">
 <li><p>The day of the year or <code>doy</code> (single or multiple) for
 which a prediction should be generated.</p></li>
 <li><p>The minute of the day or <code>mod</code> (single or multiple) in
 the <code>doy</code> specified for which a prediction should be
 generated.</p></li>
 </ol>
-<p>Once these inputs are specified, the function will go through the
+</div>
+<div class="section level3">
+<h3 id="processes-1">Processes<a class="anchor" aria-label="anchor" href="#processes-1"></a>
+</h3>
+<p>Then, <code>predict_thermal_landscape</code> will go through the
 following general steps:</p>
 <ol style="list-style-type: decimal">
-<li><p>Filter the provided <code>otm_splines</code> for splines
-characterizing OTMs that are also present in the <code>matches</code>
-<code>tibble</code> and among these select only models describing the
-dynamics of that OTM on the <code>doy</code> (single or multiple)
-specified as an argument of the function.</p></li>
+<li><p>Filter the <code>otm_splines</code> for splines characterizing
+OTMs that are also present in the <code>matches</code> object, and,
+among these, select only models describing the dynamics of that OTM on
+the <code>doy</code> (single or multiple) specified as an argument of
+the function.</p></li>
 <li><p>Predict the operative temperature at the specified
 <code>mod</code> (single or multiple) and <code>doy</code> for all
 OTMs.</p></li>
 <li><p>Merge the operative temperature prediction with the
-<code>matches</code> <code>tibble</code> to obtain a predicted operative
-temperature for every single tile considered.</p></li>
+<code>matches</code> to obtain a predicted operative temperature for
+every tile considered.</p></li>
 </ol>
-<p>Since all the necessary calculations have been carried out beforehand
-(i.e., generating the spline models, performing the matching between
-tiles and OTMs etc.) the <code>predict_thermal_landscape</code> function
-is relatively fast and allows the user to <strong>predict the entire
-thermal landscape of their site at any moment while their OTMs were
-deployed</strong>. For example, say that we want to obtain a complete
-thermal landscape prediction every hour of the day for the
-<code>doy = 237</code> (i.e., August 24th), one would simply run:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># obtain prediction</span></span>
-<span><span class="va">prediction_237</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_thermal_landscape.html">predict_thermal_landscape</a></span><span class="op">(</span>matches <span class="op">=</span> <span class="va">matches_100</span>, otm_splines <span class="op">=</span> <span class="va">otms_splines</span>, </span>
-<span>                                            doy <span class="op">=</span> <span class="fl">237</span>, mod <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1440</span>, by <span class="op">=</span> <span class="fl">60</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">prediction_237</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 159,650 × 6</span></span></span>
-<span><span class="co">##    latitude longitude coverage   doy   mod pred_op_temp</span></span>
-<span><span class="co">##       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>     39.9     -<span style="color: #BB0000;">120.</span>        1   237  <span style="text-decoration: underline;">1</span>380         23.0</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>     39.9     -<span style="color: #BB0000;">120.</span>        1   237  <span style="text-decoration: underline;">1</span>320         22.8</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>     39.9     -<span style="color: #BB0000;">120.</span>        1   237   900         36.0</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>     39.9     -<span style="color: #BB0000;">120.</span>        1   237  <span style="text-decoration: underline;">1</span>080         32.1</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>     39.9     -<span style="color: #BB0000;">120.</span>        1   237  <span style="text-decoration: underline;">1</span>200         25.9</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>     39.9     -<span style="color: #BB0000;">120.</span>        1   237  <span style="text-decoration: underline;">1</span>440         22.0</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>     39.9     -<span style="color: #BB0000;">120.</span>        1   237    60         21.3</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>     39.9     -<span style="color: #BB0000;">120.</span>        1   237     0         21.5</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>     39.9     -<span style="color: #BB0000;">120.</span>        1   237  <span style="text-decoration: underline;">1</span>260         24.9</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span>     39.9     -<span style="color: #BB0000;">120.</span>        1   237   660         34.6</span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 159,640 more rows</span></span></span></code></pre>
+</div>
+<div class="section level3">
+<h3 id="output">Output<a class="anchor" aria-label="anchor" href="#output"></a>
+</h3>
+<p>The final output of the function will be a <code>data.frame</code> of
+predicted operative temperature values. Since all the necessary
+calculations have been carried out beforehand (i.e., generating the
+spline models, performing the matching between tiles and OTMs etc.)
+<code>predict_thermal_landscape</code> is relatively fast and allows the
+user to <strong>predict the entire thermal landscape of their site at
+any moment while OTMs were deployed</strong>. For example, below is how
+one would obtain a complete thermal landscape prediction every hour of
+the day for the <code>doy = 237</code> (i.e., August 24th):</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># obtain prediction using system.time to show duration </span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="va">prediction_237</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_thermal_landscape.html">predict_thermal_landscape</a></span><span class="op">(</span>matches <span class="op">=</span> <span class="fu">throne</span><span class="fu">::</span><span class="va"><a href="../reference/matches.html">matches</a></span>, </span>
+<span>                                                        otm_splines <span class="op">=</span> <span class="va">otms_splines</span>, </span>
+<span>                                                        doy <span class="op">=</span> <span class="fl">237</span>, </span>
+<span>                                                        mod <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1440</span>, by <span class="op">=</span> <span class="fl">60</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="co"># every hour)</span></span></code></pre></div>
+<pre><code><span><span class="co">##    user  system elapsed </span></span>
+<span><span class="co">##   0.465   0.008   0.473</span></span></code></pre>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">prediction_237</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##   otm_id      x       y coverage doy mod pred_op_temp</span></span>
+<span><span class="co">## 1  OTM01 275351 4416511        1 237   0     21.50141</span></span>
+<span><span class="co">## 2  OTM01 275351 4416511        1 237  60     21.27824</span></span>
+<span><span class="co">## 3  OTM01 275351 4416511        1 237 120     20.07036</span></span>
+<span><span class="co">## 4  OTM01 275351 4416511        1 237 180     19.05241</span></span>
+<span><span class="co">## 5  OTM01 275351 4416511        1 237 240     17.58155</span></span>
+<span><span class="co">## 6  OTM01 275351 4416511        1 237 300     17.03824</span></span></code></pre>
 <blockquote>
 <p><strong>NOTE</strong>: The <code>predict_thermal_landscape</code>
 function will not be able to predict thermal landscapes if the specified
@@ -350,30 +346,26 @@ that end, the function will also provide a warning indicating what % of
 predictions were removed due to falling outside of the range when the
 OTMs were recording.</p>
 </blockquote>
-<p>We can plot this prediction using regular <code>ggplot</code> tools
-as easily as:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">prediction_237</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">mod</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">6</span><span class="op">*</span><span class="fl">60</span>,<span class="fl">21</span><span class="op">*</span><span class="fl">60</span>,by <span class="op">=</span> <span class="fl">60</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">longitude</span>, y <span class="op">=</span> <span class="va">latitude</span>, fill <span class="op">=</span> <span class="va">pred_op_temp</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_raster</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<p>We can plot this prediction using regular <code>ggplot</code>:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">prediction_237</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">mod</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">6</span><span class="op">*</span><span class="fl">60</span>,<span class="fl">21</span><span class="op">*</span><span class="fl">60</span>,by <span class="op">=</span> <span class="fl">60</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, fill <span class="op">=</span> <span class="va">pred_op_temp</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_raster</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">scale_fill_viridis</span><span class="op">(</span>option <span class="op">=</span> <span class="st">"magma"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">mod</span><span class="op">/</span><span class="fl">60</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>, axis.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>        legend.position <span class="op">=</span> <span class="st">"top"</span>,strip.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guides.html" class="external-link">guides</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_colourbar.html" class="external-link">guide_colorbar</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Predicted Operative Temperature (C)"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="predict_thermal_landscapes_files/figure-html/unnamed-chunk-13-1.png" width="768" style="display: block; margin: auto;"></p>
-<p>The plot above And when combined into a single image using tools from
-the <a href="https://gganimate.com/" class="external-link"><code>gganimate</code></a>
-package:</p>
-<p><img src="images%2Fdynamic_thermal_landscape.gif" width="60%" style="display: block; margin: auto;"></p>
-<p>The <code>predict_thermal_landscape</code> function has unlimited
-power to provide complete thermal landscape predictions at an
-unprecedented level of detail.</p>
-<p>If you want to see the entire <code>throne</code> pipeline in action,
-next we present a case study exemplifying how to implement the
+<span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">mod</span><span class="op">/</span><span class="fl">60</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_void</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span></span>
+<span>    legend.position <span class="op">=</span> <span class="st">"top"</span>,</span>
+<span>    strip.text <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">guides</span><span class="op">(</span>fill <span class="op">=</span> <span class="fu">guide_colorbar</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Predicted Operative Temperature (C)"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="predict_thermal_landscapes_files/figure-html/plot%20resoluts%20of%20predicting%20thermal%20landscape-1.png" width="768" style="display: block; margin: auto;"></p>
+<p>The <code>predict_thermal_landscape</code> function has <a href="https://www.youtube.com/watch?v=SWwFogRQVnk" class="external-link">unlimited power</a>
+to provide complete thermal landscape predictions at an unprecedented
+level of detail. To showcase the entire <code>throne</code> pipeline in
+action, next we present a case study exemplifying how to implement the
 method.</p>
 <nav aria-label="Page navigation"><ul class="pagination justify-content-end">
 <li class="page-item">
@@ -384,6 +376,7 @@ flights data</a>
 <a class="page-link" href="example.html">Next: A worked out example</a>
 </li>
 </ul></nav>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

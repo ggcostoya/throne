@@ -8,15 +8,15 @@
 <title>Collect and process thermal images • throne</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Collect and process thermal images">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">throne</a>
 
@@ -74,6 +74,11 @@
 
     
     
+<style>
+p.caption {
+  font-size: 0.9em;
+}
+</style>
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
@@ -87,8 +92,8 @@ a photogrammetry software to obtain a thermal orthomosaic of a flight
 how to perform each of these steps and we include links to recommended
 drones, software and tutorials to complement them.</p>
 <div class="figure" style="text-align: center">
-<img src="images%2Fdrone_setup_workflow.png" alt="Figure 1. Part of the workflow covered in this vignette" width="80%"><p class="caption">
-Figure 1. Part of the workflow covered in this vignette
+<img src="images%2Fdrone_setup_workflow.png" alt="Part of the workflow covered in this vignette" width="100%"><p class="caption">
+Part of the workflow covered in this vignette
 </p>
 </div>
 </div>
@@ -196,11 +201,11 @@ sections) It’s generally a good idea to extend the flight mission area
 to exceed the study site’s boundaries by a few meters to compensate for
 this difference.</p>
 <div class="figure" style="text-align: center">
-<img src="images%2Fdrone_setup_thermal_overlap.png" alt="Figure 2. The field of view is typically smaller for thermal cameras compared to visual cameras. This overlay - while not perfect - aims to show the difference between a visual and thermal photo taken right after one another, to illustrate the difference in the area covered" width="80%"><p class="caption">
-Figure 2. The field of view is typically smaller for thermal cameras
-compared to visual cameras. This overlay - while not perfect - aims to
-show the difference between a visual and thermal photo taken right after
-one another, to illustrate the difference in the area covered
+<img src="images%2Fdrone_setup_thermal_overlap.png" alt="The field of view is typically smaller for thermal cameras compared to visual cameras. This overlay - while not perfect - aims to show the difference between a visual and thermal photo taken right after one another, to illustrate the difference in the area covered" width="80%"><p class="caption">
+The field of view is typically smaller for thermal cameras compared to
+visual cameras. This overlay - while not perfect - aims to show the
+difference between a visual and thermal photo taken right after one
+another, to illustrate the difference in the area covered
 </p>
 </div>
 <p>A final very important factor to consider are the potential
@@ -231,9 +236,9 @@ recommend a higher-end handheld GNSS system, such as those developed by
 For more information on GCPs, PIX4D has a <a href="https://www.pix4d.com/blog/GCP-accuracy-drone-maps/" class="external-link">great
 article</a> on how they correlate with the accuracy of drone maps.</p>
 <div class="figure" style="text-align: center">
-<img src="images%2Fdrone_setup_gcp_nadir.png" alt="Figure 3. When using ground control points (GCPs) for missims, it is important that they are visible across all flights" width="80%"><p class="caption">
-Figure 3. When using ground control points (GCPs) for missims, it is
-important that they are visible across all flights
+<img src="images%2Fdrone_setup_gcp_nadir.png" alt="When using ground control points (GCPs) for missions, it is important that they are visible across all flights" width="80%"><p class="caption">
+When using ground control points (GCPs) for missions, it is important
+that they are visible across all flights
 </p>
 </div>
 </div>
@@ -304,8 +309,8 @@ under “Processing options”. Note that the default is to use
 <strong>all</strong> the PC’s available resources.</p></li>
 </ol>
 <div class="figure" style="text-align: center">
-<img src="images%2Fdrone_setup_pix4D.gif" alt="Figure 4. How to create and start processing a project in Pix4Dmapper" width="80%"><p class="caption">
-Figure 4. How to create and start processing a project in Pix4Dmapper
+<img src="images%2Fdrone_setup_pix4D.gif" alt="How to create and start processing a project in Pix4Dmapper" width="80%"><p class="caption">
+How to create and start processing a project in Pix4Dmapper
 </p>
 </div>
 <div class="section level3">
@@ -339,10 +344,10 @@ Manager”. Finish by clicking “Rematch and Optimize”, under the “Process�
 drop down menu.</p></li>
 </ul>
 <div class="figure" style="text-align: center">
-<img src="images%2Fdrone_setup_gcp_example.png" alt="Figure 5. Ground control points (GCPs) will show as blue/green markers in the rayCloud editor once they have been loaded and optimized with the point cloud" width="80%"><p class="caption">
-Figure 5. Ground control points (GCPs) will show as blue/green markers
-in the rayCloud editor once they have been loaded and optimized with the
-point cloud
+<img src="images%2Fdrone_setup_gcp_example.png" alt="Ground control points (GCPs) will show as blue/green markers in the rayCloud editor once they have been loaded and optimized with the point cloud" width="80%"><p class="caption">
+Ground control points (GCPs) will show as blue/green markers in the
+rayCloud editor once they have been loaded and optimized with the point
+cloud
 </p>
 </div>
 <p>PIX4D will automatically create sub folders for each processing step
