@@ -6,7 +6,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary" data-bs-theme="dark"><div class="container">
+    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light" data-bs-theme="light"><div class="container">
     
     <a class="navbar-brand me-2" href="../index.html">throne</a>
 
@@ -88,14 +88,12 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>flights_data</dt>
-<dd><p>A <code>tibble</code> of flights data obtained through the <code>rnp_flights_data</code>
-function. The <code>tibble</code> must contain columns for `longitude` and `latitude`.</p></dd>
+<dd><p>A data frame of flights data obtained through the <code>rnp_flights_data</code>
+function.</p></dd>
 
 
 <dt>otm_splines</dt>
-<dd><p>A nested <code>tibble</code> obtained using the <code>gen_otm_splines</code> function.
-The <code>tibble</code> must contain columns for <code>longitude</code> and <code>latitude</code> and all values
-must also be in the <code>flights_data</code></p></dd>
+<dd><p>A nested <code>tibble</code> obtained using the <code>gen_otm_splines</code> function.</p></dd>
 
 
 <dt>time_correction</dt>
@@ -104,17 +102,21 @@ indicating whether first correction step should be applied. If set to <code>TRUE
 the function will add the mean, median or mode (based on <code>time_correction_metric</code>,
 see below) bias between all surface and operative temperatures in tiles where
 OTMs were present to all surface temperature measurements within a flight.
-The goal of applying a time correction is to account for time-specific systematic
- biases between operative and surface temperatures which may be a by product of the
-inherent nature of thermal imaging (e.g., measurements being influenced by
-light conditions, sensor calibration. etc.). We recommend that
-<code>time_correction = TRUE</code> if <code>flight_specific_correction = FALSE</code>.</p></dd>
+The goal of applying a time correction is to account for day and time-specific
+systematic biases between operative and surface temperatures which may be a
+by product of the inherent nature of thermal imaging (e.g., measurements being
+influenced by light conditions, sensor calibration. etc.).
+<code>time_correction = TRUE</code> if <code>flight_specific_correction = FALSE</code> is
+recommended.</p></dd>
 
 
 <dt>time_correction_metric</dt>
 <dd><p>A character string indicating the metric to be
 used to perform the time correction. The metric can be either <code>"mean"</code>,
-<code>"median"</code> or <code>"mode"</code>.</p></dd>
+<code>"median"</code> or <code>"mode"</code>.For most cases, <code>"mean"</code> is recommended
+but <code>"median"</code> could be used if outliers are detected. To evaluate
+the best method, use the function <code>eval_flights_correction</code> also
+included in <code>throne</code>.</p></dd>
 
 
 <dt>flight_specific_correction</dt>
@@ -131,8 +133,9 @@ into the linear model from which the correction will be performed.</p></dd>
 
 <p>A processed <code>flights_data</code></p>
 <p></p>
-<p><code>tibble</code> where IR-measured temperatures (<code>ir_temp</code>)
-   has been corrected to operative temperatures (<code>op_temp</code>).</p>
+<p><code>tibble</code> where IR-measured surface
+   temperatures (<code>surf_temp</code>) has been corrected to operative
+   temperatures (<code>op_temp</code>).</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

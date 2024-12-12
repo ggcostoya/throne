@@ -45,47 +45,6 @@
 
 "flights_data"
 
-### * elevation
-
-#' Elevation profile of the area where we conducted the project at a spatial
-#' resolution of ~ 1m^2
-#'
-#' @format A \code{tibble} with 8170 rows and 3 columns, all numeric:
-#'\describe{
-#'  \item{longitude}{Longitude in decimal degrees}
-#'  \item{latitude}{Latitude in decimal degrees}
-#'  \item{elevation}{Elevation in meters}
-#' }
-#'
-#'@examples
-#'elevation
-
-"elevation"
-
-### * bad read OTM
-
-#' OTM raw data file read incorrectly
-#'
-#' Example used in the vignettes of the package to illustrate what happens when
-#' a raw OTM file is read incorrectly.
-#'
-#'@examples
-#'head(bad_read_otm)
-
-"bad_read_otm"
-
-### * good read OTM
-
-#' OTM raw data file read correctly
-#'
-#' Example used in the vignettes of the package to illustrate what happens when
-#' a raw OTM file is read correctly
-#'
-#'@examples
-#'head(good_read_otm)
-
-"good_read_otm"
-
 ### * OTMs metadata
 
 #' Metadata for example OTMs
@@ -139,98 +98,35 @@
 
 "otms_data"
 
-### * OTMs splines
+### * Matches
 
-#' Example OTM splines nested data
+#' Example matches data
 #'
-#' A nested \code{tibble} with smoothing splines models for each OTM during each
-#' day while deployed in the field to validate the methodology of this package.
-#' Each row corresponds to a unique OTM and day of the year combination. The data
-#' set contains metadata information on the deployment of the OTMs. This data set
-#' was generated from the data set \code{otms_data} using the \code{gen_otm_splines}
-#' function specifying \code{knot_p = 4}.
+#' A \code{data.frame} indicating the OTM that best described the dynamics of a
+#' given tile. This data was generated using the \code{match_data} function using
+#' a flights data set processed using \code{rnp_flights_data} with a spatial resolution
+#' of 1 m2 (the \code{flights_data} object included in \code{throne}), an OTM splines
+#' \code{tibble} generated using \code{gen_otm_splines} setting the
+#' \code{knot_p = 0.02} built from the \code{otms_data} data set
+#' that is also included in \code{throne}, and by setting \code{error_max = 100}
+#' and \code{coverage_per = 0.9}.
 #'
-#' @format A \code{tibble} of 132 rows and 9 columns:
+#' @format A \code{data.frame} of 6236 rows and 5 columns
 #' \describe{
-#' \item{otm_id}{Character column with a unique identifier for each OTM}
-#' \item{year}{A numeric column indicating year}
-#' \item{doy}{A numeric column indicating day of the year}
-#' \item{microhabitat}{Character column describing the microhabitat where the OTM was deployed,
-#'  between \code{"outrcrop"}, \code{"small_rock"}, \code{"rock"},
-#'  \code{"boulder"}, \code{"ground"}, and \code{"bush"}}
-#' \item{orientation}{Character column describing the orientation at which the OTM was deployed,
-#'  between \code{"N"}, \code{"NE"}, \code{"E"}, \code{"SE"}, \code{"S"}, \code{"SW"},
-#'  \code{"W"}, \code{"NW"} and \code{"Flat"}}
-#' \item{latitude}{Latitude where the OTM was deployed in decimal degrees}
-#' \item{longitude}{Longitude where the OTM was deployed in decimal degrees}
-#' \item{elevation}{Elevation where the OTM was deployed in meters}
-#' \item{spline}{A nested column containing the smoothing spline model}
-#' }
-#'
-#' @examples
-#'
-#' otms_splines
-#'
-#' # when unnesting a spline model
-#' otms_splines$spline[[2]]
-
-"otms_splines"
-
-### * Matches 5
-
-#' Matches data with \code{error_max = 5}
-#'
-#' A \code{tibble} indicating the OTM that best describe the dynamics of a given tile
-#' assuming a \code{error_max = 5} and a \code{coverage_per = 0.9} (i.e., default settings).
-#' The \code{flights_data} used to perform the matching was corrected using t
-#' he \code{correct_flights_data} function specifying that both a time and a flight-specific
-#' temperature correction should be performed.
-#'
-#' @format A \code{tibble} of 6386 rows and 4 columns
-#' \describe{
-#' \item{latitude}{A numeric column indicating latitude of a tile}
-#' \item{longitude}{A numeric column indicating longitude of a tile}
-#' \item{coverage}{The percentage of flights in which that tile was coverged}
-#' \item{error}{A numeric column indicating the average absolute error between the thermal dynamics of a tile and the OTM that best described it}
-#' \item{otm_id}{A character column indicating the OTM that best describe the dynamics of a tile,
-#'  a value of \code{NA} indicates that that tile could not be matched with any OTM with an
-#'  \code{error < error_max}}
-#' }
-#'
-#' @examples
-#' matches_5
-
-"matches_5"
-
-### * Matches 100
-
-#' Matches data with \code{error_max = 100}
-#'
-#' A \code{tibble} indicating the OTM that best describe the dynamics of a given tile
-#' assuming a \code{error_max = 100} and a \code{coverage_per = 0.9} (i.e., default settings).The increased \code{error_max}
-#' is for visualization purposes (i.e., so no empty tiles appear in the plots presented
-#' in the documentation vignettes).The \code{flights_data} used to perform
-#' the matching was corrected using the \code{correct_flights_data} function
-#' specifying that both a time and a flight-specific temperature correction
-#' should be performed.
-#'
-#' @format A \code{tibble} of 6386 rows and 4 columns
-#' \describe{
-#' \item{latitude}{A numeric column indicating latitude of a tile}
-#' \item{longitude}{A numeric column indicating longitude of a tile}
+#' \item{x}{A numeric column indicating the horizontal UTM coordinate}
+#' \item{y}{A numeric column indicating the vertical UTM coordinate}
 #' \item{otm_id}{A character column indicating the OTM that best describe the dynamics of a tile,
 #'  a value of \code{NA} indicates that that tile could not be matched with any OTM with an
 #'  \code{error < error_max}}
 #' \item{error}{A numeric column indicating the average absolute error between the
 #' thermal dynamics of a tile and the OTM that best described it}
+#' \item{coverage}{A numeric column indicating the coverage of a tile across all flights}
 #' }
 #'
 #' @examples
-#' matches_100
+#' matches
 
-"matches_100"
-
-
+"matches"
 
 
 

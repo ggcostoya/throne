@@ -22,7 +22,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary" data-bs-theme="dark"><div class="container">
+    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light" data-bs-theme="light"><div class="container">
     
     <a class="navbar-brand me-2" href="../index.html">throne</a>
 
@@ -102,210 +102,176 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>In this vignette, our aim is to illustrate how to correct temperature
+<p>The goal of this vignette is to illustrate how to correct temperature
 data obtained using thermal photogrammetry. By correcting, we are
-referring to the process of transforming the temperature measurements
-made via the IR cameras mounted into the drone into <strong>operative
-temperatures</strong> as measured using an <strong>operative temperature
-model</strong> (OTM). Below we highlight the section of the package’s
-workflow that is covered in this vignette:</p>
-<p><img src="images/correct_flights_data_workflow.png" width="80%" style="display: block; margin: auto;"></p>
+referring to the process of transforming the surface temperature
+measurements made via the IR cameras mounted on a drone into
+<strong>operative temperatures</strong> as measured using an
+<strong>operative temperature model</strong> (OTM). Below we highlight
+the section of the package’s workflow that is covered in this
+vignette:</p>
+<p><img src="images/correct_flights_data_workflow.png" width="100%" style="display: block; margin: auto;"></p>
 <p>The need for this correction stems from the fundamental difference
 between temperature estimates made using an IR camera and an OTM. This
 is because the IR camera measurement is influenced by a wide range of
 factors including the object’s emissivity, the conditions in which the
 image is taken (ambient temperature, amount of light etc. see <a href="https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13563" class="external-link">Playà-Montmany
 &amp; Tattersall 2021</a> for further details).</p>
-<p>In contrast, OTMs are designed to record temperature measurements
-that match the internal body temperature of the organism as closely as
-possible. This is achieved by enclosing a temperature logger (e.g., an
-iButton) inside of a structure of a similar size and with similar
-surface and overall thermal properties to the the organism of interest.
-This methodology has been used extensively in the field of thermal
-ecology and recent advances have minimized the costs of production and
-maximized the accuracy of OTMs (see our past work in <a href="https://www.sciencedirect.com/science/article/pii/S0306456523003030%5D" class="external-link">Alujević
+<p>In contrast, OTMs are designed to match the internal body temperature
+of an organism as closely as possible. This is achieved by enclosing a
+temperature logger inside of a structure of a similar size, surface and
+overall thermal properties to the the organism of interest. This
+methodology has been used extensively in the field of thermal ecology
+and recent advances have minimized the costs of production and maximized
+the accuracy of OTMs (see <a href="https://www.sciencedirect.com/science/article/pii/S0306456523003030%5D" class="external-link">Alujević
 et al. 2024</a>).</p>
 <p>Due to the above, the IR camera of the drone and the OTM will
-ultimately record fundamentally different temperature metrics. For the
-thermal measurements estimated using the drone to be truly
-representative of what the organism is experiencing, they must be
-corrected such that they instead describe operative temperatures.</p>
+ultimately record fundamentally different temperature values For the
+thermal measurements estimated using the drone to be representative of
+what the organism is experiencing, they must be corrected such that they
+instead describe operative temperatures.</p>
 </div>
 <div class="section level2">
-<h2 id="the-correct_flights_data-function">The <code>correct_flights_data</code> function<a class="anchor" aria-label="anchor" href="#the-correct_flights_data-function"></a>
+<h2 id="correcting-flights-data">Correcting flights data<a class="anchor" aria-label="anchor" href="#correcting-flights-data"></a>
 </h2>
-<p>To transform temperature measurements obtained using a drone-mounted
-IR camera into operative temperature measurements, the
+<p>To transform surface temperature measurements obtained using a
+drone-mounted IR camera into operative temperature measurements, the
 <code>throne</code> package includes the
 <code>correct_flights_data</code> function. This function will correct
 the IR temperature measurements obtained during a flight into operative
-temperature measurements.</p>
+temperature measurements. Next, we present the inputs, processes and
+outputs of the correct flights data function.</p>
 <div class="section level3">
 <h3 id="inputs">Inputs<a class="anchor" aria-label="anchor" href="#inputs"></a>
 </h3>
 <p>To perform such correction, the function will take 2 inputs:</p>
 <ol style="list-style-type: decimal">
-<li>A <code>flights_data</code> <code>tibble</code> obtained through the
-<code>rnp_flights_data</code> function like the one below:</li>
+<li><p>A <code>flights_data</code> <code>data.frame</code> obtained
+through the <code>rnp_flights_data</code>.</p></li>
+<li><p>An <code>otm_splines</code> nested <code>tibble</code> obtained
+through the <code>gen_otm_splines</code> function.</p></li>
 </ol>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">flights_data</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 263,008 × 7</span></span></span>
-<span><span class="co">##    longitude latitude ir_temp  year   doy mod_start mod_end</span></span>
-<span><span class="co">##        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>     -<span style="color: #BB0000;">120.</span>     39.9    12.5  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>     -<span style="color: #BB0000;">120.</span>     39.9    14.4  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>     -<span style="color: #BB0000;">120.</span>     39.9    14.0  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>     -<span style="color: #BB0000;">120.</span>     39.9    13.7  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>     -<span style="color: #BB0000;">120.</span>     39.9    14.6  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>     -<span style="color: #BB0000;">120.</span>     39.9    15.3  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>     -<span style="color: #BB0000;">120.</span>     39.9    14.5  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>     -<span style="color: #BB0000;">120.</span>     39.9    14.5  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>     -<span style="color: #BB0000;">120.</span>     39.9    13.9  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span>     -<span style="color: #BB0000;">120.</span>     39.9    13.9  <span style="text-decoration: underline;">2</span>023   236       515     519</span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 262,998 more rows</span></span></span></code></pre>
-<ol start="2" style="list-style-type: decimal">
-<li>An <code>otm_splines</code> nested <code>tibble</code> obtained
-through the <code>gen_otm_splines</code> function like the one seen
-below:</li>
-</ol>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">otms_splines</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 132 × 9</span></span></span>
-<span><span class="co">##    otm_id  year   doy microhabitat orientation latitude longitude elevation</span></span>
-<span><span class="co">##    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span> OTM01   <span style="text-decoration: underline;">2</span>023   236 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span> OTM01   <span style="text-decoration: underline;">2</span>023   237 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span> OTM01   <span style="text-decoration: underline;">2</span>023   238 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span> OTM01   <span style="text-decoration: underline;">2</span>023   239 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span> OTM02   <span style="text-decoration: underline;">2</span>023   236 outcrop      W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span> OTM02   <span style="text-decoration: underline;">2</span>023   237 outcrop      W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span> OTM02   <span style="text-decoration: underline;">2</span>023   238 outcrop      W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span> OTM02   <span style="text-decoration: underline;">2</span>023   239 outcrop      W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span> OTM03   <span style="text-decoration: underline;">2</span>023   236 rock         W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>317.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span> OTM03   <span style="text-decoration: underline;">2</span>023   237 rock         W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>317.</span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 122 more rows</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 1 more variable: spline &lt;list&gt;</span></span></span></code></pre>
-<p>Both data sets contain <code>latitude</code> and
-<code>longitude</code> information. This is a crucial step for the
-correction process, as the first task will be to filter the
-<code>flights_data</code> to contain only tiles (i.e., unique
-<code>latitude</code> and <code>longitude</code> combinations) where
-OTMs were actually deployed.</p>
+<p>Both data sets contain positional information (<code>x</code> and
+<code>y</code> UTM coordinates), which will be crucial to perform the
+correction.</p>
 </div>
 <div class="section level3">
-<h3 id="obtaining-correction-data-and-the-eval_flights_correction-function">Obtaining correction data and the
-<code>eval_flights_correction</code> function<a class="anchor" aria-label="anchor" href="#obtaining-correction-data-and-the-eval_flights_correction-function"></a>
+<h3 id="processes">Processes<a class="anchor" aria-label="anchor" href="#processes"></a>
 </h3>
-<p>Once these tiles are filtered, the function will use the day and OTM
-specific spline models to estimate the temperature of each OTM at the
-exact <code>year</code>, day of the year (<code>doy</code>) and minute
-of the day (<code>mod</code>) at which each of the flights took place.
-The result will be a <code>tibble</code> where each unique
-<code>latitude</code> &amp; <code>longitude</code> in each unique
-<code>year</code>, <code>doy</code> and <code>mod</code> has an IR
-temperature measurement (<code>ir_temp</code>, from the drone)
-associated with an operative temperature measurement
-(<code>op_temp</code>, from the OTM). The <code>throne</code> package
-also contains a function to obtain this data called
-<code>eval_flights_correction</code>.</p>
+<div class="section level4">
+<h4 id="obtaining-correction-data-and-the-eval_flights_correction-function">Obtaining correction data and the
+<code>eval_flights_correction</code> function<a class="anchor" aria-label="anchor" href="#obtaining-correction-data-and-the-eval_flights_correction-function"></a>
+</h4>
+<p>The first step when correcting flight data is to filter it to contain
+only tiles (i.e., unique <code>x</code> and <code>y</code> coordinate
+combinations) where OTMs were actually deployed. Once these tiles are
+filtered, the function will use the day and OTM specific spline models
+to estimate the temperature of each OTM at the exact <code>year</code>,
+day of the year (<code>doy</code>) and minute of the day
+(<code>mod</code>) at which each of the flights took place. The result
+will be a <code>data.frame</code> where each unique <code>x</code> &amp;
+<code>y</code> combination in each unique <code>year</code>,
+<code>doy</code> and <code>mod</code> has a surface temperature
+measurement (<code>surf_temp</code>, from the drone) associated with an
+operative temperature measurement (<code>op_temp</code>, from the OTM).
+The <code>throne</code> package also contains a function to obtain this
+data called <code>eval_flights_correction</code>.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># calculate OTM splines</span></span>
+<span><span class="va">otms_splines</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gen_otm_splines.html">gen_otm_splines</a></span><span class="op">(</span>otm_data <span class="op">=</span> <span class="va">otms_data</span>, knot_p <span class="op">=</span> <span class="fl">0.02</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## Generating OTM &amp; doy-specific spline models...</span></span></code></pre>
+<pre><code><span><span class="co">##   |                                                                              |                                                                      |   0%  |                                                                              |=                                                                     |   1%  |                                                                              |=                                                                     |   2%  |                                                                              |==                                                                    |   2%  |                                                                              |==                                                                    |   3%  |                                                                              |===                                                                   |   4%  |                                                                              |===                                                                   |   5%  |                                                                              |====                                                                  |   5%  |                                                                              |====                                                                  |   6%  |                                                                              |=====                                                                 |   7%  |                                                                              |=====                                                                 |   8%  |                                                                              |======                                                                |   8%  |                                                                              |======                                                                |   9%  |                                                                              |=======                                                               |  10%  |                                                                              |=======                                                               |  11%  |                                                                              |========                                                              |  11%  |                                                                              |=========                                                             |  12%  |                                                                              |=========                                                             |  13%  |                                                                              |==========                                                            |  14%  |                                                                              |==========                                                            |  15%  |                                                                              |===========                                                           |  15%  |                                                                              |===========                                                           |  16%  |                                                                              |============                                                          |  17%  |                                                                              |============                                                          |  18%  |                                                                              |=============                                                         |  18%  |                                                                              |=============                                                         |  19%  |                                                                              |==============                                                        |  20%  |                                                                              |==============                                                        |  21%  |                                                                              |===============                                                       |  21%  |                                                                              |===============                                                       |  22%  |                                                                              |================                                                      |  23%  |                                                                              |=================                                                     |  24%  |                                                                              |==================                                                    |  25%  |                                                                              |==================                                                    |  26%  |                                                                              |===================                                                   |  27%  |                                                                              |====================                                                  |  28%  |                                                                              |====================                                                  |  29%  |                                                                              |=====================                                                 |  30%  |                                                                              |=====================                                                 |  31%  |                                                                              |======================                                                |  31%  |                                                                              |======================                                                |  32%  |                                                                              |=======================                                               |  33%  |                                                                              |========================                                              |  34%  |                                                                              |=========================                                             |  35%  |                                                                              |=========================                                             |  36%  |                                                                              |==========================                                            |  37%  |                                                                              |===========================                                           |  38%  |                                                                              |===========================                                           |  39%  |                                                                              |============================                                          |  40%  |                                                                              |=============================                                         |  41%  |                                                                              |=============================                                         |  42%  |                                                                              |==============================                                        |  43%  |                                                                              |==============================                                        |  44%  |                                                                              |===============================                                       |  44%  |                                                                              |================================                                      |  45%  |                                                                              |================================                                      |  46%  |                                                                              |=================================                                     |  47%  |                                                                              |==================================                                    |  48%  |                                                                              |==================================                                    |  49%  |                                                                              |===================================                                   |  50%  |                                                                              |====================================                                  |  51%  |                                                                              |====================================                                  |  52%  |                                                                              |=====================================                                 |  53%  |                                                                              |======================================                                |  54%  |                                                                              |======================================                                |  55%  |                                                                              |=======================================                               |  56%  |                                                                              |========================================                              |  56%  |                                                                              |========================================                              |  57%  |                                                                              |=========================================                             |  58%  |                                                                              |=========================================                             |  59%  |                                                                              |==========================================                            |  60%  |                                                                              |===========================================                           |  61%  |                                                                              |===========================================                           |  62%  |                                                                              |============================================                          |  63%  |                                                                              |=============================================                         |  64%  |                                                                              |=============================================                         |  65%  |                                                                              |==============================================                        |  66%  |                                                                              |===============================================                       |  67%  |                                                                              |================================================                      |  68%  |                                                                              |================================================                      |  69%  |                                                                              |=================================================                     |  69%  |                                                                              |=================================================                     |  70%  |                                                                              |==================================================                    |  71%  |                                                                              |==================================================                    |  72%  |                                                                              |===================================================                   |  73%  |                                                                              |====================================================                  |  74%  |                                                                              |====================================================                  |  75%  |                                                                              |=====================================================                 |  76%  |                                                                              |======================================================                |  77%  |                                                                              |=======================================================               |  78%  |                                                                              |=======================================================               |  79%  |                                                                              |========================================================              |  79%  |                                                                              |========================================================              |  80%  |                                                                              |=========================================================             |  81%  |                                                                              |=========================================================             |  82%  |                                                                              |==========================================================            |  82%  |                                                                              |==========================================================            |  83%  |                                                                              |===========================================================           |  84%  |                                                                              |===========================================================           |  85%  |                                                                              |============================================================          |  85%  |                                                                              |============================================================          |  86%  |                                                                              |=============================================================         |  87%  |                                                                              |=============================================================         |  88%  |                                                                              |==============================================================        |  89%  |                                                                              |===============================================================       |  89%  |                                                                              |===============================================================       |  90%  |                                                                              |================================================================      |  91%  |                                                                              |================================================================      |  92%  |                                                                              |=================================================================     |  92%  |                                                                              |=================================================================     |  93%  |                                                                              |==================================================================    |  94%  |                                                                              |==================================================================    |  95%  |                                                                              |===================================================================   |  95%  |                                                                              |===================================================================   |  96%  |                                                                              |====================================================================  |  97%  |                                                                              |====================================================================  |  98%  |                                                                              |===================================================================== |  98%  |                                                                              |===================================================================== |  99%  |                                                                              |======================================================================| 100%</span></span></code></pre>
+<pre><code><span><span class="co">## Spline generation complete</span></span></code></pre>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">as_tibble</span><span class="op">(</span><span class="fu"><a href="../reference/eval_flights_correction.html">eval_flights_correction</a></span><span class="op">(</span><span class="va">flights_data</span>, <span class="va">otms_splines</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 1,114 × 8</span></span></span>
-<span><span class="co">##    latitude longitude  year   doy mod_start mod_end ir_temp op_temp</span></span>
-<span><span class="co">##       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    25.4    30.0</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    20.5    26.8</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    27.8    30.3</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    21.3    28.3</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    28.0    33.8</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    20.4    19.7</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    19.1    21.3</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    22.9    28.5</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    22.1    28.2</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span>     39.9     -<span style="color: #BB0000;">120.</span>  <span style="text-decoration: underline;">2</span>023   236       515     519    19.9    30.5</span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 1,104 more rows</span></span></span></code></pre>
+<code class="sourceCode R"><span><span class="co"># evaluate flights correction</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/eval_flights_correction.html">eval_flights_correction</a></span><span class="op">(</span><span class="va">flights_data</span>, <span class="va">otms_splines</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##        x       y year doy mod_start mod_end surf_temp  op_temp</span></span>
+<span><span class="co">## 1 275285 4416482 2023 236       515     519  20.36518 19.57843</span></span>
+<span><span class="co">## 2 275285 4416485 2023 236       515     519  21.53136 31.43599</span></span>
+<span><span class="co">## 3 275285 4416491 2023 236       515     519  17.11944 17.67412</span></span>
+<span><span class="co">## 4 275286 4416495 2023 236       515     519  21.85653 23.97190</span></span>
+<span><span class="co">## 5 275287 4416498 2023 236       515     519  23.37091 31.99681</span></span>
+<span><span class="co">## 6 275288 4416486 2023 236       515     519  25.09869 21.50428</span></span></code></pre>
 <blockquote>
-<p>The <code>tibble</code> above contains the <code>mod_start</code> and
-<code>mod_end</code> columns. These are the <code>mod</code> when the
-flight started and when the flight ended. In the example data, all
+<p>The <code>data.frame</code> above contains the <code>mod_start</code>
+and <code>mod_end</code> columns. These are the <code>mod</code> when
+the flight started and when the flight ended. In the example data, all
 flights were relatively fast (~ 4 minutes) but to cover larger areas
 flights are going to be longer. In that case, the predicted operative
 temperature (<code>op_temp</code>) for that OTM on that tile is the
 average temperature for the duration of the flight.</p>
 </blockquote>
 <p>Using this data we can visualize the need for a correction:</p>
-<p><img src="correct_flights_data_files/figure-html/unnamed-chunk-6-1.png" width="700" style="display: block; margin: auto;"></p>
-<p>As shown above, there is a consistent bias between these two
-measurements, with IR temperatures being generally cooler than operative
-temperatures when both have high values and the opposite holding true
-when both have low values. Note that the line of best linear fit is
-substantially different from the gray line that indicates the ideal 1:1
-relationship. This can be easily appreciated when running a simple
-linear regression between <code>ir_temp</code> and
-<code>op_temp</code>.</p>
+<p><img src="correct_flights_data_files/figure-html/plot%20output%20of%20eval_flights_correction%20-1.png" width="576" style="display: block; margin: auto;"></p>
+<p>As shown above, there is a consistent bias between measurements, with
+IR temperatures being generally cooler than operative temperatures when
+both have high values and the opposite holding true when both have low
+values. Note that the line of best linear fit is substantially different
+from the dashed line that indicates the ideal 1:1 relationship. This can
+be appreciated when running a simple linear regression between
+<code>surf_temp</code> and <code>op_temp</code>.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># define correction data</span></span>
 <span><span class="va">correction_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/eval_flights_correction.html">eval_flights_correction</a></span><span class="op">(</span><span class="va">flights_data</span>, <span class="va">otms_splines</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># run linear model between surface and operative temperature</span></span>
-<span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">ir_temp</span> <span class="op">~</span> <span class="va">op_temp</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span></span>
+<span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">surf_temp</span> <span class="op">~</span> <span class="va">op_temp</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span></span></code></pre></div>
-<pre><code><span><span class="co">##              Estimate Std. Error   t value      Pr(&gt;|t|)</span></span>
-<span><span class="co">## (Intercept) 6.2269321 0.69055598  9.017273  8.243382e-19</span></span>
-<span><span class="co">## op_temp     0.7492493 0.01740325 43.052271 4.251867e-239</span></span></code></pre>
+<pre><code><span><span class="co">##               Estimate Std. Error   t value     Pr(&gt;|t|)</span></span>
+<span><span class="co">## (Intercept) 12.1501683 1.45271222  8.363782 1.685716e-15</span></span>
+<span><span class="co">## op_temp      0.6059729 0.03658133 16.565085 2.236395e-45</span></span></code></pre>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span><span class="op">$</span><span class="va">r.squared</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 0.6250208</span></span></code></pre>
+<pre><code><span><span class="co">## [1] 0.4517634</span></span></code></pre>
 <p>The <code>(Intercept)</code> and the slope (i.e., the
 <code>Estimate</code> of <code>op_temp</code> above) are
-<code>6.23</code> and <code>0.75</code> when, ideally, we would want
-them to be at <code>0</code> and <code>1</code> respectively. Further
-the <span class="math inline">\(R^2\)</span> (<code>R-squared</code> in
-the model’s output) of this relationship is <code>0.625</code>. For a
-good match between these two measurements we would also want the <span class="math inline">\(R^2\)</span> to be closer to <code>1</code>. To
-solve this <code>correct_flights_data</code> implements a two-step
-correction approach allowing users to correct the data as they see most
-appropriate for their system.</p>
+<code>12.15</code> and <code>0.6</code> when, ideally, they should be at
+<code>0</code> and <code>1</code> respectively. Further the <span class="math inline">\(R^2\)</span>of this relationship is
+<code>0.45</code>. For a good match between these two measurements we
+would also want the <span class="math inline">\(R^2\)</span> to be
+closer to <code>1</code>. To solve this
+<code>correct_flights_data</code> implements a two-step correction
+approach allowing users to correct the data as they see most appropriate
+for their system.</p>
 </div>
-<div class="section level3">
-<h3 id="time-correction">Time correction<a class="anchor" aria-label="anchor" href="#time-correction"></a>
-</h3>
+<div class="section level4">
+<h4 id="time-correction">Time correction<a class="anchor" aria-label="anchor" href="#time-correction"></a>
+</h4>
 <p>The first step will be to perform a time-specific correction. Because
 flights took place at different days and different <code>mod</code> both
 the environmental temperature and the light conditions where variable.
 This leads to consistent biases between between measurements (i.e.,
-<code>op_temp</code> - <code>ir_temp</code>) by time of the day (i.e.,
+<code>op_temp</code> - <code>surf_temp</code>) by time of the day (i.e.,
 <code>mod</code>):</p>
-<p><img src="correct_flights_data_files/figure-html/unnamed-chunk-8-1.png" width="700" style="display: block; margin: auto;"></p>
-<p>Flights closer to the middle of the day (i.e., ~ 11:00 - 13:00 or
+<p><img src="correct_flights_data_files/figure-html/plot%20bias%20by%20time%20of%20day-1.png" width="576" style="display: block; margin: auto;"></p>
+<p>Flights closer to the middle of the day (i.e., 11:00 - 13:00 or
 <code>mod</code> 660 - 800) when light conditions are optimal tend to be
-less biased whereas flights earlier in the morning or the afternoon are
-more affected by it. Based on this, the first correction will 1)
+less biased, whereas flights earlier in the morning or the afternoon are
+more affected. Based on this, the first correction will 1)
 <strong>calculate the average bias for each flight</strong> and 2)
-<strong>add that bias to all <code>ir_temp</code> measurements of that
+<strong>add that bias to all <code>surf_temp</code> measurements of that
 flight</strong>. Once this is implemented the time-specific bias is
 removed:</p>
-<p><img src="correct_flights_data_files/figure-html/unnamed-chunk-9-1.png" width="700" style="display: block; margin: auto;"></p>
+<p><img src="correct_flights_data_files/figure-html/apply%20time%20correction%20factors%20and%20plot%20bias%20by%20mod%20after%20correction-1.png" width="576" style="display: block; margin: auto;"></p>
 <p>Once this correction is implemented the relationship between
-<code>ir_temp</code> and <code>op_temp</code> looks like:</p>
-<p><img src="correct_flights_data_files/figure-html/unnamed-chunk-10-1.png" width="700" style="display: block; margin: auto;"></p>
+<code>surf_temp</code> and <code>op_temp</code> looks like:</p>
+<p><img src="correct_flights_data_files/figure-html/plot%20surf_temp%20to%20op_temp%20after%20applying%20time%20correction-1.png" width="576" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># run linear model between time corrected ir temp and operative temp.</span></span>
-<span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">ir_temp_corr</span> <span class="op">~</span> <span class="va">op_temp</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span></span>
+<span><span class="va">mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">surf_temp_corr</span> <span class="op">~</span> <span class="va">op_temp</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span></span></code></pre></div>
-<pre><code><span><span class="co">##               Estimate Std. Error  t value      Pr(&gt;|t|)</span></span>
-<span><span class="co">## (Intercept) 12.1175358 0.56522749 21.43833  1.295979e-85</span></span>
-<span><span class="co">## op_temp      0.6894574 0.01424475 48.40082 5.562858e-276</span></span></code></pre>
+<pre><code><span><span class="co">##               Estimate Std. Error  t value     Pr(&gt;|t|)</span></span>
+<span><span class="co">## (Intercept) 16.0349437 1.13967755 14.06972 1.309373e-35</span></span>
+<span><span class="co">## op_temp      0.5899107 0.02869868 20.55532 3.345447e-61</span></span></code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span><span class="op">$</span><span class="va">r.squared</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 0.678114</span></span></code></pre>
+<pre><code><span><span class="co">## [1] 0.5592448</span></span></code></pre>
 <p>Although the model’s <code>Intercept</code> and slope have worsened
-(from <code>6.22</code> to <code>12.11</code> and from <code>0.74</code>
-to <code>0.69</code>) the <span class="math inline">\(R^2\)</span> of
-the model has improved (from <code>0.625</code> to <code>0.678</code>)
-as can be appreciated by the reduced amount of error around the line of
-best fit.</p>
+(from <code>12.15</code> to <code>16</code> and from <code>0.6</code> to
+<code>0.58</code>) the <span class="math inline">\(R^2\)</span> of the
+model has improved (from <code>0.45</code> to <code>0.56</code>) as can
+be appreciated by the reduced amount of error around the line of best
+fit.</p>
 <p>While we believe this first correction step is beneficial. We leave
 it up to the users to specify:</p>
 <ol style="list-style-type: decimal">
@@ -330,42 +296,41 @@ an example on how to run <code>eval_flights_correction</code> for
 diagnostic purposes:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">correction_data_summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/eval_flights_correction.html">eval_flights_correction</a></span><span class="op">(</span><span class="va">flights_data</span>, <span class="va">otms_splines</span>, summary <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] "Summary statistics of bias between op_temp and ir_temp provided"</span></span></code></pre>
+<pre><code><span><span class="co">## Summary statistics of bias between op_temp and surf_temp provided</span></span></code></pre>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">correction_data_summary</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 34 × 13</span></span></span>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 10 × 13</span></span></span>
 <span><span class="co">##     year   doy mod_start mod_end mean_bias median_bias mode_bias sd_bias</span></span>
 <span><span class="co">##    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>  <span style="text-decoration: underline;">2</span>023   236       515     519      5.24        6.32      6.3     3.52</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>  <span style="text-decoration: underline;">2</span>023   236       539     543      5.58        6.86      7.2     3.65</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>  <span style="text-decoration: underline;">2</span>023   236       559     563      5.69        5.78      8.5     6.48</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>  <span style="text-decoration: underline;">2</span>023   236       582     586      4.60        5.94      4.62    3.86</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>  <span style="text-decoration: underline;">2</span>023   236       606     610      1.05        2.20      4.1     4.18</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>  <span style="text-decoration: underline;">2</span>023   236       638     642      2.89        4.51      3.42    4.42</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>  <span style="text-decoration: underline;">2</span>023   236       657     661      2.58        1.93      5.6     3.66</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>  <span style="text-decoration: underline;">2</span>023   236       680     684      3.05        2.82      1.87    3.96</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>  <span style="text-decoration: underline;">2</span>023   236       700     704      2.05        2.03      6.3     3.99</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span>  <span style="text-decoration: underline;">2</span>023   236       720     724      3.01        3.33     -<span style="color: #BB0000;">4.4</span>     4.31</span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 24 more rows</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>  <span style="text-decoration: underline;">2</span>023   236       515     519     4.57        5.02      5.45     4.65</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>  <span style="text-decoration: underline;">2</span>023   236       638     642    -<span style="color: #BB0000;">0.441</span>       0.202    -<span style="color: #BB0000;">1.67</span>     4.69</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>  <span style="text-decoration: underline;">2</span>023   236       657     661     1.19        0.736    -<span style="color: #BB0000;">0.8</span>      4.66</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>  <span style="text-decoration: underline;">2</span>023   236       680     684     1.14        1.48      1.8      4.47</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>  <span style="text-decoration: underline;">2</span>023   236       741     745     8.49        7.79     10.8      4.37</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>  <span style="text-decoration: underline;">2</span>023   237       627     631     1.11        1.09      2.6      4.62</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>  <span style="text-decoration: underline;">2</span>023   237       649     653     1.22        1.24      0.133    4.76</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>  <span style="text-decoration: underline;">2</span>023   238       926     930     3.20        4.56      5.4      5.02</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>  <span style="text-decoration: underline;">2</span>023   238       976     980     6.30        6.04      5.77     5.52</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span>  <span style="text-decoration: underline;">2</span>023   238      <span style="text-decoration: underline;">1</span>051    <span style="text-decoration: underline;">1</span>055     5.99        5.89      6.62     3.93</span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 5 more variables: skewness_bias &lt;dbl&gt;, max_bias &lt;dbl&gt;, min_bias &lt;dbl&gt;,</span></span></span>
 <span><span class="co">## <span style="color: #949494;">#   max_abs_bias &lt;dbl&gt;, min_abs_bias &lt;dbl&gt;</span></span></span></code></pre>
 <p>Users can also use this summary statistics to visualize the bias
 within their flights. For instance, below is the mean, median, and mode
-of the bias for each of the flights in the example dataset together with
-the maximum and minimum bias observed:</p>
-<p><img src="correct_flights_data_files/figure-html/unnamed-chunk-13-1.png" width="700" style="display: block; margin: auto;"></p>
+of the bias for each of the flights in the example data set together
+with the maximum and minimum bias observed:</p>
+<p><img src="correct_flights_data_files/figure-html/plot%20bias%20by%20mod%20depending%20on%20metric-1.png" width="576" style="display: block; margin: auto;"></p>
 </div>
-<div class="section level3">
-<h3 id="flight-specific-correction">Flight-specific correction<a class="anchor" aria-label="anchor" href="#flight-specific-correction"></a>
-</h3>
-<p>From here, the <code>correct_flights_data</code> function will apply
-a second correction (provided that the user chooses to perform the first
+<div class="section level4">
+<h4 id="flight-specific-correction">Flight-specific correction<a class="anchor" aria-label="anchor" href="#flight-specific-correction"></a>
+</h4>
+<p>Next, the <code>correct_flights_data</code> function will apply a
+second correction (provided that the user chooses to perform the first
 correction by setting <code>time_correction = TRUE</code>). To achieve
 this the function will correct based on the temperature value itself.
 The function will use the estimates of the linear regression between
 surface and operative temperatures of tiles where OTMs where present and
 applying them to all surface temperatures measured within a flight. In
-essence, we ran a linear regression such that:</p>
+essence, the function runs a linear regression such that:</p>
 <p><span class="math display">\[IRT\sim\alpha + \beta OT\]</span> Where
 <span class="math inline">\(IRT\)</span> is the surface temperature
 (measured via an <strong>IR</strong> camera, thus the abbreviation),
@@ -391,50 +356,50 @@ show how each of the corrections influences the relationship between
 surface and operative temperatures:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># run linear model assuming no time correction or flight specific correction</span></span>
-<span><span class="va">mod1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">ir_temp</span> <span class="op">~</span> <span class="va">op_temp</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span></span>
+<span><span class="va">mod1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">surf_temp</span> <span class="op">~</span> <span class="va">op_temp</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod1</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span></span></code></pre></div>
-<pre><code><span><span class="co">##              Estimate Std. Error   t value      Pr(&gt;|t|)</span></span>
-<span><span class="co">## (Intercept) 6.2269321 0.69055598  9.017273  8.243382e-19</span></span>
-<span><span class="co">## op_temp     0.7492493 0.01740325 43.052271 4.251867e-239</span></span></code></pre>
+<pre><code><span><span class="co">##               Estimate Std. Error   t value     Pr(&gt;|t|)</span></span>
+<span><span class="co">## (Intercept) 12.1501683 1.45271222  8.363782 1.685716e-15</span></span>
+<span><span class="co">## op_temp      0.6059729 0.03658133 16.565085 2.236395e-45</span></span></code></pre>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod1</span><span class="op">)</span><span class="op">$</span><span class="va">r.squared</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 0.6250208</span></span></code></pre>
+<pre><code><span><span class="co">## [1] 0.4517634</span></span></code></pre>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># run model assuming no time correction but flight specific correction</span></span>
-<span><span class="va">mod2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">ir_temp</span> <span class="op">~</span> <span class="va">op_temp</span> <span class="op">+</span> <span class="va">doy</span> <span class="op">+</span> <span class="va">mod_start</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span></span>
+<span><span class="va">mod2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">surf_temp</span> <span class="op">~</span> <span class="va">op_temp</span> <span class="op">+</span> <span class="va">doy</span> <span class="op">+</span> <span class="va">mod_start</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod2</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span></span></code></pre></div>
-<pre><code><span><span class="co">##                  Estimate   Std. Error   t value      Pr(&gt;|t|)</span></span>
-<span><span class="co">## (Intercept) -1.980687e+02 71.336285836 -2.776549  5.586352e-03</span></span>
-<span><span class="co">## op_temp      7.399941e-01  0.017644657 41.938708 4.084481e-231</span></span>
-<span><span class="co">## doy          8.883942e-01  0.305773823  2.905397  3.740651e-03</span></span>
-<span><span class="co">## mod_start   -7.457464e-03  0.001419534 -5.253458  1.788637e-07</span></span></code></pre>
+<pre><code><span><span class="co">##                  Estimate   Std. Error   t value     Pr(&gt;|t|)</span></span>
+<span><span class="co">## (Intercept) -2.683225e+02 1.212445e+02 -2.213069 2.757467e-02</span></span>
+<span><span class="co">## op_temp      6.364703e-01 3.757752e-02 16.937531 8.784397e-47</span></span>
+<span><span class="co">## doy          1.209171e+00 5.189914e-01  2.329848 2.041510e-02</span></span>
+<span><span class="co">## mod_start   -9.446292e-03 2.767644e-03 -3.413117 7.219671e-04</span></span></code></pre>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod2</span><span class="op">)</span><span class="op">$</span><span class="va">r.squared</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 0.6379231</span></span></code></pre>
+<pre><code><span><span class="co">## [1] 0.4715391</span></span></code></pre>
 <p>These corrections can be applied on top of the time correction
 performed earlier:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># run linear model assuming time correction but no flight specific correction</span></span>
-<span><span class="va">mod3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">ir_temp_corr</span> <span class="op">~</span> <span class="va">op_temp</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span> <span class="co"># ir_temp_cor is the time-corrected temperature calculated earlier</span></span>
+<span><span class="va">mod3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">surf_temp_corr</span> <span class="op">~</span> <span class="va">op_temp</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod3</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span></span></code></pre></div>
-<pre><code><span><span class="co">##               Estimate Std. Error  t value      Pr(&gt;|t|)</span></span>
-<span><span class="co">## (Intercept) 12.1175358 0.56522749 21.43833  1.295979e-85</span></span>
-<span><span class="co">## op_temp      0.6894574 0.01424475 48.40082 5.562858e-276</span></span></code></pre>
+<pre><code><span><span class="co">##               Estimate Std. Error  t value     Pr(&gt;|t|)</span></span>
+<span><span class="co">## (Intercept) 16.0349437 1.13967755 14.06972 1.309373e-35</span></span>
+<span><span class="co">## op_temp      0.5899107 0.02869868 20.55532 3.345447e-61</span></span></code></pre>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod3</span><span class="op">)</span><span class="op">$</span><span class="va">r.squared</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 0.678114</span></span></code></pre>
+<pre><code><span><span class="co">## [1] 0.5592448</span></span></code></pre>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># run linear model assuming time correction but no flight specific correction</span></span>
-<span><span class="va">mod4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">ir_temp_corr</span> <span class="op">~</span> <span class="va">op_temp</span> <span class="op">+</span> <span class="va">doy</span> <span class="op">+</span> <span class="va">mod_start</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span> <span class="co"># ir_temp_cor is the time-corrected temperature calculated earlier</span></span>
+<code class="sourceCode R"><span><span class="co"># run linear model assuming time correction and flight specific correction</span></span>
+<span><span class="va">mod4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html" class="external-link">lm</a></span><span class="op">(</span><span class="va">surf_temp_corr</span> <span class="op">~</span> <span class="va">op_temp</span> <span class="op">+</span> <span class="va">doy</span> <span class="op">+</span> <span class="va">mod_start</span>, data <span class="op">=</span> <span class="va">correction_data</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod4</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span></span></code></pre></div>
-<pre><code><span><span class="co">##                  Estimate   Std. Error   t value      Pr(&gt;|t|)</span></span>
-<span><span class="co">## (Intercept) -3.094009e+02 58.619803524 -5.278095  1.569258e-07</span></span>
-<span><span class="co">## op_temp      6.700018e-01  0.014499302 46.209248 7.552478e-261</span></span>
-<span><span class="co">## doy          1.376918e+00  0.251266256  5.479915  5.263767e-08</span></span>
-<span><span class="co">## mod_start   -5.177925e-03  0.001166487 -4.438906  9.943402e-06</span></span></code></pre>
+<pre><code><span><span class="co">##                 Estimate  Std. Error    t value     Pr(&gt;|t|)</span></span>
+<span><span class="co">## (Intercept) 53.353422125 94.22805058  0.5662159 5.716307e-01</span></span>
+<span><span class="co">## op_temp      0.553774534  0.02920426 18.9621149 8.428119e-55</span></span>
+<span><span class="co">## doy         -0.170583405  0.40334649 -0.4229203 6.726281e-01</span></span>
+<span><span class="co">## mod_start    0.006013041  0.00215094  2.7955409 5.483729e-03</span></span></code></pre>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mod4</span><span class="op">)</span><span class="op">$</span><span class="va">r.squared</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 0.6867329</span></span></code></pre>
+<pre><code><span><span class="co">## [1] 0.5830597</span></span></code></pre>
 <p>As seen above, the <span class="math inline">\(R^2\)</span> value of
 the models increases when both time and flight specific corrections are
 applied. We can also visualize this:</p>
@@ -443,109 +408,107 @@ applied. We can also visualize this:</p>
 <span><span class="va">correction_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/eval_flights_correction.html">eval_flights_correction</a></span><span class="op">(</span><span class="va">flights_data</span>, <span class="va">otms_splines</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># get year, doy and mod correction factors</span></span>
-<span><span class="va">time_correction_factors</span> <span class="op">&lt;-</span> <span class="va">correction_data</span> <span class="op">%&gt;%</span>  <span class="fu">group_by</span><span class="op">(</span><span class="va">year</span>, <span class="va">doy</span>, <span class="va">mod_start</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
-<span>    <span class="fu">summarise</span><span class="op">(</span>time_corr_factor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">op_temp</span> <span class="op">-</span> <span class="va">ir_temp</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">time_correction_factors</span> <span class="op">&lt;-</span> <span class="va">correction_data</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">group_by</span><span class="op">(</span><span class="va">year</span>, <span class="va">doy</span>, <span class="va">mod_start</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">summarise</span><span class="op">(</span>time_corr_factor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">op_temp</span> <span class="op">-</span> <span class="va">surf_temp</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># merge date and time correction factors with correlation data</span></span>
-<span><span class="va">correction_data</span> <span class="op">&lt;-</span> <span class="fu">as_tibble</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge</a></span><span class="op">(</span><span class="va">correction_data</span>, <span class="va">time_correction_factors</span>,</span>
-<span>                                   by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year"</span>, <span class="st">"doy"</span>, <span class="st">"mod_start"</span><span class="op">)</span>, all <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">correction_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge</a></span><span class="op">(</span><span class="va">correction_data</span>, <span class="va">time_correction_factors</span>,</span>
+<span>                         by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"year"</span>, <span class="st">"doy"</span>, <span class="st">"mod_start"</span><span class="op">)</span>, all <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># apply time correction</span></span>
-<span><span class="va">correction_data</span><span class="op">$</span><span class="va">ir_temp_corr_time</span> <span class="op">&lt;-</span> <span class="va">correction_data</span><span class="op">$</span><span class="va">ir_temp</span> <span class="op">+</span> <span class="va">correction_data</span><span class="op">$</span><span class="va">time_corr_factor</span></span>
+<span><span class="va">correction_data</span><span class="op">$</span><span class="va">surf_temp_corr_time</span> <span class="op">&lt;-</span> <span class="va">correction_data</span><span class="op">$</span><span class="va">surf_temp</span> <span class="op">+</span> <span class="va">correction_data</span><span class="op">$</span><span class="va">time_corr_factor</span></span>
 <span></span>
 <span><span class="co"># apply corrections</span></span>
-<span><span class="va">correction_data</span> <span class="op">&lt;-</span> <span class="va">correction_data</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>ir_temp_corr_00 <span class="op">=</span> <span class="op">(</span><span class="va">ir_temp</span> <span class="op">-</span> <span class="va">mod1</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">/</span><span class="va">mod1</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
-<span>         ir_temp_corr_01 <span class="op">=</span> <span class="op">(</span><span class="va">ir_temp</span> <span class="op">-</span> <span class="va">mod2</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">mod2</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">*</span><span class="va">doy</span> <span class="op">-</span> <span class="va">mod2</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span><span class="op">*</span><span class="va">mod_start</span><span class="op">)</span> <span class="op">/</span> <span class="va">mod1</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
-<span>         ir_temp_corr_10 <span class="op">=</span> <span class="op">(</span><span class="va">ir_temp_corr_time</span> <span class="op">-</span> <span class="va">mod3</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">/</span><span class="va">mod3</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
-<span>         ir_temp_corr_11 <span class="op">=</span> <span class="op">(</span><span class="va">ir_temp_corr_time</span> <span class="op">-</span> <span class="va">mod4</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">mod4</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">*</span><span class="va">doy</span> <span class="op">-</span> <span class="va">mod4</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span><span class="op">*</span><span class="va">mod_start</span><span class="op">)</span> <span class="op">/</span> <span class="va">mod4</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">pivot_longer</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ir_temp</span>, <span class="va">ir_temp_corr_time</span>, <span class="va">ir_temp_corr_00</span>, <span class="va">ir_temp_corr_01</span>, <span class="va">ir_temp_corr_10</span>, <span class="va">ir_temp_corr_11</span><span class="op">)</span>, </span>
-<span>               names_to <span class="op">=</span> <span class="st">"correction"</span>, values_to <span class="op">=</span> <span class="st">"ir_temp_corr"</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>correction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">correction</span> <span class="op">==</span> <span class="st">"ir_temp"</span>, <span class="st">"0 - Uncorrected"</span>, <span class="va">correction</span><span class="op">)</span>,</span>
-<span>         correction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">correction</span> <span class="op">==</span> <span class="st">"ir_temp_corr_time"</span>, <span class="st">"1 - Time corrected"</span>, <span class="va">correction</span><span class="op">)</span>,</span>
+<span><span class="va">correction_data</span> <span class="op">&lt;-</span> <span class="va">correction_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>ir_temp_corr_00 <span class="op">=</span> <span class="op">(</span><span class="va">surf_temp</span> <span class="op">-</span> <span class="va">mod1</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">/</span><span class="va">mod1</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>         ir_temp_corr_01 <span class="op">=</span> <span class="op">(</span><span class="va">surf_temp</span> <span class="op">-</span> <span class="va">mod2</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">mod2</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">*</span><span class="va">doy</span> <span class="op">-</span> <span class="va">mod2</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span><span class="op">*</span><span class="va">mod_start</span><span class="op">)</span> <span class="op">/</span> <span class="va">mod1</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>         ir_temp_corr_10 <span class="op">=</span> <span class="op">(</span><span class="va">surf_temp_corr_time</span> <span class="op">-</span> <span class="va">mod3</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">/</span><span class="va">mod3</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>         ir_temp_corr_11 <span class="op">=</span> <span class="op">(</span><span class="va">surf_temp_corr_time</span> <span class="op">-</span> <span class="va">mod4</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">mod4</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">*</span><span class="va">doy</span> <span class="op">-</span> <span class="va">mod4</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span><span class="op">*</span><span class="va">mod_start</span><span class="op">)</span> <span class="op">/</span> <span class="va">mod4</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">pivot_longer</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">surf_temp</span>, <span class="va">surf_temp_corr_time</span>, <span class="va">ir_temp_corr_00</span>, <span class="va">ir_temp_corr_01</span>, <span class="va">ir_temp_corr_10</span>, <span class="va">ir_temp_corr_11</span><span class="op">)</span>, </span>
+<span>               names_to <span class="op">=</span> <span class="st">"correction"</span>, values_to <span class="op">=</span> <span class="st">"ir_temp_corr"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>correction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">correction</span> <span class="op">==</span> <span class="st">"surf_temp"</span>, <span class="st">"0 - Uncorrected"</span>, <span class="va">correction</span><span class="op">)</span>,</span>
+<span>         correction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">correction</span> <span class="op">==</span> <span class="st">"surf_temp_corr_time"</span>, <span class="st">"1 - Time corrected"</span>, <span class="va">correction</span><span class="op">)</span>,</span>
 <span>         correction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">correction</span> <span class="op">==</span> <span class="st">"ir_temp_corr_00"</span>, <span class="st">"2 - Temp. corrected"</span>, <span class="va">correction</span><span class="op">)</span>,</span>
 <span>         correction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">correction</span> <span class="op">==</span> <span class="st">"ir_temp_corr_01"</span>, <span class="st">"3 - Temp. corrected, FS"</span>, <span class="va">correction</span><span class="op">)</span>,</span>
 <span>         correction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">correction</span> <span class="op">==</span> <span class="st">"ir_temp_corr_10"</span>, <span class="st">"4 - Time &amp; Temp. corrected"</span>, <span class="va">correction</span><span class="op">)</span>,</span>
 <span>         correction <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">correction</span> <span class="op">==</span> <span class="st">"ir_temp_corr_11"</span>, <span class="st">"5 - Time &amp; Temp. corrected, FS"</span>, <span class="va">correction</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">correction_data</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">op_temp</span>, y <span class="op">=</span> <span class="va">ir_temp_corr</span>, col <span class="op">=</span> <span class="va">mod_start</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">2</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_abline</a></span><span class="op">(</span>intercept <span class="op">=</span> <span class="fl">0</span>, slope <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"gray"</span>, linewidth <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span>, col <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html" class="external-link">scale_color_gradient2</a></span><span class="op">(</span>low <span class="op">=</span> <span class="st">"black"</span>, mid <span class="op">=</span> <span class="st">"orange"</span>, high <span class="op">=</span> <span class="st">"darkblue"</span>,midpoint <span class="op">=</span> <span class="fl">12</span><span class="op">*</span><span class="fl">60</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Operative Temperature (°C)"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Surface Temperature (°C)"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="co">#scale_x_continuous(limits = c(10,65)) +</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">correction</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.line <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_line</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>        axis.ticks <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_line</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="st">"MOD"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="correct_flights_data_files/figure-html/unnamed-chunk-18-1.png" width="768" style="display: block; margin: auto;"></p>
+<span><span class="co"># plot different corrections</span></span>
+<span><span class="va">correction_data</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">op_temp</span>, y <span class="op">=</span> <span class="va">ir_temp_corr</span>, col <span class="op">=</span> <span class="va">mod_start</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_point</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">2</span>, alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_abline</span><span class="op">(</span>intercept <span class="op">=</span> <span class="fl">0</span>, slope <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"black"</span>, linewidth <span class="op">=</span> <span class="fl">1.25</span>, linetype <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_smooth</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"lm"</span>, col <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_color_gradient2</span><span class="op">(</span>low <span class="op">=</span> <span class="st">"black"</span>, mid <span class="op">=</span> <span class="st">"orange"</span>, high <span class="op">=</span> <span class="st">"darkblue"</span>,midpoint <span class="op">=</span> <span class="fl">12</span><span class="op">*</span><span class="fl">60</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">xlab</span><span class="op">(</span><span class="st">"Operative Temperature (°C)"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ylab</span><span class="op">(</span><span class="st">"Surface Temperature (°C)"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span><span class="va">correction</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span>colour <span class="op">=</span> <span class="st">"MOD"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="correct_flights_data_files/figure-html/plot%20correction%20comparisons-1.png" width="768" style="display: block; margin: auto;"></p>
 <p>Where Temp. is short for temperature and “FS” is short for
 “Flight-specific”. Additionally, a temperature correction refers to the
 second correction (i.e., based on the temperature value itself)</p>
 <p>As seen above, applying a temperature and time correction together is
 the approach that both makes the intercept of the relationship be at
 <span class="math inline">\(0\)</span> and the slope <span class="math inline">\(1\)</span>, while maximizing <span class="math inline">\(R^2\)</span>. Performing a flight-specific
-correction further improves this relationship but not substantially.
+correction can further improve this relationship but not substantially.
 With this information in hand, we leave it out to the user to decide
 which correction to apply.</p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="output">Output<a class="anchor" aria-label="anchor" href="#output"></a>
 </h3>
 <p>The output of the <code>correct_flights_data</code> function is a
-<code>tibble</code> of the same characteristics as the
-<code>flight_data</code> input but substituting the <code>ir_temp</code>
-for an <code>op_temp</code> column, corresponding to the surface
-temperatures now corrected to be equivalent to operative temperatures.
-Below we show the before and after effect of applying the correction
-correcting by both time (using the mean bias) and temperature:</p>
+<code>data.frame</code> of the same characteristics as the
+<code>flight_data</code> input but substituting the
+<code>surf_temp</code> for an <code>op_temp</code> column, corresponding
+to the surface temperatures now corrected to be equivalent to operative
+temperatures. Below we show the before and after effect of applying the
+correction correcting by both time (using the mean bias) and
+temperature:</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># perform correction</span></span>
-<span><span class="va">flights_data_corr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/correct_flights_data.html">correct_flights_data</a></span><span class="op">(</span><span class="va">flights_data</span>, <span class="va">otms_splines</span>, </span>
+<span><span class="va">flights_data_corr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/correct_flights_data.html">correct_flights_data</a></span><span class="op">(</span><span class="va">flights_data</span>, </span>
+<span>                                          <span class="va">otms_splines</span>, </span>
 <span>                                          time_correction <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>                                          time_correction_metric <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>                                          flight_specific_correction <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co"># show output of correction</span></span>
-<span><span class="va">flights_data_corr</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 263,008 × 7</span></span></span>
-<span><span class="co">##    longitude latitude  year   doy mod_start mod_end op_temp</span></span>
-<span><span class="co">##        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span>     -<span style="color: #BB0000;">120.</span>     39.9  <span style="text-decoration: underline;">2</span>023   236       515     519    7.18</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span>     -<span style="color: #BB0000;">120.</span>     39.9  <span style="text-decoration: underline;">2</span>023   236       515     519   10.0 </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span>     -<span style="color: #BB0000;">120.</span>     39.9  <span style="text-decoration: underline;">2</span>023   236       515     519    9.50</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span>     -<span style="color: #BB0000;">120.</span>     39.9  <span style="text-decoration: underline;">2</span>023   236       515     519    9.10</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span>     -<span style="color: #BB0000;">120.</span>     39.9  <span style="text-decoration: underline;">2</span>023   236       515     519   10.4 </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span>     -<span style="color: #BB0000;">120.</span>     39.9  <span style="text-decoration: underline;">2</span>023   236       515     519   11.4 </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span>     -<span style="color: #BB0000;">120.</span>     39.9  <span style="text-decoration: underline;">2</span>023   236       515     519   10.2 </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span>     -<span style="color: #BB0000;">120.</span>     39.9  <span style="text-decoration: underline;">2</span>023   236       515     519   10.2 </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span>     -<span style="color: #BB0000;">120.</span>     39.9  <span style="text-decoration: underline;">2</span>023   236       515     519    9.40</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span>     -<span style="color: #BB0000;">120.</span>     39.9  <span style="text-decoration: underline;">2</span>023   236       515     519    9.37</span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 262,998 more rows</span></span></span></code></pre>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">flights_data_corr</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##        x       y year doy mod_start mod_end   op_temp</span></span>
+<span><span class="co">## 1 275330 4416550 2023 236       515     519 25.645121</span></span>
+<span><span class="co">## 2 275331 4416550 2023 236       515     519 24.310203</span></span>
+<span><span class="co">## 3 275332 4416550 2023 236       515     519 21.950666</span></span>
+<span><span class="co">## 4 275333 4416550 2023 236       515     519 23.238916</span></span>
+<span><span class="co">## 5 275334 4416550 2023 236       515     519 14.946816</span></span>
+<span><span class="co">## 6 275335 4416550 2023 236       515     519 -2.077917</span></span></code></pre>
 <div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># merge and compare data</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge</a></span><span class="op">(</span><span class="va">flights_data</span>, <span class="va">flights_data_corr</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"longitude"</span>, <span class="st">"latitude"</span>, <span class="st">"year"</span>, <span class="st">"doy"</span>, <span class="st">"mod_start"</span>, <span class="st">"mod_end"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">mod_start</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">539</span>, <span class="fl">732</span>, <span class="fl">1126</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>hour <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">mod_start</span><span class="op">/</span><span class="fl">60</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">pivot_longer</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ir_temp</span>, <span class="va">op_temp</span><span class="op">)</span>, names_to <span class="op">=</span> <span class="st">"type"</span>, values_to <span class="op">=</span> <span class="st">"temp"</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">type</span> <span class="op">==</span> <span class="st">"ir_temp"</span>, <span class="st">"Surface Temperature"</span>, <span class="st">"Operative Temperature"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">longitude</span>, y <span class="op">=</span> <span class="va">latitude</span>, fill <span class="op">=</span> <span class="va">temp</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_raster</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge</a></span><span class="op">(</span><span class="va">flights_data</span>, <span class="va">flights_data_corr</span>, </span>
+<span>      by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="st">"y"</span>, <span class="st">"year"</span>, <span class="st">"doy"</span>, <span class="st">"mod_start"</span>, <span class="st">"mod_end"</span><span class="op">)</span><span class="op">)</span><span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">mod_start</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">515</span>, <span class="fl">680</span>, <span class="fl">1051</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>hour <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">mod_start</span><span class="op">/</span><span class="fl">60</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">pivot_longer</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">surf_temp</span>, <span class="va">op_temp</span><span class="op">)</span>, </span>
+<span>               names_to <span class="op">=</span> <span class="st">"type"</span>, values_to <span class="op">=</span> <span class="st">"temp"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">type</span> <span class="op">==</span> <span class="st">"surf_temp"</span>, </span>
+<span>                       <span class="st">"Surface Temperature"</span>, <span class="st">"Operative Temperature"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, fill <span class="op">=</span> <span class="va">temp</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_raster</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">scale_fill_viridis</span><span class="op">(</span>option <span class="op">=</span> <span class="st">"magma"</span>, limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>,<span class="fl">60</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_grid.html" class="external-link">facet_grid</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html" class="external-link">vars</a></span><span class="op">(</span><span class="va">type</span><span class="op">)</span>, rows <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html" class="external-link">vars</a></span><span class="op">(</span><span class="va">hour</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span></span>
-<span>    axis.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>    axis.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>    strip.text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">12</span>, face <span class="op">=</span> <span class="st">"bold"</span><span class="op">)</span>,</span>
-<span>    panel.grid <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_blank</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="fu">facet_grid</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu">vars</span><span class="op">(</span><span class="va">type</span><span class="op">)</span>, rows <span class="op">=</span> <span class="fu">vars</span><span class="op">(</span><span class="va">hour</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span></span>
+<span>    axis.text <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    axis.title <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    strip.text <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">12</span>, face <span class="op">=</span> <span class="st">"bold"</span><span class="op">)</span>,</span>
+<span>    panel.grid <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guides.html" class="external-link">guides</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_colourbar.html" class="external-link">guide_colorbar</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Temp. (°C)"</span><span class="op">)</span><span class="op">)</span> </span></code></pre></div>
-<p><img src="correct_flights_data_files/figure-html/unnamed-chunk-19-1.png" width="768" style="display: block; margin: auto;"></p>
-<p>Next, we will introduce the final step of the <code>throne</code>
+<span>  <span class="fu">guides</span><span class="op">(</span>fill <span class="op">=</span> <span class="fu">guide_colorbar</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Temp. (°C)"</span><span class="op">)</span><span class="op">)</span> </span></code></pre></div>
+<p><img src="correct_flights_data_files/figure-html/plot%20before%20and%20after%20of%20correction-1.png" width="576" style="display: block; margin: auto;">
+Next, we will introduce the final step of the <code>throne</code>
 workflow. How to use the corrected flights data in combination with the
 OTM-specific splines to first match the two data types and ultimately
 predict thermal landscapes.</p>

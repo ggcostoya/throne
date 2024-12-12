@@ -22,7 +22,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary" data-bs-theme="dark"><div class="container">
+    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light" data-bs-theme="light"><div class="container">
     
     <a class="navbar-brand me-2" href="../index.html">throne</a>
 
@@ -106,58 +106,70 @@
 <code>rnp_otms_data</code> (<strong>r</strong>ead a<strong>n</strong>d
 <strong>p</strong>rocess OTMs data) and <code>gen_otm_splines</code>
 (<strong>gen</strong>erate <strong>OTM</strong> <strong>spline</strong>
-model<strong>s</strong>) function of the <code>throne</code> package.
+model<strong>s</strong>) functions of the <code>throne</code> package.
 The first function allows the user to read one or multiple raw
-<code>.csv</code> (see the <a href="https://ggcostoya.github.io/throne/articles/collect_otm_data.html">“Collecting
+<code>.csv</code> (see <a href="https://ggcostoya.github.io/throne/articles/collect_otm_data.html">“Collecting
 OTM data vignette”</a>) with temperature measurements recorded by a
 temperature logger inside of an <strong>operative temperature
-model</strong> (<strong>OTM</strong>) to a <code>data.frame</code>-like
-structure in <code>R</code>. The second function takes this processed
-OTM data and generates an OTM &amp; day of year (<code>doy</code>)
-specific cubic spline model that describes the thermal dynamics of each
-unique OTM for each day. These spline models will later be used to both
-<a href="https://ggcostoya.github.io/throne/articles/correct_flights_data.html">correct
+model</strong> (<strong>OTM</strong>) to a data frame in <code>R</code>.
+The second function takes this processed OTM data and generates an OTM
+&amp; day of year (<code>doy</code>) specific cubic spline model that
+describes the thermal dynamics of each unique OTM each day. These spline
+models will later be used to both <a href="https://ggcostoya.github.io/throne/articles/correct_flights_data.html">correct
 the flights data</a> and to ultimately <a href="https://ggcostoya.github.io/throne/articles/predict_thermal_landscapes.html">predict
 thermal landscapes</a>. Below, we highlight the section of the package’s
 workflow that is covered in this vignette:</p>
-<p><img src="images/rnp_otms_data_workflow.png" width="80%" style="display: block; margin: auto;"></p>
+<p><img src="images/rnp_otms_data_workflow.png" width="100%" style="display: block; margin: auto;"></p>
+<p>Next, we will discuss each function in detail.</p>
 </div>
 <div class="section level2">
 <h2 id="reading-and-processing-otm-data">Reading and processing OTM data<a class="anchor" aria-label="anchor" href="#reading-and-processing-otm-data"></a>
 </h2>
 <p>The <code>rnp_otms_data</code> function reads a database of
 <code>.csv</code> files, manipulates and ultimately combines them into a
-large data-frame-like structure in <code>R</code>, a <a href="https://tibble.tidyverse.org/" class="external-link"><code>tibble</code></a>. To do so,
-the function takes in the following inputs:</p>
+large <code>data.frame</code> in <code>R</code>. Below we detail the
+function’s inputs, processes and output</p>
+<div class="section level3">
+<h3 id="inputs">Inputs<a class="anchor" aria-label="anchor" href="#inputs"></a>
+</h3>
+<p>The <code>rnp_otms_data</code> function takes the following
+inputs:</p>
 <ol style="list-style-type: decimal">
-<li>The <strong><code>path</code></strong>, or directory to one or
+<li>
+<strong><code>path</code></strong>, the directory where one or
 multiple <code>.csv</code> files are stored. Each of these
 <code>.csv</code> files is assumed to have at least:</li>
 </ol>
-<!-- --><ol style="list-style-type: lower-alpha">
+<ol style="list-style-type: lower-alpha">
 <li><p>A column for operative temperature measurements. Since different
 temperature logger processing software structure the outputs differently
-in the resulting <code>.csv</code> file, we require the user to specify
-the column where the OTM measurements can be found in the
-<code>op_temp_col</code> argument of the function. In our case, we used
-<a href="https://www.analog.com/en/resources/evaluation-hardware-and-software/1-wire-sdks/viewer.html" class="external-link">OneWire
+in the resulting <code>.csv</code> file, <code>throne</code> requires
+the user to specify the column where the OTM measurements can be found
+in the <code>op_temp_col</code> argument of the function. We used <a href="https://www.analog.com/en/resources/evaluation-hardware-and-software/1-wire-sdks/viewer.html" class="external-link">OneWire
 Viewer</a> which returns the operative temperature in the
 <code>3</code>rd column.</p></li>
-<li><p>A column for dates. As with the operative temperature values, we
-also require the user to specify the <code>date_col</code> in their .csv
-files. OneWireViewer returns the date in the first column in
+<li><p>A column for dates. As with the operative temperature values,
+<code>throne</code> also requires the user to specify the
+<code>date_col</code> in their <code>.csv</code> files. OneWireViewer
+returns the date in the first column in
 <code>MM/DD/YY HH:MM:SS AM/PM</code> format. By default dates and times
 will be extracted from this column but other software return date and
 time in separate columns. If that is the case, the user can specify the
 <code>time_col</code> as an argument of the function.</p></li>
 </ol>
-<pre><code><span><span class="co">##            Date.Time Unit Value</span></span>
-<span><span class="co">## 1 8/24/23 6:04:00 AM    C    14</span></span>
-<span><span class="co">## 2 8/24/23 6:06:00 AM    C    14</span></span>
-<span><span class="co">## 3 8/24/23 6:08:00 AM    C    14</span></span>
-<span><span class="co">## 4 8/24/23 6:10:00 AM    C    14</span></span>
-<span><span class="co">## 5 8/24/23 6:12:00 AM    C    14</span></span>
-<span><span class="co">## 6 8/24/23 6:14:00 AM    C    14</span></span></code></pre>
+<blockquote>
+<p><strong>TIP</strong>: Users of <code>throne</code> should become very
+familiar with the formatting of the <code>.csv</code> files containing
+OTM data. In some software options, the resulting <code>.csv</code> file
+will contain several rows of metadata that might lead to an incorrect
+reading of the file (see example below). While the
+<code>rnp_otms_data</code> will provide warnings we also recommend the
+users to specify how many rows should be skipped when reading each file
+file via the <code>rows_skip</code> argument. Specifying the
+<code>rows_skip</code> argument correctly is crucial for the rest of the
+package’s functions to work properly down the line. For more
+information, see the function’s documentation <a href="https://ggcostoya.github.io/throne/reference/rnp_otms_data.html">here</a></p>
+</blockquote>
 <ol start="2" style="list-style-type: decimal">
 <li>An OTM <strong><code>metadata</code></strong>
 <code>data.frame</code> or <code>tibble</code> containing information
@@ -166,49 +178,28 @@ related to each specific OTM (identified by a unique
 we require that an <code>otm_id</code> column is present and we strongly
 recommend that the metadata also contains columns for the
 <code>latitude</code> and <code>longitude</code> at which the OTM was
-deployed. In the example metadata <code>tibble</code> that can be found
-in the <code>throne</code> package we also incorporate information on
-the <code>microhabitat</code>, <code>orientation</code> and
-<code>elevation</code> at which the OTM was deployed.</li>
+deployed. In the example metadata shipped with <code>throne</code> we
+also incorporate information on the <code>microhabitat</code>,
+<code>orientation</code> and <code>elevation</code> at which the OTM was
+deployed.</li>
 </ol>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">otms_metadata</span></span></code></pre></div>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 36 × 6</span></span></span>
-<span><span class="co">##    otm_id microhabitat orientation latitude longitude elevation</span></span>
-<span><span class="co">##    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span> OTM01  outcrop      N               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span> OTM21  outcrop      NW              39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span> OTM07  outcrop      E               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span> OTM16  outcrop      SE              39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span> OTM17  outcrop      Flat            39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>311.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span> OTM28  rock         Flat            39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span> OTM13  rock         S               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>314.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span> OTM37  boulder      W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>314.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span> OTM33  boulder      Flat            39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>314.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span> OTM24  rock         E               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>314.</span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 26 more rows</span></span></span></code></pre>
-<blockquote>
-<p><strong>TIP</strong>: We recommend that users of the
-<code>throne</code> package become very familiar with the formatting of
-the <code>.csv</code> that contain OTM data. In some software options
-the resulting <code>.csv</code> file will contain several rows of
-metadata that might lead to an incorrect reading of the file (see
-example below). While the <code>rnp_otms_data</code> will provide
-warnings we also recommend the users to specify how many rows should be
-skipped when reading the <code>.csv</code> file via
-<code>rows_skip</code> Specifying the <code>rows_skip</code> argument
-correctly is crucial for the rest of the package’s functions to work
-properly down the line.</p>
-</blockquote>
-<pre><code><span><span class="co">##                X1.Wire.iButton.Part.Number..DS1921G.F5</span></span>
-<span><span class="co">## 1 1-Wire/iButton Registration Number: 3300000059DFE621</span></span>
-<span><span class="co">## 2                             Is Mission Active?  true</span></span>
-<span><span class="co">## 3         Mission Start:  Thu Aug 24 06:04:00 PDT 2023</span></span>
-<span><span class="co">## 4                      Sample Rate:  Every 2 minute(s)</span></span>
-<span><span class="co">## 5                    Number of Mission Samples:  18947</span></span>
-<span><span class="co">## 6                                Total Samples:  89897</span></span></code></pre>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">otms_metadata</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 6 × 6</span></span></span>
+<span><span class="co">##   otm_id microhabitat orientation latitude longitude elevation</span></span>
+<span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> OTM01  outcrop      N               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> OTM21  outcrop      NW              39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> OTM07  outcrop      E               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> OTM16  outcrop      SE              39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">5</span> OTM17  outcrop      Flat            39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>311.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">6</span> OTM28  rock         Flat            39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span></code></pre>
+</div>
+<div class="section level3">
+<h3 id="processes">Processes<a class="anchor" aria-label="anchor" href="#processes"></a>
+</h3>
 <p>To transform the raw <code>.csv</code> data into a
-<code>tibble</code>, the <code>rnp_otm_data</code> function will go
+<code>data.frame</code> the <code>rnp_otm_data</code> function will go
 through the following general steps:</p>
 <ol style="list-style-type: decimal">
 <li>Read each <code>.csv</code> file while skipping as many rows as
@@ -216,21 +207,25 @@ specified within the <code>rows_skip</code> argument.</li>
 <li>Select the columns for time and operative temperature as specified
 by the <code>date_col</code> (and/or <code>time_col</code>) and
 <code>op_temp_col</code> arguments.</li>
+<li>Re-project <code>latitude</code> and <code>longitude</code>
+coordinates to <code>x</code> and <code>y</code> UTM coordinates to
+enable compatibility with the rest of the package’s functionality using
+tools from the <a href="https://rspatial.org/pkg/" class="external-link"><code>terra</code>
+package</a>
+</li>
 <li>Using tools from the <code>lubridate</code> package, extract the
 <code>year</code>, day of the year (<code>doy)</code> and minute of the
 day (<code>mod</code>) at which each operative temperature measurement
 (<code>op_temp</code>) was made.</li>
 </ol>
 <blockquote>
-<p><strong>NOTE</strong>: We choose working with <code>doy</code> and
-<code>mod</code> to simplify the management of the data as much as
-possible. Date and time data have unique data formats in the
-<code>R</code> environment that are often difficult to handle and that
-might lead to unintended errors. By using <code>doy</code> and
-<code>mod</code>, we deal with integer columns, much easier to operate
-with and manipulate. Further, these formats can be easily transformed
-back into more easily interpretable scales for visualization purposes,
-<a href="https://stackoverflow.com/questions/24200014/convert-day-of-year-to-date" class="external-link">by
+<p><strong>NOTE</strong>: Working <code>doy</code> and <code>mod</code>
+allows the user to work with numeric colums. This simplifies the
+management of the data, as dates and times have unique data formats in
+the <code>R</code> environment that are often difficult to handle and
+may lead unintended errors. Nonetheless, these formats can be
+transformed back into more interpretable temporal scales for
+visualization purposes, <a href="https://stackoverflow.com/questions/24200014/convert-day-of-year-to-date" class="external-link">by
 using the <code>as.Date</code> function to transform <code>doy</code>
 (also known as Julian date) back into a YYYY-MM-DD format</a> and
 dividing by 60 for <code>mod</code> to get hours.</p>
@@ -240,67 +235,71 @@ dividing by 60 for <code>mod</code> to get hours.</p>
 metadata and, if more than one file is specified, bind the outputs
 together.</li>
 </ol>
-<p>The final output is a <code>tibble</code> object that should look
-like this:</p>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 67,584 × 10</span></span></span>
-<span><span class="co">##    otm_id  year   doy   mod op_temp microhabitat orientation latitude longitude</span></span>
-<span><span class="co">##    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   367    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   369    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   371    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   373    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   375    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   377    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   379    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   381    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   383    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span> OTM01   <span style="text-decoration: underline;">2</span>023   236   385    13.5 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 67,574 more rows</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 1 more variable: elevation &lt;dbl&gt;</span></span></span></code></pre>
-<p>Each row on this <code>tibble</code> will correspond to a unique
-operative temperature (<code>op_temp</code>) measurement by a given
-<code>otm_id</code> in a given <code>year</code>, <code>doy</code> and
-<code>mod</code>. Our example data set contains measurements of 33 OTMs
-over 4 days recording at a rate of 720 observations / day (30
-observations / h, 0.5 observations / min).</p>
+</div>
+<div class="section level3">
+<h3 id="output">Output<a class="anchor" aria-label="anchor" href="#output"></a>
+</h3>
+<p>The final output is a <code>data.frame</code> like this:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">otms_data</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##   otm_id year doy mod op_temp microhabitat orientation latitude longitude</span></span>
+<span><span class="co">## 1  OTM01 2023 236 367    13.5      outcrop           N 39.86873  -119.627</span></span>
+<span><span class="co">## 2  OTM01 2023 236 369    13.5      outcrop           N 39.86873  -119.627</span></span>
+<span><span class="co">## 3  OTM01 2023 236 371    13.5      outcrop           N 39.86873  -119.627</span></span>
+<span><span class="co">## 4  OTM01 2023 236 373    13.5      outcrop           N 39.86873  -119.627</span></span>
+<span><span class="co">## 5  OTM01 2023 236 375    13.5      outcrop           N 39.86873  -119.627</span></span>
+<span><span class="co">## 6  OTM01 2023 236 377    13.5      outcrop           N 39.86873  -119.627</span></span>
+<span><span class="co">##   elevation        x       y</span></span>
+<span><span class="co">## 1   1311.73 275314.9 4416490</span></span>
+<span><span class="co">## 2   1311.73 275314.9 4416490</span></span>
+<span><span class="co">## 3   1311.73 275314.9 4416490</span></span>
+<span><span class="co">## 4   1311.73 275314.9 4416490</span></span>
+<span><span class="co">## 5   1311.73 275314.9 4416490</span></span>
+<span><span class="co">## 6   1311.73 275314.9 4416490</span></span></code></pre>
+<p>Each row will corresponds to a unique operative temperature
+(<code>op_temp</code>) measurement by a given <code>otm_id</code> in a
+given <code>year</code>, <code>doy</code> and <code>mod</code>. Our
+example data set contains measurements of 33 OTMs over 4 days recording
+at a rate of 720 observations / day (30 observations / h, 0.5
+observations / min).</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="generating-otm-cubic-spline-models">Generating OTM cubic spline models<a class="anchor" aria-label="anchor" href="#generating-otm-cubic-spline-models"></a>
 </h2>
-<p>Once the OTM data has been read and processed, the next step is to
-fit a <strong>cubic smoothing spline model</strong> to each individual
-OTM for each <code>doy</code> during it’s deployment in the field. This
-spline model will capture the thermal dynamics of an OTM throughout a
-given <code>doy</code> allowing us to build a prediction of the
-operative temperature experienced by the OTM at any moment of that
-<code>doy</code> based on the measurements it recorded.</p>
-<p>To fit these models the <code>throne</code> package includes the
-<code>gen_otm_splines</code> function which takes as input data
-generated via the previously presented <code>rnp_otms_data</code>
-function and the user-specified parameter <code>knot_l</code>. The
-function will return a nested <code>tibble</code> that includes the OTM
-identification (<code>otm_id</code>) and all associated metadata,
-together with a <a href="https://tidyr.tidyverse.org/articles/nest.html" class="external-link">nested column</a>
-containing the spline model generated via the native <code>R</code>
-function <code>smooth.spline</code>. The resulting splines
-<code>tibble</code> will contain as many rows as combinations of unique
-<code>otm_id</code> and <code>doy</code> since there will be a spline
-model for each OTM every day it was deployed in the field:</p>
-<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 132 × 9</span></span></span>
-<span><span class="co">##    otm_id  year   doy microhabitat orientation latitude longitude elevation</span></span>
-<span><span class="co">##    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 1</span> OTM01   <span style="text-decoration: underline;">2</span>023   236 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 2</span> OTM01   <span style="text-decoration: underline;">2</span>023   237 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 3</span> OTM01   <span style="text-decoration: underline;">2</span>023   238 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 4</span> OTM01   <span style="text-decoration: underline;">2</span>023   239 outcrop      N               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>312.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 5</span> OTM02   <span style="text-decoration: underline;">2</span>023   236 outcrop      W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 6</span> OTM02   <span style="text-decoration: underline;">2</span>023   237 outcrop      W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 7</span> OTM02   <span style="text-decoration: underline;">2</span>023   238 outcrop      W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 8</span> OTM02   <span style="text-decoration: underline;">2</span>023   239 outcrop      W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>313.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;"> 9</span> OTM03   <span style="text-decoration: underline;">2</span>023   236 rock         W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>317.</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">10</span> OTM03   <span style="text-decoration: underline;">2</span>023   237 rock         W               39.9     -<span style="color: #BB0000;">120.</span>     <span style="text-decoration: underline;">1</span>317.</span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 122 more rows</span></span></span>
-<span><span class="co">## <span style="color: #949494;"># ℹ 1 more variable: spline &lt;list&gt;</span></span></span></code></pre>
+<p>The next step in the <code>throne</code> workflow will be to fit a
+<strong>cubic smoothing spline model</strong> to each OTM each
+<code>doy</code> during it’s deployment in the field. This model will
+capture the thermal dynamics of the OTM in a given <code>doy</code>
+enabling a temporally continuous prediction of operative temperature
+from discrete measurements. To achieve this, <code>throne</code>
+includes the <code>gen_otm_splines</code> function, which takes as input
+the output generated via <code>rnp_otms_data</code>. The function will
+then calculate OTM and <code>doy</code> specific splines and return a
+nested <code>tibble</code> with an OTM identifier column, associated
+metadata, together with a <a href="https://tidyr.tidyverse.org/articles/nest.html" class="external-link">nested column</a>
+containing the model generated via the native <code>R</code> function
+<code>smooth.spline</code>. Below we show how to use the
+<code>gen_otm_splines</code> function:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">otm_splines_ex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/gen_otm_splines.html">gen_otm_splines</a></span><span class="op">(</span>otm_data <span class="op">=</span> <span class="va">otms_data</span>, knot_p <span class="op">=</span> <span class="fl">0.02</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"microhabitat"</span>, <span class="st">"orientation"</span>, <span class="st">"elevation"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">otm_splines_ex</span></span></code></pre></div>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 132 × 8</span></span></span>
+<span><span class="co">##    otm_id  year   doy latitude longitude       x        y spline    </span></span>
+<span><span class="co">##    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span> OTM01   <span style="text-decoration: underline;">2</span>023   236     39.9     -<span style="color: #BB0000;">120.</span> <span style="text-decoration: underline;">275</span>315. 4<span style="text-decoration: underline;">416</span>490. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span> OTM01   <span style="text-decoration: underline;">2</span>023   237     39.9     -<span style="color: #BB0000;">120.</span> <span style="text-decoration: underline;">275</span>315. 4<span style="text-decoration: underline;">416</span>490. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span> OTM01   <span style="text-decoration: underline;">2</span>023   238     39.9     -<span style="color: #BB0000;">120.</span> <span style="text-decoration: underline;">275</span>315. 4<span style="text-decoration: underline;">416</span>490. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span> OTM01   <span style="text-decoration: underline;">2</span>023   239     39.9     -<span style="color: #BB0000;">120.</span> <span style="text-decoration: underline;">275</span>315. 4<span style="text-decoration: underline;">416</span>490. <span style="color: #949494;">&lt;lgl [1]&gt;</span> </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span> OTM02   <span style="text-decoration: underline;">2</span>023   236     39.9     -<span style="color: #BB0000;">120.</span> <span style="text-decoration: underline;">275</span>285. 4<span style="text-decoration: underline;">416</span>482. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span> OTM02   <span style="text-decoration: underline;">2</span>023   237     39.9     -<span style="color: #BB0000;">120.</span> <span style="text-decoration: underline;">275</span>285. 4<span style="text-decoration: underline;">416</span>482. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span> OTM02   <span style="text-decoration: underline;">2</span>023   238     39.9     -<span style="color: #BB0000;">120.</span> <span style="text-decoration: underline;">275</span>285. 4<span style="text-decoration: underline;">416</span>482. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span> OTM02   <span style="text-decoration: underline;">2</span>023   239     39.9     -<span style="color: #BB0000;">120.</span> <span style="text-decoration: underline;">275</span>285. 4<span style="text-decoration: underline;">416</span>482. <span style="color: #949494;">&lt;lgl [1]&gt;</span> </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span> OTM03   <span style="text-decoration: underline;">2</span>023   236     39.9     -<span style="color: #BB0000;">120.</span> <span style="text-decoration: underline;">275</span>291. 4<span style="text-decoration: underline;">416</span>498. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span> OTM03   <span style="text-decoration: underline;">2</span>023   237     39.9     -<span style="color: #BB0000;">120.</span> <span style="text-decoration: underline;">275</span>291. 4<span style="text-decoration: underline;">416</span>498. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 122 more rows</span></span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="choosing-the-appropriate-knot_p-value">Choosing the appropriate <code>knot_p</code> value<a class="anchor" aria-label="anchor" href="#choosing-the-appropriate-knot_p-value"></a>
@@ -309,64 +308,39 @@ model for each OTM every day it was deployed in the field:</p>
 work correctly is determining the appropriate value for the
 <code>knot_p</code> argument. This argument determines the percentage of
 observations recorded by an OTM in a given day that are used to
-determine the number of knots of the smoothing spline model. To put it
-simply, the number of knots will ultimately determine the degrees of
-freedom of the model as <span class="math inline">\(df = degree +
-k\)</span> and <span class="math inline">\(degree = 3\)</span> for cubic
-splines (see <a href="https://stats.stackexchange.com/questions/517375/splines-relationship-of-knots-degree-and-degrees-of-freedom#:~:text=In%20essence%2C%20splines%20are%20piecewise,degree%203%20and%20so%20on." class="external-link">here</a>
+determine the number of knots of the smoothing spline model. The number
+of knots will ultimately determine the degrees of freedom of the model
+as <span class="math inline">\(df = degree + k\)</span> and <span class="math inline">\(degree = 3\)</span> for cubic splines (see <a href="https://stats.stackexchange.com/questions/517375/splines-relationship-of-knots-degree-and-degrees-of-freedom#:~:text=In%20essence%2C%20splines%20are%20piecewise,degree%203%20and%20so%20on." class="external-link">here</a>
 for further details). The number of degrees of freedom will then
 determine the “wiggliness” of the resulting model, i.e. the number of
 times the resulting curve will change direction. As an example, below we
 plot different spline models for the same data using different
 <code>knot_p</code> parameter values.</p>
-<p><img src="rnp_otms_data_gen_otm_splines_files/figure-html/unnamed-chunk-8-1.png" width="576" style="display: block; margin: auto;"></p>
-<p>In the accompanying paper, we discuss the factors we consider when
-choosing the appropriate <code>knot_p</code> value:</p>
-<blockquote>
-<p>A second important consideration is the appropriate smoothing factor
-(i.e., the number of knots per hour; Figure S8) to generate daily
-thermal profiles for each OTM. This decision depends on two factors: the
-frequency at which OTMs recorded operative temperatures and the
-biophysical ecology of the study organism. While it is essential to
-capture accurate thermal profiles of specific microsites, excessive
-precision in these profiles will introduce noise that is irrelevant to
-the study organism and might negatively impact the quality of the match
-between the thermal dynamics of OTMs and tiles from the drone data. What
-counts as “excessive precision” will be system dependent. For example,
-in an environment where abrupt changes in weather (e.g., gusts of wind,
-brief cloud cover etc.) result in rapid and reversible shifts in
-temperature that are unlikely to influence the behavior of the organism
-due to thermal inertia, smoothing improves the quality of the final
-estimated thermal landscape. This was the case for our focal population
-of the western fence lizard and we therefore opted to use 4 knots per
-hour which smoothed OTM measurements at 15-minute intervals.</p>
-</blockquote>
-<p>As mentioned above, the first factor to consider is the
-<strong>frequency at which the OTM itself is recording</strong>. We can
-extrapolate how many knots/day (or knots/h) we would get based on the
-frequency of recordings and the <code>knot_p</code> value according to
-the formula:</p>
+<p><img src="rnp_otms_data_gen_otm_splines_files/figure-html/plot%20splines%20with%20different%20knot_p%20combinations-1.png" width="576" style="display: block; margin: auto;"></p>
+<p>The first factor to consider is the <strong>frequency at which the
+OTM itself is recording</strong>. We can extrapolate how many knots/day
+(or knots/h) we would get based on the frequency of recordings and the
+<code>knot_p</code> value according to the formula:</p>
 <p><span class="math display">\[ Knot/h = Recordings/h \cdot
-knot_p\]</span> For instance, the OTMs we used to validate our
-methodology were programmed to record a temperature measurement every 2
-minutes, leading to a total of 30 observations / hour. Assuming a
+knot_p\]</span></p>
+<p>For instance, the OTMs we use as an example in this package were
+programmed to record a temperature measurement every 2 minutes, leading
+to a total of 30 observations / hour. Assuming a
 <code>knot_p = 0.1</code> that would indicate that our model has 3 knots
-/ h. As a general recommendation, we recommend setting
-<code>knot_p</code> to a higher value if the frequency of observations
-is low, but the decision ultimately comes to the user of the
-methodology. Please reach out to <a href="mailto:garciacosto@gmail.com" class="email">garciacosto@gmail.com</a> for recommendations.</p>
+/ h. We recommend setting <code>knot_p</code> to a higher value if the
+frequency of observations is low, but the decision ultimately comes to
+the user of the methodology. Feel free to reach out to the package
+maintainer for recommendations.</p>
 <p>The second issue that determines the value of <code>knot_p</code> is
 the study organism. Generally, OTMs will equilibrate to the
 environmental temperature much faster than the organism they represent
 with this difference in equilibration time being positively correlated
-to the mass of the organism due to thermal inertia. In other words, the
-body temperature of an organism that has a lot of thermal inertia will
-not be exactly that of the OTM. If that is the case, we recommend
+to the mass of the organism due to thermal inertia. We recommend
 understanding the thermal properties of the organism of interest when
 choosing the appropriate <code>knot_p</code> value as we did in our
 pilot study.</p>
 <p>Having shown how to read and process both flights and OTM data the
-next step will be to correct the flights data to trasnform surface
+next step will be to correct the flights data to transform surface
 temperature to operative temperature temperature measurements.</p>
 <nav aria-label="Page navigation"><ul class="pagination justify-content-end">
 <li class="page-item">

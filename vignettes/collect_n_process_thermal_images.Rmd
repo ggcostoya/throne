@@ -11,6 +11,13 @@ output:
     toc_float: true
 ---
 
+<style>
+p.caption {
+  font-size: 0.9em;
+}
+</style>
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -19,7 +26,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The goal of this vignette is to illustrate the first step of the workflow presented in the `throne` package which is the acquisition of thermal photogrammetry data. To do this, we will need to 1) acquire a drone with a mounted IR thermal imaging camera, 2) fly the drone to collect thermal images, and 3) process the thermal images using a photogrammetry software to obtain a thermal orthomosaic of a flight (i.e., a `.tif` format file). Here we provide instructions on how to perform each of these steps and we include links to recommended drones, software and tutorials to complement them.
 
-```{r, echo=FALSE, out.width = '80%', fig.align = 'center', fig.cap = "Figure 1. Part of the workflow covered in this vignette"}
+```{r, echo=FALSE, out.width = '100%', fig.align = 'center', fig.cap = "Part of the workflow covered in this vignette"}
 knitr::include_graphics("images/drone_setup_workflow.png")
 ```
 
@@ -47,13 +54,13 @@ Once you have acquired a drone with a thermal camera, the next step is to fly th
 
 An important aspect to consider when planning a flight mission is also the resolution of the mounted thermal imaging camera. Usually, thermal imaging cameras have a much lower resolution and field of view than visual cameras (RGB). Therefore, make sure that the vertical and horizontal photo overlap ratio is set high (preferably 90%/90% in either direction, i.e., any given photo’s coverage only differs by 10% compared to the previous), as well as maintain a relatively high flight altitude (300 ft / 90 m). This, of course, depends on the spatial scale of the studied landscape and the desired resolution thereof. Regardless,we strongly encourage to make sure that missions are built around the *thermal* camera's field of view rather than the visual camera - especially if flying above rugged terrain- otherwise we risk running into stitching issues when processing the photos, (see following sections) It's generally a good idea to extend the flight mission area to exceed the study site's boundaries by a few meters to compensate for this difference.
 
-```{r, echo=FALSE, out.width = '80%', fig.align = 'center', fig.cap = "Figure 2. The field of view is typically smaller for thermal cameras compared to visual cameras. This overlay - while not perfect - aims to show the difference between a visual and thermal photo taken right after one another, to illustrate the difference in the area covered"}
+```{r, echo=FALSE, out.width = '80%', fig.align = 'center', fig.cap = "The field of view is typically smaller for thermal cameras compared to visual cameras. This overlay - while not perfect - aims to show the difference between a visual and thermal photo taken right after one another, to illustrate the difference in the area covered"}
 knitr::include_graphics("images/drone_setup_thermal_overlap.png")
 ```
 
 A final very important factor to consider are the potential geolocation errors of the thermal images . While some of this can be compensated through post-processing, deploying **ground control points (GCPs)** is one of the more common methods that can be used as a preventative measure to accurately georeference flight missions. Ground control points are GPS-tagged landmarks that allow us to pinpoint the exact location of our field site in relation to our photos, in addition to properly scaling our spatial models. We recommend deploying a minimum of three GCPs per field site that you aim to survey - simple black-and-white square tiles that have known, high-accuracy GPS locations works just fine - but it is crucial that these are deployed **before** any flights are conducted so that they are visible in photos from each mission. GCPs should ideally be placed along the borders of your study site (to properly “frame” the extent of our model), while simultaneously encompassing the topographical complexity of the study site. For example, if you’re surveying a flat landscape with a few scattered rocky outcrops, it might be a good idea to place a few GCPs along the border of the field site; a few within on flat ground; and finally a couple on top of the outcrops. This way, we have multiple reference points in the landscape that minimize the risk of any future processing issues. Keep in mind that the accuracy of the GCP locations are only as accurate as the GPS unit used to record their location with. For minimal geo-referencing errors, we therefore recommend a higher-end handheld GNSS system, such as those developed by [Trimble](https://geospatial.trimble.com/en/products/hardware/gnss-systems). For more information on GCPs, PIX4D has a [great article](https://www.pix4d.com/blog/GCP-accuracy-drone-maps/) on how they correlate with the accuracy of drone maps.
 
-```{r, echo=FALSE, out.width = '80%', fig.align = 'center', fig.cap = "Figure 3. When using ground control points (GCPs) for missims, it is important that they are visible across all flights"}
+```{r, echo=FALSE, out.width = '80%', fig.align = 'center', fig.cap = "When using ground control points (GCPs) for missions, it is important that they are visible across all flights"}
 knitr::include_graphics("images/drone_setup_gcp_nadir.png")
 ```
 
@@ -75,7 +82,7 @@ Having collected your thermal images across multiple flights, the next step is t
 
 7.  If we do not wish to use (or don't have access to any) ground control points, go ahead and click "Start" on the Processing bar to begin processing your images. The thermal landscape map will be generated during the final step, "3. DSM, Orthomosaic, and Index.". Processing time depends on the specifications of the PC used and the size of the project, but usually lasts a couple of hours. We can adjust the resources (GB of RAM and CPU threads) that PIX4Dmapper will use under "Processing options". Note that the default is to use **all** the PC's available resources.
 
-```{r, echo=FALSE, out.width = '80%', fig.align = 'center', fig.cap = "Figure 4. How to create and start processing a project in Pix4Dmapper"}
+```{r, echo=FALSE, out.width = '80%', fig.align = 'center', fig.cap = "How to create and start processing a project in Pix4Dmapper"}
 knitr::include_graphics("images/drone_setup_pix4D.gif")
 ```
 
@@ -93,7 +100,7 @@ If ground control points are used in a project within Pix4D mapper, make sure to
 
 -   If using a DJI drone, we may encounter issues when importing the GCP coordinates from their .csv-file. If that is the case, *first* manually create tie points where the GCPs are marked the GCPs in multiple photos (with identical names to their labels in the .csv-file) and *then* import the coordinates using the "GCP/MTP Manager". Finish by clicking "Rematch and Optimize", under the "Process" drop down menu.
 
-```{r, echo=FALSE, out.width = '80%', fig.align = 'center', fig.cap = "Figure 5. Ground control points (GCPs) will show as blue/green markers in the rayCloud editor once they have been loaded and optimized with the point cloud"}
+```{r, echo=FALSE, out.width = '80%', fig.align = 'center', fig.cap = "Ground control points (GCPs) will show as blue/green markers in the rayCloud editor once they have been loaded and optimized with the point cloud"}
 knitr::include_graphics("images/drone_setup_gcp_example.png")
 ```
 

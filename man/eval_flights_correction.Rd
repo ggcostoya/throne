@@ -7,12 +7,10 @@
 eval_flights_correction(flights_data, otm_splines, summary)
 }
 \arguments{
-\item{flights_data}{A \code{tibble} of flights data obtained through the \code{rnp_flights_data}
-function. The \code{tibble} must contain columns for `longitude` and `latitude`.}
+\item{flights_data}{A data frame of flights data obtained through the \code{rnp_flights_data}
+function.}
 
-\item{otm_splines}{A nested \code{tibble} obtained using the \code{gen_otm_splines} function.
-The \code{tibble} must contain columns for \code{longitude} and \code{latitude} and all values
-must also be in the \code{flights_data}}
+\item{otm_splines}{A nested \code{tibble} obtained using the \code{gen_otm_splines} function.}
 
 \item{summary}{If set to \code{TRUE}, the function returns a summary dataset of the correction
 process. If set to \code{FALSE} (default), the function returns a raw correction dataset}
@@ -20,9 +18,10 @@ process. If set to \code{FALSE} (default), the function returns a raw correction
 \value{
 If \code{summary = TRUE}, a summary dataset with information on the mean, median,
    mode, standard deviation, skewness, minimum and maximum bias between surface and operative temperatures
-   for every flight considered. If \code{summary = FALSE}, a raw correction dataset with
-   all observations of surface temperature (\code{ir_temp}) and operative temperature
-   (\code{op_temp}) for all tiles where OTMs were deployed for all flights considered.
+   for every flight considered. If \code{summary = FALSE}, the function returns
+   a raw correction dataset with all observations of surface temperature
+   (\code{surf_temp}) and operative temperature (\code{op_temp}) for all tiles
+   where OTMs were deployed for all flights considered.
 }
 \description{
 Allows users to evaluate the flight correction process

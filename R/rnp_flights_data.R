@@ -1,116 +1,120 @@
-## Read and process flights data ##
+# Read and process flights data
 
-#' Read and process flights data
-#'
 #' Reads and processes data from multiple flights in \code{.tif} format and adds metadata
 #'
-#' @param path A character indicating the directory where all \code{.tif}`
+#' @param path A character string indicating the directory where all \code{.tif}`
 #'    files for flights are stored. The name of each flight \code{.tif} file must
-#'    have associated metadata for the function to work.
+#'    have associated metadata.
 #' @param metadata A metadata \code{tibble} for the flights with information on
 #'    the \code{flight_id} (character), \code{date} (MM/DD/YYYY), \code{time_start} (HH:MM)
 #'    and \code{time_end} (HH:MM) of each flight.
-#' @param digits An integer (>0 & <6), indicating the number of decimal digit places
-#'    to which the final output should be summarized to. Will dictate the spatial
-#'    resolution of each of the tiles in the eventual thermal landscape.
+#' @param resolution A numeric > 0.5 indicating the spatial resolution of the
+#'    the final processed output in squared meters. This lower boundary is chosen
+#'    to exceed the spatial resolution of most drone-mounted thermal imaging cameras.
 #'
-#' @return A \code{tibble} where each row represents a unique tile (a unique combination
-#'    of \code{longitude} and \code{latitude}), with an associated IR surface temperature measurement
-#'    (\code{ir_temp}) for a unique flight. To identify each flight, each row of the
-#'    return \code{tibble} also contains information on the \code{year}, date of the year (\code{doy})
-#'    and the minute of the day (\code{mod}) when the flight started (\code{mod_start}) and ended (\code{mod_end})
+#' @return A \code{data.frame} where each row represents a unique tile (a unique
+#'    combination of \code{x} and \code{y} UTM coordinates), with an associated
+#'    surface temperature measurement (\code{surf_temp}) for a unique flight.
+#'    It also provides columns with the \code{year}, month \code{month},
+#'    day of the year \code{doy} the minute of the day when the flight started
+#'    (\code{mod_start}) and ended (\code{mod_end})
 #'
 #' @export
 
-rnp_flights_data <- function(path, metadata, digits){
+rnp_flights_data <- function(path, metadata, resolution){
 
-  ## checks
+  # run checks
+  if(!is.character(path)){stop("path must be a character string")}
+  if(!is.data.frame(metadata)){stop("metadata must be a data frame")}
+  if(!is.numeric(resolution)){stop("resolution must be a numeric value")}
+  if(resolution < 0.5){stop("resolution must be >= 0.5")}
+  if(length(list.files(path)) == 0){stop("there are no files in path")}
+  if("flight_id" %in% colnames(metadata)==F){stop("`flight_id` column missing in metadata")}
+  if("date" %in% colnames(metadata) == F){stop("`date` column missing in metadata")}
+  if("time_start" %in% colnames(metadata) == F){stop("`time_start` column missing in metadata")}
+  if("time_end" %in% colnames(metadata) == F){stop("`time_end` column missing in metadata")}
+  if(any(is.na(suppressWarnings(lubridate::mdy(metadata$date)))) &
+     any(is.na(suppressWarnings(lubridate::dmy(metadata$date)))) &
+     any(is.na(suppressWarnings(lubridate::ymd(metadata$date))))){
+    stop("incorrect `date` format in metadata, must be MM/DD/YYYY, DD/MM/YYYY or YYYY/MM/DD")}
+  if(any(is.na(suppressWarnings(lubridate::hm(metadata$time_start))))){
+    stop("incorrect `time_start` format in metadata, change to HH:MM")}
+  if(any(is.na(suppressWarnings(lubridate::hm(metadata$time_end))))){
+    stop("incorrect flight `time_end` format in metadata, change to HH:MM")}
 
-  # return error message if no files found on specified folder
-  if(length(list.files(path)) == 0){stop("There are no files in the specified folder")}
+  # transform date depending on date format
+  if(any(is.na(suppressWarnings(lubridate::mdy(metadata$date)))) &
+     any(is.na(suppressWarnings(lubridate::dmy(metadata$date))))){
+    metadata$date <- lubridate::ymd(metadata$date)
+  }
+  else if(any(is.na(suppressWarnings(lubridate::mdy(metadata$date)))) &
+          any(is.na(suppressWarnings(lubridate::ymd(metadata$date))))){
+    metadata$date <- lubridate::dmy(metadata$date)
+  }
+  else{metadata$date <- lubridate::mdy(metadata$date)}
 
-  # check that format of all files listed in the folder is .tif
-  if(any(tools::file_ext(list.files(path)) != "tif")){stop("Some files in the specified folder are not `.tif` format")}
-
-  # check that metadata file has all necessary columns
-  if("flight_id" %in% colnames(metadata) == FALSE){stop("`flight_id` column is missing in metadata file")}
-  if("date" %in% colnames(metadata) == FALSE){stop("Flight `date` column missing in metadata file")}
-  if("time_start" %in% colnames(metadata) == FALSE){stop("Flight `time_start` is column missing in metadata file")}
-  if("time_end" %in% colnames(metadata) == FALSE){stop("Flight `time_end` is column missing in metadata file")}
-
-  # check proper formatting on metadata file
-  if(any(is.na(lubridate::mdy(metadata$date)))){stop("Incorrect `date` column format, it should be MM/DD/YYYY")}
-  if(any(is.na(lubridate::hm(metadata$time_start)))){stop("Incorrect flight `time_start` column format, it should be HH:MM")}
-  if(any(is.na(lubridate::hm(metadata$time_end)))){stop("Incorrect flight `time_end` column format, it should be HH:MM")}
-
-  # check if digits is an integer
-  if(digits %in% !c(1,2,3,4,5,6)){stop("Incorrect value for `digits`, it should be an integer between 1 and 6")}
-
-  ## preparing data
+  # transform resolution from m^2 to m and round  to one decimal digit
+  resolution <- round(sqrt(resolution), digits = 1)
 
   # modify format of metadata file and select columns of interest
-  metadata$year <- lubridate::year(lubridate::mdy(metadata$date))
-  metadata$doy <- lubridate::yday(lubridate::mdy(metadata$date))
-  metadata$mod_start <- lubridate::hour(lubridate::hm(metadata$time_start))*60 + lubridate::minute(lubridate::hm(metadata$time_start))
-  metadata$mod_end <- lubridate::hour(lubridate::hm(metadata$time_end))*60 + lubridate::minute(lubridate::hm(metadata$time_end))
-  metadata <- metadata %>% dplyr::select(flight_id, year, doy, mod_start, mod_end)
+  metadata <- metadata |>
+    transform(year = as.numeric(format(date, "%Y")),
+              month = as.numeric(format(date, "%m")),
+              doy = lubridate::yday(date))
+  metadata$time_start <- lubridate::hm(metadata$time_start)
+  metadata$time_end <- lubridate::hm(metadata$time_end)
+  metadata$mod_start <- lubridate::hour(metadata$time_start) * 60 +
+    lubridate::minute(metadata$time_start)
+  metadata$mod_end <- lubridate::hour(metadata$time_end) * 60 +
+    lubridate::minute(metadata$time_end)
+  metadata <- metadata[,c("flight_id","year","month","doy","mod_start","mod_end")]
 
-  # list files within path specified
-  flight_files_list <- paste(path, "/", list.files(path), sep = "")
+  # list files and prepare holder for loop
+  flight_files_list <- list.files(path, full.names = TRUE) # list all files
+  flight_files_list <- flight_files_list[grepl(".tif", flight_files_list)] # keep only .tif files
+  flights_data <- data.frame(x = c(), y = c(), year = c(), doy = c(),
+                             mod_start = c(), mod_end = c(), surf_temp = c())
 
-  # build holder flights data
-  flights_data <- tibble(longitude = c(), latitude = c(), ir_temp = c(),
-                         year = c(), doy = c(), mod_start = c(), mod_end = c())
+  # set up progress bar
+  message("Reading and processing flights data...")
+  pb <- utils::txtProgressBar(min=1,max=length(flight_files_list),style=3)
 
-  ## reading and processing data in loop
-
-  # loop to read and add metadata to all flights in folder
+  # loop to read and add metadata to all flights in `path`
   for(i in 1:length(flight_files_list)){
 
-    # read .TIF file as a raster
-    flight_raster <- raster(flight_files_list[i])
+    # read and process the flight
+    flight_raster <- terra::rast(flight_files_list[i]) # read raster
+    flight_raster <- flight_raster[[names(flight_raster)[1]]] # get first layer
+    scale_factor <- resolution/terra::res(flight_raster) # scale resolution
+    flight_raster <- terra::aggregate(flight_raster,fact=scale_factor) # re-scale
+    flight <- as.data.frame(flight_raster, xy = TRUE) # convert to df
+    colnames(flight) <- c("x","y","surf_temp") # rename columns
+    flight <- flight[flight$surf_temp != 0, ] # remove columns with exactly 0
+    flight <- unique(flight)
 
-    # re-project raster into latitude and longitude
-    flight_raster <- projectRaster(flight_raster, crs = "+proj=longlat +datum=WGS84 +no_defs")
+    # extract metadata for specific file and add it to processed raster
+    flight_metadata <- metadata[metadata$flight_id == substr(
+      list.files(path)[i],1, nchar(list.files(path)[i]) - 4),]
+    flight <- flight |>
+      transform(year = rep(flight_metadata$year, nrow(flight)),
+                doy = rep(flight_metadata$doy, nrow(flight)),
+                mod_start = rep(flight_metadata$mod_start, nrow(flight)),
+                mod_end = rep(flight_metadata$mod_end, nrow(flight)))
 
-    # read raster and transform into data frame and change column names
-    flight <- as.data.frame(rasterToPoints(flight_raster))
-    colnames(flight) <- c("longitude", "latitude", "ir_temp")
-    flight <- flight %>% filter(ir_temp != 0)
-
-    # define decimal degrees on latitude and longitude measurements
-    flight$longitude <- as.numeric(format(flight$longitude, nsmall = digits))
-    flight$latitude <- as.numeric(format(flight$latitude, nsmall = digits))
-
-    # get mean temperature of same coordinates
-    suppressMessages(flight <- flight %>%
-      group_by(longitude, latitude) %>%
-      summarise(ir_temp = mean(ir_temp, na.rm = T)) %>%
-      ungroup())
-
-    # extract metadata for the flight of interest
-    flight_metadata <- metadata %>% filter(flight_id == str_sub(list.files(path)[i], end = -5))
-
-    # add flight metadata
-    flight <- flight %>% mutate(year = flight_metadata$year,
-                                doy = flight_metadata$doy,
-                                mod_start = flight_metadata$mod_start,
-                                mod_end = flight_metadata$mod_end)
-
-    # rbind flight with flights_data
+    # bind to holder
     flights_data <- rbind(flights_data, flight)
 
-    # print loop counter
-    print(paste(i,"out of", length(flight_files_list), "flight data files read & processed"))
-
-    # print end message
-    if(i == length(flight_files_list)){print("Flight data reading and processing complete!")}
-
+    # print progress
+    Sys.sleep(0.1)
+    utils::setTxtProgressBar(pb, i)
+    if(i == length(flight_files_list)){
+      message("Flight data reading and processing complete!")}
   }
 
-  ## return
+  # round data to standardize (Noa's trick)
+  flights_data$x <- round(flights_data$x * (1/resolution)) / (1/resolution)
+  flights_data$y <- round(flights_data$y * (1/resolution)) / (1/resolution)
+
 
   return(flights_data)
-
 }
-

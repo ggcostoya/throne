@@ -21,23 +21,18 @@ RoxygenNote: 7.3.1
 Depends:
   R (>= 4.1.0),
 Imports:
+  terra,
   dplyr,
   lubridate,
-  magrittr,
-  raster,
-  stringr,
   tibble,
   utils,
-  tidyr
 Suggests:
   ggplot2,
-  gridExtra,
   viridis,
-  metR,
-  plotly,
   devtools,
   forcats,
   knitr, 
-  ggpubr
+  ggpubr,
+  tidyr
 URL: https://ggcostoya.github.io/throne/
 VignetteBuilder: knitr

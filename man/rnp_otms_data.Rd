@@ -13,24 +13,24 @@ column with information on the moment (i.e., date and time of the day) when
 each measurement was made and a column with an operative temperature value
 for each measurement}
 
-\item{rows_skip}{A positive integer indicating the rows to skip when reading
+\item{rows_skip}{An integer >= 0 indicating the rows to skip when reading
 OTM \code{.csv} files. If omitted, it defaults to \code{0}.}
 
-\item{date_col}{A positive integer indicating the column in the OTM \code{.csv} file
+\item{date_col}{An integer >= 1 indicating the column in the OTM \code{.csv} file
 that contains date of the measurement. Dates need to be in either MM/DD/YYYY
 HH:MM:SS, MM/DD/YYYY HH:MM or MM/DD/YYYY.}
 
-\item{time_col}{A positive integer indicating the column in the OTM \code{.csv} file
+\item{time_col}{An integer >= 1 indicating the column in the OTM \code{.csv} file
 that contains the time of the measurement. Times need to be in HH:MM:SS or HH:MM
 format. If not specified, it will try to extract the date information
 from \code{date_col}.}
 
-\item{op_temp_col}{A positive integer indicating the column column in the
+\item{op_temp_col}{An integer >= 1 indicating the column column in the
 OTM \code{.csv} file that contains the operative temperature measurement}
 
 \item{metadata}{A \code{tibble} or \code{data.frame} containing metadata related to each
-OTM. It needs to have an \code{otm_id} character column matching the names of each
-of the OTM files.}
+OTM. It must include an \code{otm_id} character column matching the names of each
+of the OTM files and numeric columns for \code{latitude} and \code{longitude}}
 }
 \value{
 A \code{tibble} where each row represents a unique operative temperature
@@ -40,6 +40,6 @@ A \code{tibble} where each row represents a unique operative temperature
    metadata characteristics included in \code{metadata}.
 }
 \description{
-Read and processes data from multiple operative temperature model (OTM) \code{.csv} files and
-adds metadata
+Read and processes data from multiple operative temperature model (OTM)
+\code{.csv} files and adds metadata
 }

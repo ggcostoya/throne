@@ -6,7 +6,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary" data-bs-theme="dark"><div class="container">
+    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light" data-bs-theme="light"><div class="container">
     
     <a class="navbar-brand me-2" href="../index.html">throne</a>
 
@@ -82,12 +82,8 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>otm_data</dt>
-<dd><p>An OTM data <code>tibble</code> obtained via the function <code>rnp_otms_data</code>.
-It must include columns describing the OTM id (<code>otm_id</code>), the day of the
-year (<code>doy</code>), the minute of the day (<code>mod</code>) in which each operative temperature
-measurement (<code>op_temp</code>) was made. The function can run without <code>latitude</code> and
-<code>longitude</code> columns, but including them is necessary for the <code>correct_flights_data</code>,
-<code>match_data</code> and <code>predict_thermal_landscape</code> functions.</p></dd>
+<dd><p>An OTM data <code>tibble</code> obtained via the function
+<code>rnp_otms_data</code>.</p></dd>
 
 
 <dt>knot_p</dt>
@@ -100,33 +96,49 @@ the total number of operative measurements in a given day.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A complex <code>tibble</code> with columns for <code>otm_id</code>, <code>year</code>, <code>doy</code> and <code>spline</code>.
-   The spline column is nested and contains a OTM, year and DOY <code>smooth.spline</code> model
-   with the specified number of knots.</p>
+<p>A nested data frame (<code>tibble</code>) with columns for <code>otm_id</code>,</p>
+<p></p>
+<p><code>year</code>, <code>doy</code> and <code>spline</code>. The spline column is nested and
+   contains a OTM, year and DOY <code>smooth.spline</code> model with the specified
+   number of knots.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">`%&gt;%`</span> <span class="op">&lt;-</span> <span class="fu">magrittr</span><span class="fu">::</span><span class="va">`%&gt;%`</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># generate mock data</span></span></span>
+<span class="r-in"><span><span class="va">temps</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span> <span class="fl">10</span>, <span class="fl">12</span>, <span class="fl">14</span>, <span class="fl">16</span>, <span class="fl">18</span>, <span class="fl">20</span>, <span class="fl">22</span>, <span class="fl">24</span>, <span class="fl">25</span>, <span class="fl">24</span>, <span class="fl">22</span>, <span class="fl">20</span>, <span class="fl">18</span>, <span class="fl">16</span>, <span class="fl">14</span>, <span class="fl">12</span>,</span></span>
+<span class="r-in"><span><span class="fl">10</span>, <span class="fl">8</span>, <span class="fl">6</span>, <span class="fl">5</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">23</span>, <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">otm_data_ex</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>otm_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"A"</span>,<span class="fl">23</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                          year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1912</span>,<span class="fl">23</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                          doy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">200</span>,<span class="fl">23</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                          mod <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1380</span>,length <span class="op">=</span> <span class="fl">23</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                          op_temp <span class="op">=</span> <span class="va">temps</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># filter data for a specific OTM in a given doy</span></span></span>
-<span class="r-in"><span><span class="va">otm</span> <span class="op">&lt;-</span> <span class="va">otms_data</span> <span class="op">%&gt;%</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/get.html" class="external-link">get</a></span><span class="op">(</span><span class="st">"otm_id"</span><span class="op">)</span> <span class="op">==</span> <span class="st">"OTM12"</span><span class="op">)</span> <span class="op">%&gt;%</span></span></span>
-<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/get.html" class="external-link">get</a></span><span class="op">(</span><span class="st">"doy"</span><span class="op">)</span> <span class="op">==</span> <span class="fl">237</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># calculate splines with 1, 0.5, 0.25 knots</span></span></span>
+<span class="r-in"><span><span class="va">otm_spline_ex_1</span> <span class="op">&lt;-</span> <span class="fu">gen_otm_splines</span><span class="op">(</span><span class="va">otm_data_ex</span>, knot_p <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Generating OTM &amp; doy-specific spline models...</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in utils::txtProgressBar(min = 1, max = nrow(otm_splines), style = 3):</span> must have 'max' &gt; 'min'</span>
+<span class="r-in"><span><span class="va">otm_spline_ex_05</span> <span class="op">&lt;-</span> <span class="fu">gen_otm_splines</span><span class="op">(</span><span class="va">otm_data_ex</span>, knot_p <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Generating OTM &amp; doy-specific spline models...</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in utils::txtProgressBar(min = 1, max = nrow(otm_splines), style = 3):</span> must have 'max' &gt; 'min'</span>
+<span class="r-in"><span><span class="va">otm_spline_ex_025</span> <span class="op">&lt;-</span> <span class="fu">gen_otm_splines</span><span class="op">(</span><span class="va">otm_data_ex</span>, knot_p <span class="op">=</span> <span class="fl">0.25</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Generating OTM &amp; doy-specific spline models...</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in utils::txtProgressBar(min = 1, max = nrow(otm_splines), style = 3):</span> must have 'max' &gt; 'min'</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># generate the spline model</span></span></span>
-<span class="r-in"><span><span class="va">otm_spline</span> <span class="op">&lt;-</span> <span class="fu">gen_otm_splines</span><span class="op">(</span>otm_data <span class="op">=</span> <span class="va">otm</span>, knot_p <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">7.5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># sequence of minutes of the day to predict</span></span></span>
+<span class="r-in"><span><span class="va">mods</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1440</span>,<span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># obtain a prediction</span></span></span>
-<span class="r-in"><span><span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>mod <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1440</span>,by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>op_temp <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">otm_spline</span><span class="op">$</span><span class="va">spline</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1440</span>,by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># plotting</span></span></span>
-<span class="r-in"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span></span>
-<span class="r-in"><span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">otm</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">mod</span>, y <span class="op">=</span> <span class="va">op_temp</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">4</span>, alpha <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span> <span class="op">+</span></span></span>
-<span class="r-in"><span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pred</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">mod</span>, y <span class="op">=</span> <span class="va">op_temp</span><span class="op">)</span>, linewidth <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span> <span class="op">+</span></span></span>
-<span class="r-in"><span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"Minute of the day (MOD)"</span><span class="op">)</span> <span class="op">+</span></span></span>
-<span class="r-in"><span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Operative Temperature (C)"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># plot</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">otm_data_ex</span><span class="op">$</span><span class="va">mod</span>, <span class="va">otm_data_ex</span><span class="op">$</span><span class="va">op_temp</span>, cex <span class="op">=</span> <span class="fl">19</span>,</span></span>
+<span class="r-in"><span>     xlab <span class="op">=</span> <span class="st">"Minute of the day (mod)"</span>, ylab <span class="op">=</span> <span class="st">"Operative temperature (°C)"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">mods</span>, <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">otm_spline_ex_1</span><span class="op">$</span><span class="va">spline</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="va">mods</span><span class="op">)</span><span class="op">$</span><span class="va">y</span>, lty <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'otm_spline_ex_1' not found</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">mods</span>, <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">otm_spline_ex_05</span><span class="op">$</span><span class="va">spline</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="va">mods</span><span class="op">)</span><span class="op">$</span><span class="va">y</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'otm_spline_ex_05' not found</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">mods</span>, <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">otm_spline_ex_025</span><span class="op">$</span><span class="va">spline</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="va">mods</span><span class="op">)</span><span class="op">$</span><span class="va">y</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'otm_spline_ex_025' not found</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"1 knot"</span>, <span class="st">"0.5 knots"</span>, <span class="st">"0.25 knots"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>lty <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="gen_otm_splines-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

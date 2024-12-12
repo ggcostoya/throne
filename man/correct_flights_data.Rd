@@ -13,27 +13,29 @@ correct_flights_data(
 )
 }
 \arguments{
-\item{flights_data}{A \code{tibble} of flights data obtained through the \code{rnp_flights_data}
-function. The \code{tibble} must contain columns for `longitude` and `latitude`.}
+\item{flights_data}{A data frame of flights data obtained through the \code{rnp_flights_data}
+function.}
 
-\item{otm_splines}{A nested \code{tibble} obtained using the \code{gen_otm_splines} function.
-The \code{tibble} must contain columns for \code{longitude} and \code{latitude} and all values
-must also be in the \code{flights_data}}
+\item{otm_splines}{A nested \code{tibble} obtained using the \code{gen_otm_splines} function.}
 
 \item{time_correction}{A logical value (\code{TRUE} or \code{FALSE})
 indicating whether first correction step should be applied. If set to \code{TRUE},
 the function will add the mean, median or mode (based on \code{time_correction_metric},
 see below) bias between all surface and operative temperatures in tiles where
 OTMs were present to all surface temperature measurements within a flight.
-The goal of applying a time correction is to account for time-specific systematic
- biases between operative and surface temperatures which may be a by product of the
-inherent nature of thermal imaging (e.g., measurements being influenced by
-light conditions, sensor calibration. etc.). We recommend that
-\code{time_correction = TRUE} if \code{flight_specific_correction = FALSE}.}
+The goal of applying a time correction is to account for day and time-specific
+systematic biases between operative and surface temperatures which may be a
+by product of the inherent nature of thermal imaging (e.g., measurements being
+influenced by light conditions, sensor calibration. etc.).
+\code{time_correction = TRUE} if \code{flight_specific_correction = FALSE} is
+recommended.}
 
 \item{time_correction_metric}{A character string indicating the metric to be
 used to perform the time correction. The metric can be either \code{"mean"},
-\code{"median"} or \code{"mode"}.}
+\code{"median"} or \code{"mode"}.For most cases, \code{"mean"} is recommended
+but \code{"median"} could be used if outliers are detected. To evaluate
+the best method, use the function \code{eval_flights_correction} also
+included in \code{throne}.}
 
 \item{flight_specific_correction}{A logical value (\code{TRUE} or \code{FALSE})
 indicating whether the second correction step should be applied to all flights
@@ -42,8 +44,9 @@ step will also incorporate the effects of day of the year and minute of day
 into the linear model from which the correction will be performed.}
 }
 \value{
-A processed \code{flights_data} \code{tibble} where IR-measured temperatures (\code{ir_temp})
-   has been corrected to operative temperatures (\code{op_temp}).
+A processed \code{flights_data} \code{tibble} where IR-measured surface
+   temperatures (\code{surf_temp}) has been corrected to operative
+   temperatures (\code{op_temp}).
 }
 \description{
 Corrects flights data to transform IR-measured temperatures into operative temperatures

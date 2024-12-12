@@ -13,7 +13,7 @@ output:
 
 <style>
 p.caption {
-  font-size: 1em;
+  font-size: 0.9em;
 }
 </style>
 
@@ -25,7 +25,7 @@ In this vignette we illustrate a case study to serve as a worked out example on 
 
 # Study area and organism
 
-The population of western fence lizards discussed in this example inhabits a high elevation outcrop in the Great Basin of Northern Nevada. The site is characterized by a mosaic of sagebrush and pinyon-juniper woodlands interrupted by rocky outcrops of varying sizes. The area of interest also has a remarked degree of topographic heterogeneity with a ridge along the north-south axis dividing into two slopes: one \ eastern-facing with a gentle slope and the other western-facing with a steep slope that in some areas becomes a precipice:
+The population of western fence lizards discussed in this example inhabits a high elevation outcrop in the Great Basin of Northern Nevada. The site is characterized by a mosaic of sagebrush and pinyon-juniper woodlands interrupted by rocky outcrops of varying sizes. The area of interest also has a remarked degree of topographic heterogeneity with a ridge along the north-south axis dividing into two slopes: 
 
 <div class="figure" style="text-align: center">
 <img src="images/c_study_area.png" alt="Study area within the Great Basin of Northern Nevada, the red rectangle indicates the specific area of interest we will be focusing on." width="60%" />
@@ -37,7 +37,7 @@ The population of western fence lizards discussed in this example inhabits a hig
 <p class="caption">Topography of the area of study. A ridge divides the area between an eastern-facing side a relatively gentle slope and a western-facing side with a steep slope even becoming a precipice in some spots</p>
 </div>
 
-The study organism for this example is the western fence lizard (*Sceloporus occidentalis*), a common lizard of the western US that is locally abundant in our study area. This lizard is predominately spotted in the rocky outcrops that interrupt the landscape which it uses to bask during day-time hours. In this example, we will focus on 10 adult lizards that underwent mark-recapture during the month August of 2022.
+The study organism for this example is the western fence lizard (*Sceloporus occidentalis*), a species native the western US that is locally abundant in the study area. This lizard is predominately spotted in the rocky outcrops that interrupt the landscape which it uses to bask during day-time hours. This example focuses on 10 adult lizards that underwent mark-recapture during the month August of 2022.
 
 <div class="figure" style="text-align: center">
 <img src="images/c_study_organism.png" alt="A western fence lizard basking on a rock in the study area. Note that this individual is marked through a color combination painted on its side (Blue - Silver - Pink) used to identify it in the field." width="60%" />
@@ -48,8 +48,19 @@ The study organism for this example is the western fence lizard (*Sceloporus occ
 
 ## Collect and process thermal images.
 
-We flew 3 flights over an ~ 95000 $m^2$ area overlapping with the areas that we surveyed as part of the lizard mark-recapture. Two flights were conducted on the same day (`08/04/2022`) at `07:55` and `11:21` and a third flight was conducted 2 days later at `16:05`. Here's the metadata file for flights conducted:
+We flew 3 flights over an ~ 95000 $m^2$ area overlapping with the areas that we surveyed as part of the lizard mark-recapture. Two flights were conducted on the same day (`08/04/2022`) at `07:55` and `11:21` and a third flight was conducted 2 days later at `16:05`. Here's the metadata file for flights conducted. Below is the metadata for all flights
 
+
+``` r
+# specify folder where the package data is stored
+folder <- "C:/Users/ggarc/OneDrive/research/throne/" # modify this to local path
+
+# load the metadata file for all flights
+load(paste(folder, "case_study_data/c_flights_metadata.RData", sep = ""))
+
+# show metadata
+c_flights_metadata
+```
 
 ```
 ##    flight_id     date time_start time_end
@@ -58,11 +69,11 @@ We flew 3 flights over an ~ 95000 $m^2$ area overlapping with the areas that we 
 ## 3 c_flight_3 8/4/2022       7:55     8:19
 ```
 
-All flights were processed using the software `Pix4D` following the steps we present in the [Collecting and process thermal images vignette](https://ggcostoya.github.io/throne/articles/collect_n_process_thermal_images.html) included as part of the `throne` documentation to obtain 3 thermal orthomosaic files (i.e., `.tif` files).
+All flights were processed using the software `Pix4D` following the steps we present in the [Collecting and process thermal images vignette](https://ggcostoya.github.io/throne/articles/collect_n_process_thermal_images.html) included as part of the `throne` documentation to obtain 3 thermal orthomosaics (i.e., `.tif` files).
 
 ## Collect and process operative temperature data
 
-We 3D printed 150 operative temperature models using ABS plastic of the same shape, size and painted them to match the reflective properties of the western fence lizard. Inside of each model, we placed a Thermocron iButton logger set to record temperature every 60 minutes. We deployed these OTMs randomly throughout the site as, at the time, we did not have the expertise necessary for a more informed deployment. Fortunately, the sheer number of OTMs deployed enabled us to capture a wide enough range of micro habitats.
+We 3D printed 150 operative temperature models using ABS plastic of the same shape, size and painted them to match the reflective properties of the western fence lizard. Inside of each model, we placed a Thermocron iButton logger set to record temperature every 60 minutes. We deployed these OTMs randomly throughout the site as, at the time, we did not have the expertise necessary for a more informed deployment. Fortunately, the sheer number of OTMs enabled us to capture a wide enough range of micro habitats.
 
 <div class="figure" style="text-align: center">
 <img src="images/otm_model.png" alt="An operative temperature model of the type used for this study." width="60%" />
@@ -71,6 +82,14 @@ We 3D printed 150 operative temperature models using ABS plastic of the same sha
 
 The OTM metadata file we assembled looked like:
 
+
+``` r
+# load metadata file 
+load(paste(folder, "case_study_data/c_otms_metadata.RData", sep = ""))
+
+# show metadata 
+c_otms_metadata
+```
 
 ```
 ## # A tibble: 150 × 3
@@ -89,24 +108,13 @@ The OTM metadata file we assembled looked like:
 ## # ℹ 140 more rows
 ```
 
-
-``` r
-ggplot() +
-  geom_tile(data = c_flights_data, aes(x = longitude, y = latitude)) +
-  geom_point(data = c_otms_metadata, aes(x = longitude, y = latitude), size = 2, shape = 21, fill = "orange") +
-  theme_minimal()
-```
-
-<div class="figure" style="text-align: center">
-<img src="images/unnamed-chunk-7-1.png" width="400" height="600" />
-<p class="caption">Map of the study area (shaded) with the locations of the OTMs deployed. Note that not all OTMs fell inside of the area of study but due to their proximity, they can be used for subsequent analysis within the pipeline</p>
-</div>
-
 # R workflow
 
 ## Reading and processing flights data
 
-Following the `R` workflow specified in the `throne` package, the first step is to read and process the flights data. An important part of this step is to specify the `digits` argument which will set the spatial resolution of each of the tiles in the final thermal landscape prediction. For this example, we choose to set `digits = 5` as, at this latitude, this will lead to a tile area of ~ 0.95 $m^2$, which is representative of a microhabitat a lizard might be experiencing. We read and process the flights data using the `rnp_flights_data` function as follows:
+Following the `R` workflow specified in the `throne` package, the first step is to read and process the flights data. An important part of this step is to specify the `resolution` argument which will set the spatial resolution of each of the tiles in the final thermal landscape prediction. For this example, we choose to set `resolution = 1.5`, which is representative of a micro habitat a lizard might be experiencing. We read and process the flights data using the `rnp_flights_data` function as follows:
+
+
 
 
 ``` r
@@ -116,54 +124,47 @@ Following the `R` workflow specified in the `throne` package, the first step is 
 flight_files_path <- "x" # This would be a folder within the user's computer, not specified here
 
 # read and process flights data (assuming that the metadata file is the one that was prevously loaded)
-c_flights_data <- rnp_flights_data(path = flight_files_path, metadata = c_flights_metadata, digits = 5)
+c_flights_data <- rnp_flights_data(path = flight_files_path,
+                                   metadata = c_flights_metadata,
+                                   resolution = 1.5)
 ```
 
-The outcome will be a flights data `tibble` storing all of surface temperature (`ir_temp`) measurements collected across all flights:
+The outcome will be a flights data `tibble` storing all of surface temperature (`surf_temp`) measurements collected across all flights:
 
 
 ``` r
-c_flights_data
+head(c_flights_data)
 ```
 
 ```
-## # A tibble: 304,368 × 7
-##    longitude latitude ir_temp  year   doy mod_start mod_end
-##        <dbl>    <dbl>   <dbl> <dbl> <dbl>     <dbl>   <dbl>
-##  1     -119.     39.7    17.8  2022   218       965     988
-##  2     -119.     39.7    18.2  2022   218       965     988
-##  3     -119.     39.7    13.5  2022   218       965     988
-##  4     -119.     39.7    26.8  2022   218       965     988
-##  5     -119.     39.7    24.5  2022   218       965     988
-##  6     -119.     39.7    18.0  2022   218       965     988
-##  7     -119.     39.7    27.3  2022   218       965     988
-##  8     -119.     39.7    27.2  2022   218       965     988
-##  9     -119.     39.7    22.1  2022   218       965     988
-## 10     -119.     39.7    22.7  2022   218       965     988
-## # ℹ 304,358 more rows
+##            x       y surf_temp year doy mod_start mod_end
+## 163 289237.2 4402770  7.102429 2022 218       965     988
+## 164 289238.4 4402770 20.579145 2022 218       965     988
+## 165 289239.6 4402770 20.628806 2022 218       965     988
+## 166 289240.8 4402770 19.866348 2022 218       965     988
+## 167 289242.0 4402770 20.161145 2022 218       965     988
+## 168 289243.2 4402770 20.978074 2022 218       965     988
 ```
 
 We can plot this data using `ggplot2` tools to already get a sense of the thermal characteristics of the study area:
 
 
 ``` r
-c_flights_data %>%
-  mutate(hour = paste(floor(mod_start/60),":", mod_start - floor(mod_start/60) * 60)) %>%
-  mutate(hour = fct_reorder(hour, mod_start)) %>%
-  ggplot(aes(x = longitude, y = latitude, fill = ir_temp)) +
+c_flights_data |>
+  mutate(hour = paste(floor(mod_start/60),":", mod_start - floor(mod_start/60) * 60)) |>
+  mutate(hour = fct_reorder(hour, mod_start)) |>
+  ggplot(aes(x = x, y = y, fill = surf_temp)) +
   geom_raster() +
   scale_fill_viridis(option = "magma") +
   facet_grid(cols = vars(hour)) +
-  theme_minimal() +
+  theme_void() +
   theme(strip.text = element_text(size = 12),
-        axis.text = element_blank(),
-        axis.title = element_blank(),
         legend.position = "top") +
   guides(fill = guide_colorbar(title = "Surface temperature (°C)"))
 ```
 
 <div class="figure" style="text-align: center">
-<img src="images/unnamed-chunk-10-1.png" />
+<img src="images/plot_c_flights_data-1.png" alt="plot of chunk plot c_flights_data"  />
 </div>
 
 ## Reading and processing OTMs data
@@ -181,7 +182,7 @@ The next step would be to read and process the data collected via the OTMs. We c
 ## 6 6/13/2022 19:18  8.0 H22
 ```
 
-By taking a look at this (and other files) we can tell that there is no need to skip any rows when reading them as `.csv` which means that we can set the `rows_skip` argument of `rnp_otms_data` to `0`, such that it can start reading from the first row (excluding the column name, also the default parameter value for `rows_skip`). We can also see that the column `raw_data_time` contains information on both the date and the time of each measurement and thus, that we should set the `date_col` argument to `1`. We could also specify `time_col = 1`, but that's not necessary as if no `time_col` is specified, `rnp_flights_data` will assume that `date_col = time_col`. Lastly, we can see from this file that the operative temperature measurements are stored in the second column and that, as a result, we should set the `op_temp_col` argument to `2`. With this in mind, we can read and process the OTM data as follows:
+By taking a look at this (and other files) we can tell that there is no need to skip any rows when reading them as `.csv` which means that we can set the `rows_skip` argument of `rnp_otms_data` to `0`, such that it can start reading from the first row. We can also see that the column `raw_data_time` contains information on both the date and the time of each measurement and thus, that we should set the `date_col` argument to `1`. We could also specify `time_col = 1`, but that's not necessary as if no `time_col` is specified, `rnp_flights_data` will assume that `date_col = time_col`. Lastly, we can see from this file that the operative temperature measurements are stored in the second column and that, as a result, we should set the `op_temp_col` argument to `2`. With this in mind, we can read and process the OTM data as follows:
 
 
 ``` r
@@ -191,7 +192,11 @@ By taking a look at this (and other files) we can tell that there is no need to 
 otm_files_path <- "x" # This would be a folder within the user's computer, not specified here
 
 # read and process OTMs data (using the metadata file that was previously loaded)
-c_otms_data <- rnp_otms_data(path = otm_files_path, metadata = c_otms_metadata, rows_skip = 0, date_col = 1, op_temp_col = 2)
+c_otms_data <- rnp_otms_data(path = otm_files_path,
+                             metadata = c_otms_metadata,
+                             rows_skip = 0,
+                             date_col = 1, # same as time_col
+                             op_temp_col = 2)
 ```
 
 The outcome will be an OTM data `tibble` containing all the observations made by all OTMs:
@@ -200,24 +205,17 @@ The outcome will be an OTM data `tibble` containing all the observations made by
 
 
 ``` r
-as_tibble(c_otms_data)
+head(c_otms_data)
 ```
 
 ```
-## # A tibble: 262,016 × 7
-##    otm_id  year   doy   mod op_temp latitude longitude
-##    <chr>  <dbl> <dbl> <dbl>   <dbl>    <dbl>     <dbl>
-##  1 H1      2022   164   910    15       39.7     -119.
-##  2 H1      2022   164   970    17       39.7     -119.
-##  3 H1      2022   164  1030    16       39.7     -119.
-##  4 H1      2022   164  1090    15.5     39.7     -119.
-##  5 H1      2022   164  1150    13       39.7     -119.
-##  6 H1      2022   164  1210     9       39.7     -119.
-##  7 H1      2022   164  1270     4       39.7     -119.
-##  8 H1      2022   164  1330     2.5     39.7     -119.
-##  9 H1      2022   164  1390     2       39.7     -119.
-## 10 H1      2022   165    10     1       39.7     -119.
-## # ℹ 262,006 more rows
+##   otm_id year doy  mod op_temp latitude longitude        x       y
+## 1     H1 2022 164  850    17.0 39.74506 -119.4597 289251.9 4402355
+## 2     H1 2022 164  910    15.0 39.74506 -119.4597 289251.9 4402355
+## 3     H1 2022 164  970    17.0 39.74506 -119.4597 289251.9 4402355
+## 4     H1 2022 164 1030    16.0 39.74506 -119.4597 289251.9 4402355
+## 5     H1 2022 164 1090    15.5 39.74506 -119.4597 289251.9 4402355
+## 6     H1 2022 164 1150    13.0 39.74506 -119.4597 289251.9 4402355
 ```
 
 ## Generate OTM spline models
@@ -239,25 +237,25 @@ c_otms_splines
 ```
 
 ```
-## # A tibble: 11,008 × 6
-##    otm_id  year   doy latitude longitude spline    
-##    <chr>  <dbl> <dbl>    <dbl>     <dbl> <list>    
-##  1 H1      2022   164     39.7     -119. <smth.spl>
-##  2 H1      2022   165     39.7     -119. <smth.spl>
-##  3 H1      2022   166     39.7     -119. <smth.spl>
-##  4 H1      2022   167     39.7     -119. <smth.spl>
-##  5 H1      2022   168     39.7     -119. <smth.spl>
-##  6 H1      2022   169     39.7     -119. <smth.spl>
-##  7 H1      2022   170     39.7     -119. <smth.spl>
-##  8 H1      2022   171     39.7     -119. <smth.spl>
-##  9 H1      2022   172     39.7     -119. <smth.spl>
-## 10 H1      2022   173     39.7     -119. <smth.spl>
+## # A tibble: 11,008 × 8
+##    otm_id  year   doy latitude longitude       x        y spline    
+##    <chr>  <dbl> <dbl>    <dbl>     <dbl>   <dbl>    <dbl> <list>    
+##  1 H1      2022   164     39.7     -119. 289252. 4402355. <smth.spl>
+##  2 H1      2022   165     39.7     -119. 289252. 4402355. <smth.spl>
+##  3 H1      2022   166     39.7     -119. 289252. 4402355. <smth.spl>
+##  4 H1      2022   167     39.7     -119. 289252. 4402355. <smth.spl>
+##  5 H1      2022   168     39.7     -119. 289252. 4402355. <smth.spl>
+##  6 H1      2022   169     39.7     -119. 289252. 4402355. <smth.spl>
+##  7 H1      2022   170     39.7     -119. 289252. 4402355. <smth.spl>
+##  8 H1      2022   171     39.7     -119. 289252. 4402355. <smth.spl>
+##  9 H1      2022   172     39.7     -119. 289252. 4402355. <smth.spl>
+## 10 H1      2022   173     39.7     -119. 289252. 4402355. <smth.spl>
 ## # ℹ 10,998 more rows
 ```
 
 ## Correcting flight data
 
-Due to [the inherent differences in the physical properties of the surface temperature measurements from an IR camera and the operative temperature measurements from an OTM](https://ggcostoya.github.io/throne/articles/correcting_flight_data.html#overview), the next step in the `throne` package workflow is to correct the data obtained via flights using OTM flights data. To achieve this, we will use the `correct_flighs_data` function. To use the function, we will specify that we want a time correction (`time_correction = TRUE`), that we want the mean to be the metric used for the time correction (`time_correction_metric = "mean"`) but that we do not want a flight-specific correction (`flight_specific_correction = FALSE`, the default parameter): 
+The next step in the `throne` package workflow is to correct the data obtained via flights using OTM flights data. To achieve this, we will use the `correct_flighs_data` function. To use the function, we will specify that we want a time correction (`time_correction = TRUE`), that we want the mean to be the metric used for the time correction (`time_correction_metric = "mean"`) but that we do not want a flight-specific correction (`flight_specific_correction = FALSE`, the default parameter): 
 
 
 ``` r
@@ -273,10 +271,10 @@ We can visualize below the effects of the correction process (`Post-correction`)
 
 ``` r
 # plot the flights pre-correction
-pre_corr <- c_flights_data %>%
-  mutate(hour = paste(floor(mod_start/60),":", mod_start - floor(mod_start/60) * 60)) %>%
-  mutate(hour = fct_reorder(hour, mod_start)) %>%
-  ggplot(aes(x = longitude, y = latitude, fill = ir_temp)) +
+pre_corr <- c_flights_data |>
+  mutate(hour = paste(floor(mod_start/60),":", mod_start - floor(mod_start/60) * 60)) |>
+  mutate(hour = fct_reorder(hour, mod_start)) |>
+  ggplot(aes(x = x, y = y, fill = surf_temp)) +
   geom_raster() +
   scale_fill_viridis(option = "magma") +
   facet_grid(cols = vars(hour)) +
@@ -286,10 +284,10 @@ pre_corr <- c_flights_data %>%
   guides(fill = guide_colorbar(title = "Temperature (°C)"))
 
 # plot the flights post-correction
-post_corr <- c_flights_data_corr %>%
-  mutate(hour = paste(floor(mod_start/60),":", mod_start - floor(mod_start/60) * 60)) %>%
-  mutate(hour = fct_reorder(hour, mod_start)) %>%
-  ggplot(aes(x = longitude, y = latitude, fill = op_temp)) +
+post_corr <- c_flights_data_corr |>
+  mutate(hour = paste(floor(mod_start/60),":", mod_start - floor(mod_start/60) * 60)) |>
+  mutate(hour = fct_reorder(hour, mod_start)) |>
+  ggplot(aes(x = x, y = y, fill = op_temp)) +
   geom_raster() +
   scale_fill_viridis(option = "magma") +
   facet_grid(cols = vars(hour)) +
@@ -302,7 +300,7 @@ ggarrange(pre_corr, post_corr, nrow = 2, ncol = 1, common.legend = TRUE, legend 
 ```
 
 <div class="figure" style="text-align: center">
-<img src="images/unnamed-chunk-19-1.png"  />
+<img src="images/plot_comparison_pre-post_flight_correction-1.png" alt="plot of chunk plot comparison pre-post flight correction"  />
 </div>
 
 ## Match flight to OTM data
@@ -311,17 +309,18 @@ The last step before being able to predict thermal landscapes is to match the th
 
 
 ``` r
-c_flights_data_corr %>%
-  group_by(latitude, longitude) %>%
-  summarise(coverage_per = 100*(n()/3)) %>%
-  ggplot(aes(x = longitude, y = latitude)) +
+c_flights_data_corr |>
+  group_by(y, x) |>
+  summarise(coverage_per = 100*(n()/3)) |>
+  mutate(coverage_per = ifelse(coverage_per > 100, 100, coverage_per)) |>
+  ggplot(aes(x = x, y = y)) +
   geom_raster(aes(fill = coverage_per)) +
   guides(fill = guide_colorbar(title = "Coverage (%)")) +
   theme_void()
 ```
 
 <div class="figure" style="text-align: center">
-<img src="images/unnamed-chunk-20-1.png"  />
+<img src="images/plot coverage across flights-1.png" alt="plot of chunk plot coverage across flights"  />
 </div>
 
 In our case, we can set `coverage_per = 1` to ensure that only areas covered across all flights are considered although, for a greater number of flights we would recommend setting `coverage_per = 0.9`. The second input (`error_max`) determines the maximum average absolute error between a tile and OTM dynamics that should be specified as a threshold for the matching. If the average absolute difference between a tile's thermal dynamics and the OTM that best describes it is > `error_max`, that tile is not matched to any OTM and thus should not be considered. In this case, we will follow our own specifications and set `error_max = 5`. Now, we can run the `match_data` function as follows:
@@ -337,36 +336,29 @@ The result will be a matches `tibble` with the OTM that best describes the dynam
 
 
 ``` r
-c_matches
+head(c_matches)
 ```
 
 ```
-## # A tibble: 98,363 × 5
-##    latitude longitude coverage error otm_id
-##       <dbl>     <dbl>    <dbl> <dbl> <chr> 
-##  1     39.7     -119.        1 NA    <NA>  
-##  2     39.7     -119.        1  2.32 H16   
-##  3     39.7     -119.        1  3.45 H82   
-##  4     39.7     -119.        1  4.60 H16   
-##  5     39.7     -119.        1  2.10 H94   
-##  6     39.7     -119.        1  3.24 H47   
-##  7     39.7     -119.        1  3.12 H121  
-##  8     39.7     -119.        1  3.26 H132  
-##  9     39.7     -119.        1  3.30 H36   
-## 10     39.7     -119.        1  3.00 H6    
-## # ℹ 98,353 more rows
+##            x       y coverage      error otm_id
+## 63  289065.6 4402654        1 11.8962132   H129
+## 114 289066.8 4402654        1  1.5364074    H39
+## 184 289068.0 4402654        1  0.4646073    H89
+## 220 289068.0 4402686        1 10.3619358    H93
+## 279 289069.2 4402654        1  0.2772866    H49
+## 328 289069.2 4402686        1  2.7483973    H32
 ```
 
 We can visualize the results of the matching step as shown below:
 
 <div class="figure" style="text-align: center">
-<img src="images/unnamed-chunk-24-1.png"  />
+<img src="images/plot_assigned_OTM_id_map-1.png" alt="plot of chunk plot assigned OTM id map"  />
 </div>
 
 In the plot above, each tile is color coded to match the ID of the OTM that best described it (each color is a unique OTM). Without need for user-specified input, the matching process identified the topography of the terrain, assigning different OTMs to the eastern and western facing sides of the ridge that divides the site.
 
 <div class="figure" style="text-align: center">
-<img src="images/unnamed-chunk-25-1.png"  />
+<img src="images/plot matching error-1.png" alt="plot of chunk plot matching error"  />
 </div>
 
 The matching bias (`error`) was generally very low (a good thing) and the number of tiles that could not be assigned to any OTM when setting `error_max = 5` was minimal (tiles highlighted in black). 
@@ -377,20 +369,21 @@ Using all the above, we can finally predict the thermal landscapes of the site u
 
 
 ``` r
-example_prediction <- predict_thermal_landscape(matches = c_matches, otm_splines = c_otms_splines, doy = 222, mod = seq(360,1260, by = 60))
+example_prediction <- predict_thermal_landscape(
+  matches = c_matches, 
+  otm_splines = c_otms_splines,
+  doy = 222,
+  mod = seq(360,1260, by = 60))
 ```
 
-```
-## [1] "0.05 % of predictions were removed due to falling outside of the time when OTMs were recording"
-```
-
-We can visualize it as follows:
+We can visualize some predictions as follows:
 
 
 ``` r
-example_prediction %>%
-  filter(!is.na(mod)) %>%
-  ggplot(aes(x = longitude, y = latitude, fill = pred_op_temp)) +
+example_prediction |>
+  filter(!is.na(mod)) |>
+  filter(mod %in% c(6*60, 9*60, 13*60, 19*60)) |>
+  ggplot(aes(x = x, y = y, fill = pred_op_temp)) +
   geom_raster() +
   scale_fill_viridis(option = "magma") +
   facet_wrap(~mod/60) +
@@ -400,7 +393,7 @@ example_prediction %>%
 ```
 
 <div class="figure" style="text-align: center">
-<img src="images/unnamed-chunk-27-1.png"  />
+<img src="images/visualize thermal landscape prediction-1.png" alt="plot of chunk visualize thermal landscape prediction"  />
 </div>
 Each panel above shows the predicted thermal landscape of the entire site at a given hour of the day. Tiles colored in white are tiles for which no OTM could be assigned during the matching process. 
 
@@ -417,18 +410,18 @@ lizard_mr
 
 ```
 ## # A tibble: 36 × 7
-##    id    sex    year   doy   mod latitude longitude
-##    <chr> <chr> <int> <dbl> <dbl>    <dbl>     <dbl>
-##  1 H005  M      2022   175   720     39.7     -119.
-##  2 H005  M      2022   200   767     39.7     -119.
-##  3 H005  M      2022   173   678     39.7     -119.
-##  4 H005  M      2022   180   720     39.7     -119.
-##  5 H009  M      2022   193   704     39.7     -119.
-##  6 H009  M      2022   216   630     39.7     -119.
-##  7 H009  M      2022   173   753     39.7     -119.
-##  8 H009  M      2022   214   784     39.7     -119.
-##  9 H020  M      2023   166   765     39.7     -119.
-## 10 H020  M      2022   195   774     39.7     -119.
+##    id    sex    year   doy   mod        y       x
+##    <chr> <chr> <int> <dbl> <dbl>    <dbl>   <dbl>
+##  1 H005  M      2022   175   720 4402397. 289268.
+##  2 H005  M      2022   200   767 4402413. 289264.
+##  3 H005  M      2022   173   678 4402417. 289269.
+##  4 H005  M      2022   180   720 4402415. 289295.
+##  5 H009  M      2022   193   704 4402510. 289395.
+##  6 H009  M      2022   216   630 4402492. 289327.
+##  7 H009  M      2022   173   753 4402553. 289316.
+##  8 H009  M      2022   214   784 4402560. 289324.
+##  9 H020  M      2023   166   765 4402683. 289237.
+## 10 H020  M      2022   195   774 4402683. 289234.
 ## # ℹ 26 more rows
 ```
 
@@ -441,18 +434,18 @@ library(ggnewscale)
 
 # plotting
 ggplot() +
-  geom_raster(data = example_prediction %>% filter(mod == 10*60),
-              aes(x = longitude, y = latitude, fill = pred_op_temp)) +
+  geom_raster(data = example_prediction |>filter(mod == 10*60),
+              aes(x = x, y = y, fill = pred_op_temp)) +
   scale_fill_viridis(option = "magma") +
   new_scale_fill() +
   geom_polygon(data = lizard_mr,
-               aes(x = longitude, y = latitude, fill = id),
+               aes(x = x, y = y, fill = id),
                alpha = 0.75, col = "black", linewidth = 0.5) +
   theme_minimal()
 ```
 
 <div class="figure" style="text-align: center">
-<img src="images/unnamed-chunk-30-1.png"  />
+<img src="images/plot lizard territories on top of thermal landscape-1.png" alt="plot of chunk plot lizard territories on top of thermal landscape"  />
 </div>
 
 We can hen calculate the average predicted operative temperature experience by each individual within their home range as:
@@ -460,7 +453,7 @@ We can hen calculate the average predicted operative temperature experience by e
 
 ``` r
 # holder object
-example_pred_lizards <- tibble(id = c(), latitude = c(), longitude = c(), mod = c(), pred_op_temp = c())
+example_pred_lizards <- tibble(id = c(), y = c(), x = c(), mod = c(), pred_op_temp = c())
 
 # get unique lizard id list
 lizard_list <- unique(lizard_mr$id)
@@ -469,14 +462,14 @@ lizard_list <- unique(lizard_mr$id)
 for(i in 1:length(lizard_list)){
 
   # select polygon for the lizard
-  lizard_polygon <- lizard_mr %>% filter(id == lizard_list[i])
+  lizard_polygon <- lizard_mr |>filter(id == lizard_list[i])
 
   # filter thermal landscape for rough home-range for each lizard
-  rough_home_range <- example_prediction %>%
-    filter(longitude >= min(lizard_polygon$longitude) & longitude <= max(lizard_polygon$longitude) &
-             latitude >= min(lizard_polygon$latitude) & latitude <= max(lizard_polygon$latitude)) %>%
-    mutate(id = lizard_list[i]) %>%
-    select(id, latitude, longitude, mod, pred_op_temp)
+  rough_home_range <- example_prediction |>
+    filter(x >= min(lizard_polygon$x) & x <= max(lizard_polygon$x) &
+             y >= min(lizard_polygon$y) & y <= max(lizard_polygon$y)) |>
+    mutate(id = lizard_list[i]) |>
+    select(id, y, x, mod, pred_op_temp)
 
   # bind to holder object
   example_pred_lizards <- rbind(example_pred_lizards, rough_home_range)
@@ -490,7 +483,7 @@ We can visualize the average predicted operative temperature experienced by each
 
 
 ``` r
-example_pred_lizards %>%
+example_pred_lizards |>
   ggplot(aes(x = pred_op_temp, y = id)) +
   stat_summary(aes(col = id), linewidth = 1, size = 1) +
   ylab("Lizard ID") + xlab("Mean day-time operative temperature within home range (C)") +
@@ -503,14 +496,14 @@ example_pred_lizards %>%
 ```
 
 <div class="figure" style="text-align: center">
-<img src="images/unnamed-chunk-32-1.png"  />
+<img src="images/plot_average_daytime_op_temp_in_each_lizard_territory-1.png" alt="plot of chunk plot average daytime op temp in each lizard territory"  />
 </div>
 
 As seen above, individuals experience substantially different thermal environments on average, but how does this translate by hour of the day?:
 
 
 ``` r
-example_pred_lizards %>%
+example_pred_lizards |>
   ggplot(aes(x = mod/60, y = pred_op_temp)) +
   stat_summary(aes(col = id), geom = "line", linewidth = 2, alpha = 0.5) +
   stat_summary(geom = "line", linewidth = 2) +
@@ -520,16 +513,16 @@ example_pred_lizards %>%
 ```
 
 <div class="figure" style="text-align: center">
-<img src="images/unnamed-chunk-33-1.png"  />
+<img src="images/plot mean operative temp in lizard territory by hour of the day-1.png" alt="plot of chunk plot mean operative temp in lizard territory by hour of the day"  />
 </div>
 
 Lastly, we can consider what is the ecological relevance of the different conditions experienced by each individual by examining the percentage of their home range that falls within their **preferred temperature** ($T_{pref}$), which for this species falls between 30 and 35 C. We can visualize this percentage by hour of the day as follows:
 
 
 ``` r
-example_pred_lizards %>%
-  mutate(at_tpref = ifelse(pred_op_temp >= 30 & pred_op_temp <= 35, 1, 0)) %>%
-  group_by(mod, id) %>% summarise(at_tpref = mean(at_tpref)) %>%
+example_pred_lizards |>
+  mutate(at_tpref = ifelse(pred_op_temp >= 30 & pred_op_temp <= 35, 1, 0)) |>
+  group_by(mod, id) |>summarise(at_tpref = mean(at_tpref)) |>
   ggplot(aes(x = mod / 60, y = at_tpref * 100)) +
   geom_line(aes(col = id), linewidth = 2, alpha = 0.5) +
   stat_summary(geom = "line", col = "black", linewidth = 2) +
@@ -539,7 +532,7 @@ example_pred_lizards %>%
 ```
 
 <div class="figure" style="text-align: center">
-<img src="images/unnamed-chunk-34-1.png"  />
+<img src="images/plot percentage of home range within thermal optima range-1.png" alt="plot of chunk plot percentage of home range within thermal optima range"  />
 </div>
 Individuals differ substantially on the percentage of their home range that falls within their preferred temperature range. This information can be used to infer the potential impact of the thermal landscape on the fitness of each individual.
 

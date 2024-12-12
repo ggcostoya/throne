@@ -7,25 +7,28 @@
 predict_thermal_landscape(matches, otm_splines, doy, mod)
 }
 \arguments{
-\item{matches}{A matches \code{tibble} obtained using the \code{match_data} function.}
+\item{matches}{A matches data frame obtained using the \code{match_data} function.}
 
-\item{otm_splines}{A complex \code{tibble} obtained using the \code{gen_otm_splines} function.}
+\item{otm_splines}{A nested \code{tibble} obtained using the \code{gen_otm_splines} function.}
 
 \item{doy}{An integer or vector of integers indicating the day(s) of the year
 (\code{doy}) for which the thermal landscape should be predicted. All elements within
 \code{doy} must be within the range between when the OTMs started and finished
 recording operative temperatures.}
 
-\item{mod}{An integer of vector of integers indicating the minute(s) of the
-day (MOD) for which the thermal landscape should be predicted. All elements
+\item{mod}{A numeric vector of length >=1 indicating the minute(s) of the
+day (\code{mod}) for which the thermal landscape should be predicted. All elements
 within \code{mod} must fall within the 0 to 1440 range. If \code{mod} includes
-values when the OTMs were not recording it will return \code{NA} and provide a
-diagnostics message}
+values when the OTMs were not recording the function will remove them and provide
+a diagnostics message indicating the percentage of predictions removed.}
 }
 \value{
-A \code{tibble} with a predicted thermal landscape with \code{longitude}, \code{latitude},
-   \code{doy}, \code{mod} and predicted operative temperature columns (\code{pred_op_temp}).
+A data frame with a predicted thermal landscape with \code{x}, \code{y},
+   (UTM coordinates), \code{doy},\code{mod} and predicted operative temperature
+   columns (\code{pred_op_temp}).
 }
 \description{
-Predict thermal landscape
+Predicts a thermal landscape by integrating information from an OTM-tile match
+object and an \code{otm_splines} object for a specified range of days of the
+year (\code{doy}) and minutes of the day (\code{mod}).
 }

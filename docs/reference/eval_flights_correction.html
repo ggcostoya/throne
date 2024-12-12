@@ -6,7 +6,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary" data-bs-theme="dark"><div class="container">
+    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light" data-bs-theme="light"><div class="container">
     
     <a class="navbar-brand me-2" href="../index.html">throne</a>
 
@@ -82,14 +82,12 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>flights_data</dt>
-<dd><p>A <code>tibble</code> of flights data obtained through the <code>rnp_flights_data</code>
-function. The <code>tibble</code> must contain columns for `longitude` and `latitude`.</p></dd>
+<dd><p>A data frame of flights data obtained through the <code>rnp_flights_data</code>
+function.</p></dd>
 
 
 <dt>otm_splines</dt>
-<dd><p>A nested <code>tibble</code> obtained using the <code>gen_otm_splines</code> function.
-The <code>tibble</code> must contain columns for <code>longitude</code> and <code>latitude</code> and all values
-must also be in the <code>flights_data</code></p></dd>
+<dd><p>A nested <code>tibble</code> obtained using the <code>gen_otm_splines</code> function.</p></dd>
 
 
 <dt>summary</dt>
@@ -103,9 +101,10 @@ process. If set to <code>FALSE</code> (default), the function returns a raw corr
 
 <p>If <code>summary = TRUE</code>, a summary dataset with information on the mean, median,
    mode, standard deviation, skewness, minimum and maximum bias between surface and operative temperatures
-   for every flight considered. If <code>summary = FALSE</code>, a raw correction dataset with
-   all observations of surface temperature (<code>ir_temp</code>) and operative temperature
-   (<code>op_temp</code>) for all tiles where OTMs were deployed for all flights considered.</p>
+   for every flight considered. If <code>summary = FALSE</code>, the function returns
+   a raw correction dataset with all observations of surface temperature
+   (<code>surf_temp</code>) and operative temperature (<code>op_temp</code>) for all tiles
+   where OTMs were deployed for all flights considered.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

@@ -15,22 +15,22 @@ knitr::opts_chunk$set(echo = TRUE)
 devtools::load_all()
 ```
 
-Welcome to `throne`! In this vignette, we will provide a general overview of the aims and functionality of this package as well as links to subsequent vignettes including details on each of the steps of the process. 
+Welcome to `throne`! This vignette provides a general overview of the aims and functionality of this package as well as links to subsequent vignettes including details on each of the steps of the process. 
 
 # The aim of `throne`. 
 
-The overall aim when using the `throne` package is to obtain a **spatio-temporally complete prediction of the thermal landscape of an area of interest**. By thermal landscape, we refer to a data set that includes temperature measurements in a specified area (i.e., a set of "tiles" described by a unique latitude and longitude) across multiple moments in time (i.e., years, days all the way down to minutes). To generate these predictions, the `throne` package integrates spatially complete but temporally discrete thermal data collected via aerial photogrammetry using **th**ermal imaging dr**one**s (hence `throne`), with spatially discrete but temporally complete operative temperature data collected via **operative temperature models** (OTMs). Generating spatio-temporally complete thermal landscapes allows users to obtain a characterization of the thermal properties of an area of study at an unprecedented level of detail. Below is an example of the final output of the `throne` package, a predicted thermal landscape over an area of study across all times for an entire day: 
+The overall aim when using the `throne` package is to obtain a **spatio-temporally complete prediction of the thermal landscape of an area of interest**. By thermal landscape, we refer to a data set that includes temperature measurements in a specified area across multiple moments in time. To generate these predictions, `throne`  integrates spatially complete but temporally discrete thermal data collected via aerial photogrammetry using **th**ermal imaging dr**one**s (hence `throne`), with spatially discrete but temporally complete operative temperature data collected via **operative temperature models** (OTMs). Generating spatio-temporally complete thermal landscapes allows users to obtain a characterization of the thermal properties of study area at an unprecedented level of detail. Below is an example of the final output of the `throne` package, a predicted thermal landscape over an area of study across all times for an entire day: 
 
-```{r, echo=FALSE, out.width = '60%', fig.align = 'center'}
+```{r final product gif, echo=FALSE, out.width = '70%', out.height='90%', fig.align = 'center'}
 knitr::include_graphics("images/case_dynamic_thermal_landscape.gif")
 ```
 
 # The `throne` workflow
 
-Below is a diagram of the entire workflow of the `throne` package. In essence, the entire process is divided into `8` steps that are performed in processing software and in `R`: 
+Below is a diagram of the entire workflow of the `throne` package. The entire process is divided into `8` steps that are performed in external processing software and in `R`: 
 
-```{r, echo=FALSE, out.width = '80%', fig.align = 'center'}
-knitr::include_graphics("images/overview_workflow.png")
+```{r workflow overview image, echo=FALSE, out.width = '90%', fig.align = 'center'}
+knitr::include_graphics("images/overview_workflow.jpg")
 ```
 
 The steps of the workflow are discussed in the following sections:
@@ -40,31 +40,31 @@ The steps of the workflow are discussed in the following sections:
 The first step is to collect thermal images using a thermal imaging drone. To achieve this, the users will need to:
 
 1. Acquire a thermal imaging drone. 
-2. Plan and conduct flights with the thermal imaging drone multiple times over an area of interest. 
-3. Process the thermal imagery using a photogrammetry software to obtain a thermal orthomosaic (i.e., a `.TIF` file) for each flight. 
+2. Plan and conduct flights with the drone multiple times over an area of interest. 
+3. Process the thermal imagery using a photogrammetry software to obtain a thermal orthomosaic (i.e., a `.tif` file) for each flight. 
 
-To achieve this, we have included a [step-by-step guide](https://ggcostoya.github.io/throne/articles/collect_n_process_thermal_images.html) on how to perform each of these steps that also includes recommendations on the kind of drone and photogrammetry software to use. 
+Although this step is not done in `R`, the `throne` package documentation includes a [step-by-step guide](https://ggcostoya.github.io/throne/articles/collect_n_process_thermal_images.html) on how to perform each of these steps with recommendations on the kind of drone and photogrammetry software to use. 
 
 ### **2. Collect OTM data**
 
-The second step is to collect operative temperature model (OTM) data. We elaborate on the concept [here](https://ggcostoya.github.io/throne/articles/collect_otm_data.html#building-otms) but in short, an operative temperature is a measurement of temperature performed inside of an object (i.e., a model) with zero heat capacity, the same size, shape and radiation properties as an organism of interest. Measuring operative temperatures (as opposed to air or surface temperatures) is critical in order to be able to accurately characterize the thermal environment that an organism of interest is actually experiencing. To collect operative temperature model data we also provide a [step-by-step guide](https://ggcostoya.github.io/throne/articles/collect_otm_data.html) that goes through the following steps: 
+The second step is to collect operative temperature model (**OTM**) data. We elaborate on this [here](https://ggcostoya.github.io/throne/articles/collect_otm_data.html#building-otms) but in short, an operative temperature is a measurement of temperature performed inside of an object (i.e., a model) with zero heat capacity, the same size, shape and radiation properties as an organism of interest. Measuring operative temperatures (as opposed to air or surface temperatures) is crucial to accurately characterize the thermal environment  an organism of interest is actually experiencing. To collect operative temperature model data we also provide a [step-by-step guide](https://ggcostoya.github.io/throne/articles/collect_otm_data.html) that goes through the following steps: 
 
 1. Build OTMs
-2. Program temperature loggers (i.e., iButtons) that will be contained inside of the OTM.
+2. Program temperature loggers that will be contained inside of the OTM.
 3. Plan and conduct the deployment of OTMs in the field. 
 4. Recover the OTMs and download the stored data into `.csv` files. 
 
 ### **3. Read & process flight data**
 
-The third step is the reading and processing of thermal orthomosaics (`.TIF` files that we call "flight data" for simplicity) into a data structure that can be worked with in the `R` environment. This process is achieved through the [`rnp_flights_data`](https://ggcostoya.github.io/throne/reference/rnp_flights_data.html) function of the `throne` package. In [this vignette](https://ggcostoya.github.io/throne/articles/rnp_flights_data.html) we discuss in detail how this function works and we provide some insights into how to determine the spatial resolution of flights data via the [`digits`](https://ggcostoya.github.io/throne/articles/rnp_flights_data.html#digits) argument. 
+The third step is the reading and processing of thermal orthomosaics (`.tif` files that we call "flight data" for simplicity) into a data frame `R` environment. This process is achieved through the [`rnp_flights_data`](https://ggcostoya.github.io/throne/reference/rnp_flights_data.html) function. In [this vignette](https://ggcostoya.github.io/throne/articles/rnp_flights_data.html) we present how to use this function in detail. 
 
 ### **4. Read & process OTM data**
 
-The fourth step is the reading and processing of the data (in `.csv` format) collected by OTMs deployed in the field. To achieve this, the `throne` package includes the [`rnp_otms_data`](https://ggcostoya.github.io/throne/reference/rnp_otms_data.html) function which is capable of reading OTM data files regardless of the formatting. More details on how this function works can be found [here](https://ggcostoya.github.io/throne/articles/rnp_otms_data_gen_otm_splines.html#how-the-rnp_otms_data-function-works).
+The fourth step is  reading and processing of the data (in `.csv` format) collected by OTMs deployed in the field. To achieve this, the `throne` package includes the [`rnp_otms_data`](https://ggcostoya.github.io/throne/reference/rnp_otms_data.html) function. More details on how this function works can be found [here](https://ggcostoya.github.io/throne/articles/rnp_otms_data_gen_otm_splines.html#how-the-rnp_otms_data-function-works).
 
 ### **5. Generate OTM spline models**
 
-The fifth step is the generation of cubic spline models from OTM data which, in the context of the `throne` package, is performed by the [`gen_otm_splines`](https://ggcostoya.github.io/throne/reference/gen_otm_splines.html) function. In short, this function will fit a unique cubic spline model to each OTM for each day it was deployed in the field as a way to obtain a continuous characterization of its temperature fluctuation. In [this vignette](https://ggcostoya.github.io/throne/articles/rnp_otms_data_gen_otm_splines.html#how-the-rnp_otms_data-function-works) we detail how this function works and we provide some guidelines on how to choose the appropriate "wiggliness" of the resulting model through the [`knot_p` argument](https://ggcostoya.github.io/throne/articles/rnp_otms_data_gen_otm_splines.html#choosing-the-appropriate-knot_p-value-)
+The fifth step is the generation of cubic spline models from OTM data. This step is performed using [`gen_otm_splines`](https://ggcostoya.github.io/throne/reference/gen_otm_splines.html) function. In short, this function will fit a unique cubic spline model to each OTM for each day it was deployed in the field as a way to obtain a continuous characterization of its temperature fluctuation. In [this vignette](https://ggcostoya.github.io/throne/articles/rnp_otms_data_gen_otm_splines.html#how-the-rnp_otms_data-function-works) we detail how this function works and we provide some guidelines on how to choose the appropriate "wiggliness" of the resulting model through the [`knot_p` argument](https://ggcostoya.github.io/throne/articles/rnp_otms_data_gen_otm_splines.html#choosing-the-appropriate-knot_p-value-)
 
 ### **6. Correct flight data**
 
@@ -72,7 +72,7 @@ The sixth step will be the correction of flights data using the newly created sp
 
 ### **7. Match flight and OTM data**
 
-The seventh step of the `throne` workflow is the matching of flights and OTM data. The goal of this step, which can be performed using the [`match_data`](https://ggcostoya.github.io/throne/reference/match_data.html) function is to link the thermal dynamics of each of the tiles (i.e., unique combination of latitude and longitude values) of the study area to the thermal dynamics of an OTM. More details on how the matching process is performed can be found [here](https://ggcostoya.github.io/throne/articles/predict_thermal_landscapes.html#the-match_data-function). 
+The seventh step of the `throne` workflow is the matching of flights and OTM data. The goal of this step, which can be performed using the [`match_data`](https://ggcostoya.github.io/throne/reference/match_data.html) function, is to link the thermal dynamics of each of the tiles (i.e., unique combination of x and and longitude values) of the study area to the thermal dynamics of an OTM. More details on how the matching process is performed can be found [here](https://ggcostoya.github.io/throne/articles/predict_thermal_landscapes.html#the-match_data-function). 
 
 ### **8. Predict thermal landscapes**
 
@@ -82,10 +82,6 @@ To start, in the next we introduce the field part of the `throne` workflow focus
 
 <nav aria-label="Page navigation">
  <ul class="pagination justify-content-end">
-  <li class="page-item">(No previous page)</li>
   <li class="page-item"><a class="page-link" href="collect_n_process_thermal_images.html">Next: Collect and process thermal imagery </a></li>
  </ul>
 </nav>
-
-
-

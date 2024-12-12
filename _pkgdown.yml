@@ -1,7 +1,7 @@
 url: https://ggcostoya.github.io/throne
 template:
   bootstrap: 5
-  bootswatch: sandstone
+  bootswatch: litera
 toc:
   depth: 3
 navbar:
@@ -45,24 +45,12 @@ reference:
   - match_data
   - predict_thermal_landscape
 - title: Datasets
-  desc: Datasets used in the throne package
-- subtitle: Example datasets
-  desc: Datasets used as part of the examples in the package and in the validation of method
+  desc: Example datasets included with the throne package
   contents:
   - flights_metadata
   - flights_data
   - otms_metadata
   - otms_data
-  - otms_splines
-  - matches_5
-- subtitle: Case study datasets
-  desc: Datasets used in the case study
-- subtitle: Other datasets
-  desc: Miscellaneous datasets used in the vignettes
-  contents:
-  - matches_100
-  - elevation
-  - bad_read_otm
-  - good_read_otm
+  - matches
 
 

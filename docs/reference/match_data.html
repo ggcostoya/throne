@@ -10,7 +10,7 @@ temperature model (OTM)."><!-- mathjax --><script src="https://cdnjs.cloudflare.
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary" data-bs-theme="dark"><div class="container">
+    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light" data-bs-theme="light"><div class="container">
     
     <a class="navbar-brand me-2" href="../index.html">throne</a>
 
@@ -88,9 +88,9 @@ temperature model (OTM).</p>
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>flights_data</dt>
-<dd><p>A <code>tibble</code> of flights data obtained through <code>rnp_flights_data</code>
+<dd><p>A data frame of flights data obtained through <code>rnp_flights_data</code>
 and corrected using <code>correct_flights_data</code>. The temperature
-column should be <code>op_temp</code> but the function will also work if <code>ir_temp</code> is provided.</p></dd>
+column should be <code>op_temp</code> but the function will also work if <code>surf_temp</code> is provided.</p></dd>
 
 
 <dt>otm_splines</dt>
@@ -102,7 +102,7 @@ column should be <code>op_temp</code> but the function will also work if <code>i
 a tile should have across all flights provided in order to be included in the matching.
 Coverage is calculated as the number of times temperature was measured in a given tile
 divided by the total number of flights. Values &gt;= 0.9 are recommended.
-The function will provide a warning of the number of tiles for which
+The function will provide a warning of the numbeof tiles for which
 coverage is &gt; 0.5. If missing, it defaults to 0.9</p></dd>
 
 
@@ -118,15 +118,12 @@ a sufficiently large number so all tiles are assigned regardless of error.</p></
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A matches <code>tibble</code> with columns for <code>latitude</code>, <code>longitde</code>, the <code>otm_id</code></p>
-
-
-<p>that best describes the thermal dynamics of that tile and the average absolute</p>
+<p>A matches data frame with columns for <code>x</code>, <code>y</code> (UTM coordinates),
+   the <code>otm_id</code> that best describes the thermal dynamics of that tile and
+   the average absolute <code>error</code> between tile measurements and OTM predictions.
+   Rows where <code>is.na(otm_id)</code> indicate tiles where <code>error</code> was not</p>
 <p></p>
-<p><code>error</code> between tile measurements and OTM predictions. Rows where <code>is.na(otm_id)</code></p>
-
-
-<p>indicate tiles where <code>error</code> was not <code>&lt; error_max</code> for any of the OTMs provided.</p>
+<p><code>&lt; error_max</code> for any of the OTMs provided.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

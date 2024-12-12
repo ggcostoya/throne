@@ -7,9 +7,9 @@
 match_data(flights_data, otm_splines, coverage_per, error_max)
 }
 \arguments{
-\item{flights_data}{A \code{tibble} of flights data obtained through \code{rnp_flights_data}
+\item{flights_data}{A data frame of flights data obtained through \code{rnp_flights_data}
 and corrected using \code{correct_flights_data}. The temperature
-column should be \code{op_temp} but the function will also work if \code{ir_temp} is provided.}
+column should be \code{op_temp} but the function will also work if \code{surf_temp} is provided.}
 
 \item{otm_splines}{A nested \code{tibble} obtained using \code{gen_otm_splines}}
 
@@ -17,7 +17,7 @@ column should be \code{op_temp} but the function will also work if \code{ir_temp
 a tile should have across all flights provided in order to be included in the matching.
 Coverage is calculated as the number of times temperature was measured in a given tile
 divided by the total number of flights. Values >= 0.9 are recommended.
-The function will provide a warning of the number of tiles for which
+The function will provide a warning of the numbeof tiles for which
 coverage is > 0.5. If missing, it defaults to 0.9}
 
 \item{error_max}{The maximum average absolute error between temperature measurements
@@ -27,10 +27,11 @@ and the temperature measurements of the tile. If missing, it defaults to 100,
 a sufficiently large number so all tiles are assigned regardless of error.}
 }
 \value{
-A matches \code{tibble} with columns for \code{latitude}, \code{longitde}, the \code{otm_id}
-   that best describes the thermal dynamics of that tile and the average absolute
-   \code{error} between tile measurements and OTM predictions. Rows where \code{is.na(otm_id)}
-   indicate tiles where \code{error} was not \code{< error_max} for any of the OTMs provided.
+A matches data frame with columns for \code{x}, \code{y} (UTM coordinates),
+   the \code{otm_id} that best describes the thermal dynamics of that tile and
+   the average absolute \code{error} between tile measurements and OTM predictions.
+   Rows where \code{is.na(otm_id)} indicate tiles where \code{error} was not
+   \code{< error_max} for any of the OTMs provided.
 }
 \description{
 Matches thermal dynamics of specific tiles (i.e., specific latitude and longitudes)

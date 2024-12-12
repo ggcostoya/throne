@@ -1,108 +1,92 @@
-
 ## Evaluate flight correction ##
 
 #' Evaluate flight correction
 #'
 #' Allows users to evaluate the flight correction process
 #'
-#' @param flights_data A \code{tibble} of flights data obtained through the \code{rnp_flights_data}
-#'    function. The \code{tibble} must contain columns for `longitude` and `latitude`.
+#' @param flights_data A data frame of flights data obtained through the \code{rnp_flights_data}
+#'    function.
 #' @param otm_splines A nested \code{tibble} obtained using the \code{gen_otm_splines} function.
-#'    The \code{tibble} must contain columns for \code{longitude} and \code{latitude} and all values
-#'    must also be in the \code{flights_data}
 #' @param summary If set to \code{TRUE}, the function returns a summary dataset of the correction
 #'    process. If set to \code{FALSE} (default), the function returns a raw correction dataset
 #'
 #' @return If \code{summary = TRUE}, a summary dataset with information on the mean, median,
 #'    mode, standard deviation, skewness, minimum and maximum bias between surface and operative temperatures
-#'    for every flight considered. If \code{summary = FALSE}, a raw correction dataset with
-#'    all observations of surface temperature (\code{ir_temp}) and operative temperature
-#'    (\code{op_temp}) for all tiles where OTMs were deployed for all flights considered.
+#'    for every flight considered. If \code{summary = FALSE}, the function returns
+#'    a raw correction dataset with all observations of surface temperature
+#'    (\code{surf_temp}) and operative temperature (\code{op_temp}) for all tiles
+#'    where OTMs were deployed for all flights considered.
 #'
 #' @export
 
 eval_flights_correction <- function(flights_data, otm_splines, summary){
 
   # add column to identify each flight based on doy and mod start
-  flights_data$flight_id <- paste(flights_data$doy, flights_data$mod_start, sep = "_")
-
-  # get list of unique flights
+  flights_data$flight_id <- paste(flights_data$year, flights_data$doy,
+                                  flights_data$mod_start, sep = "_")
   flights_list <- unique(flights_data$flight_id)
 
-  # function to determine decimal places
-  decimalplaces <- function(x) {
-    if (abs(x - round(x)) > .Machine$double.eps^0.5) {
-      nchar(strsplit(sub('0+$', '', as.character(x)), ".", fixed = TRUE)[[1]][[2]])
-    } else {
-      return(0)
-    }
+  # find closest x and y in flights for each OTM
+  unique_x <- unique(flights_data$x)
+  unique_y <- unique(flights_data$y)
+  unique_otms_xy <- unique(otm_splines[,c("otm_id", "x", "y")])
+  for(i in 1:nrow(unique_otms_xy)){
+    which_x <- which.min(abs(unique_otms_xy$x[i] - unique_x))
+    which_y <- which.min(abs(unique_otms_xy$y[i] - unique_y))
+    unique_otms_xy$x[i] <- unique_x[which_x]
+    unique_otms_xy$y[i] <- unique_y[which_y]
   }
 
+  # re-assign x and y coordinates to OTM splines
+  otm_splines <- otm_splines[, !(names(otm_splines) %in% c("x", "y"))]
+  otm_splines <- tibble::as_tibble(
+    merge(otm_splines, unique_otms_xy, by = "otm_id"))
+
   # generate holder correlation data frame
-  corr_data <- tibble(latitude = c(), longitude = c(), year = c(),
-                      doy = c(), mod_start = c(), mod_end = c(), ir_temp = c(),
-                      op_temp = c())
+  corr_data <- data.frame(x = c(), x = c(), year = c(), doy = c(),
+                          mod_start = c(), mod_end = c(),
+                          surf_temp = c(), op_temp = c())
 
   # start loop to get correction data for each flight
   for(i in 1:length(flights_list)){
 
-    # filter data for flight of interest
-    flight <- flights_data %>% filter(get("flight_id") == flights_list[i])
+    # filter data for flight of interest and spines on doy when flight took place
+    flight <- flights_data[flights_data$flight_id == flights_list[i],]
+    flight_splines <- otm_splines[otm_splines$doy == mean(flight$doy),]
+    flight_splines$op_temp <- NA # generate op_temp column
+    mod_range <- c(mean(flight$mod_start):mean(flight$mod_end)) # get mod range of flight
 
-    # filter splines for the same doy as flight of interest
-    flight_splines <- otm_splines %>% filter(get("doy") == mean(flight$doy)) %>%
-      mutate(op_temp = NA)
-
-    # get the mod range when the flight took place
-    mod_range <- c(mean(flight$mod_start):mean(flight$mod_end))
-
-    # loop to predict operative temperatures from spline models
+    # predict operative temperatures during mod range of flight
     for(j in 1:nrow(flight_splines)){
-
-      flight_splines$op_temp[j] <- mean(predict(flight_splines$spline[[j]], mod_range)$y)
-
+      flight_splines$op_temp[j] <- mean(stats::predict(flight_splines$spline[[j]], mod_range)$y)
     }
 
-    # estimate decimal digits from flight data
-    digits <- decimalplaces(flight$latitude[1])
-
-    # correct number of digits for latitude and longitude
-    flight_splines$longitude <- as.numeric(format(flight_splines$longitude, nsmall = digits))
-    flight_splines$latitude <- as.numeric(format(flight_splines$latitude, nsmall = digits))
-
-    # generate correction data for the flight
-    flight_corr_data <- merge(flight_splines,flight, by = c('latitude', 'longitude', 'year', 'doy')) %>%
-      dplyr::select(latitude, longitude, year, doy, mod_start, mod_end, ir_temp, op_temp)
-
-    # bind correlation data to
+    # merge to get correction data, select columns of interest and bind to holder
+    flight_corr_data <- merge(flight, flight_splines, by = c("year", "doy", "x", "y"))
+    flight_corr_data <- flight_corr_data[,c("x","y","year","doy",
+                                            "mod_start","mod_end",
+                                            "surf_temp", "op_temp")]
     corr_data <- rbind(corr_data, flight_corr_data)
 
   }
 
-  # evaluate if "summary" is missing or not
-  summary <- if(missing(summary)){
-
-    return(corr_data)
-
-
+  # if summary is missing return corr_data if not summarise
+  summary <- if(missing(summary)){return(corr_data)
   }else{
-
-    # send mess
-    print("Summary statistics of bias between op_temp and ir_temp provided")
-
+    # send message
+    message("Summary statistics of bias between op_temp and surf_temp provided")
     # define function to calculate skewness
     skew <- function(x) {
-      x <- na.omit(x)
+      x <- stats::na.omit(x)
       n <- length(x)
       mean <- mean(x)
       sd <- sd(x)
       skw <- (n / ((n - 1) * (n - 2))) * sum(((x - mean) / sd)^3)
       return(skw)
     }
-
     # define function to calculate mode
     find_mode <- function(x) {
-      x <- na.omit(x)
+      x <- stats::na.omit(x)
       x <- round(x, digits = 1)
       ux <- unique(x)
       tab <- tabulate(match(x, ux))
@@ -110,25 +94,20 @@ eval_flights_correction <- function(flights_data, otm_splines, summary){
       mode <- mean(most_freq, na.rm = T) # find mean if multiple modes
       return(mode)
     }
-
-
     # generate evaluation summary statistics
-    eval_summary <- corr_data %>% group_by(year, doy, mod_start, mod_end) %>%
-      summarise(mean_bias = mean(op_temp - ir_temp, na.rm = T),
-                median_bias = median(op_temp - ir_temp, na.rm = T),
-                mode_bias = find_mode(op_temp - ir_temp),
-                sd_bias = sd(op_temp - ir_temp, na.rm = T),
-                skewness_bias = skew(op_temp - ir_temp),
-                max_bias = max(op_temp - ir_temp, na.rm = T),
-                min_bias = min(op_temp - ir_temp, na.rm = T),
-                max_abs_bias = max(abs(op_temp - ir_temp), na.rm = T),
-                min_abs_bias = min(abs(op_temp - ir_temp), na.rm = T)) %>%
-      ungroup()
-
+    eval_summary <- corr_data |>
+      dplyr::group_by(get("year"), get("doy"), get("mod_start"), get("mod_end")) |>
+      dplyr::summarise(mean_bias = mean(get("op_temp") - get("surf_temp"), na.rm = T),
+                       median_bias = stats::median(get("op_temp") - get("surf_temp"), na.rm = T),
+                       mode_bias = find_mode(get("op_temp") - get("surf_temp")),
+                       sd_bias = stats::sd(get("op_temp") - get("surf_temp"), na.rm = T),
+                       skewness_bias = skew(get("op_temp") - get("surf_temp")),
+                       max_bias = max(get("op_temp") - get("surf_temp"), na.rm = T),
+                       min_bias = min(get("op_temp") - get("surf_temp"), na.rm = T),
+                       max_abs_bias = max(abs(get("op_temp") - get("surf_temp")), na.rm = T),
+                       min_abs_bias = min(abs(get("op_temp") - get("surf_temp")), na.rm = T))|>
+      dplyr::ungroup()
+    names(eval_summary)[1:4] <- c("year", "doy", "mod_start", "mod_end")
     return(eval_summary)
-
   }
-
 }
-
-
