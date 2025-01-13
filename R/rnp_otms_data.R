@@ -103,13 +103,13 @@ rnp_otms_data <- function(path, rows_skip, date_col, time_col, op_temp_col,
 
     # check data format and extract information of interest
     if(date_col == time_col){
-      if(any(is.na(lubridate::mdy_hm(otm_file$date)))){
+      if(any(is.na(lubridate::mdy_hms(otm_file$date)))){
         stop(paste("incorrect `date` column format for",list.files(path)[i],
                    "it should be MM/DD/YYYY HH:MM"))}
-      otm_file$year <- lubridate::year(lubridate::mdy_hm(otm_file$date))
-      otm_file$doy <- lubridate::yday(lubridate::mdy_hm(otm_file$date))
-      otm_file$mod <- lubridate::hour(lubridate::mdy_hm(otm_file$time)) * 60 +
-        lubridate::minute(lubridate::mdy_hm(otm_file$time))
+      otm_file$year <- lubridate::year(lubridate::mdy_hms(otm_file$date))
+      otm_file$doy <- lubridate::yday(lubridate::mdy_hms(otm_file$date))
+      otm_file$mod <- lubridate::hour(lubridate::mdy_hms(otm_file$time)) * 60 +
+        lubridate::minute(lubridate::mdy_hms(otm_file$time))
     }else{
       if(any(is.na(lubridate::mdy(otm_file$date)))){
         stop(paste("incorrect `date` column format for",list.files(path)[i],

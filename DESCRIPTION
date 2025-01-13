@@ -26,6 +26,7 @@ Imports:
   lubridate,
   tibble,
   utils,
+  stats
 Suggests:
   ggplot2,
   viridis,

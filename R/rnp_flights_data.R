@@ -115,6 +115,21 @@ rnp_flights_data <- function(path, metadata, resolution){
   flights_data$x <- round(flights_data$x * (1/resolution)) / (1/resolution)
   flights_data$y <- round(flights_data$y * (1/resolution)) / (1/resolution)
 
+  # cleaning outliers and summarise values of tiles with the same x and y
+  flights_data <- flights_data |>
+    dplyr::group_by(get("year"), get("doy"), get("mod_start"), get("mod_end")) |>
+    dplyr::mutate(mean_surf_temp = mean(get("surf_temp"))) |>
+    dplyr::mutate(sd_surf_temp = stats::sd(get("surf_temp"))) |>
+    dplyr::mutate(surf_temp = ifelse(get("surf_temp") < get("mean_surf_temp") - 5*get("sd_surf_temp"),
+                              NA, get("surf_temp"))) |>
+    dplyr::mutate(surf_temp = ifelse(surf_temp > get("mean_surf_temp") + 5*get("sd_surf_temp"),
+                              NA, get("surf_temp"))) |>
+    dplyr::filter(!is.na(get("surf_temp"))) |>
+    dplyr::ungroup() |>
+    dplyr::group_by(get("x"),get("y"),get("year"), get("doy"), get("mod_start"), get("mod_end")) |>
+    dplyr::summarise(surf_temp = mean(get("surf_temp"), na.rm = T)) |>
+    dplyr::ungroup()
+
 
   return(flights_data)
 }
