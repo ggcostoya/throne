@@ -85,12 +85,25 @@ rnp_flights_data <- function(path, metadata, resolution){
     # read and process the flight
     flight_raster <- terra::rast(flight_files_list[i]) # read raster
     flight_raster <- flight_raster[[names(flight_raster)[1]]] # get first layer
-    scale_factor <- resolution/terra::res(flight_raster) # scale resolution
-    flight_raster <- terra::aggregate(flight_raster,fact=scale_factor) # re-scale
+    scale_factor <- round(resolution/terra::res(flight_raster)) # scale resolution
+    flight_raster <- terra::aggregate(flight_raster,fact=scale_factor, fun = "mean") # re-scale and summarise
     flight <- as.data.frame(flight_raster, xy = TRUE) # convert to df
     colnames(flight) <- c("x","y","surf_temp") # rename columns
-    flight <- flight[flight$surf_temp != 0, ] # remove columns with exactly 0
+    flight <- flight[flight$surf_temp != 0, ] # remove rows that are exactly 0
     flight <- unique(flight)
+
+    # round data to standardize (Noa's trick)
+    flight$x <- round(flight$x * (1/resolution)) / (1/resolution)
+    flight$y <- round(flight$y * (1/resolution)) / (1/resolution)
+
+    # summarise values of tiles with the same x and y
+    flight <- flight |>
+      dplyr::group_by(get("x"),get("y")) |>
+      dplyr::summarise(surf_temp = mean(get("surf_temp"), na.rm = T),.groups = "keep") |>
+      dplyr::ungroup()
+
+    # change column nanmes
+    colnames(flight) <- c("x", "y","surf_temp")
 
     # extract metadata for specific file and add it to processed raster
     flight_metadata <- metadata[metadata$flight_id == substr(
@@ -110,26 +123,6 @@ rnp_flights_data <- function(path, metadata, resolution){
     if(i == length(flight_files_list)){
       message("Flight data reading and processing complete!")}
   }
-
-  # round data to standardize (Noa's trick)
-  flights_data$x <- round(flights_data$x * (1/resolution)) / (1/resolution)
-  flights_data$y <- round(flights_data$y * (1/resolution)) / (1/resolution)
-
-  # cleaning outliers and summarise values of tiles with the same x and y
-  flights_data <- flights_data |>
-    dplyr::group_by(get("year"), get("doy"), get("mod_start"), get("mod_end")) |>
-    dplyr::mutate(mean_surf_temp = mean(get("surf_temp"))) |>
-    dplyr::mutate(sd_surf_temp = stats::sd(get("surf_temp"))) |>
-    dplyr::mutate(surf_temp = ifelse(get("surf_temp") < get("mean_surf_temp") - 5*get("sd_surf_temp"),
-                              NA, get("surf_temp"))) |>
-    dplyr::mutate(surf_temp = ifelse(surf_temp > get("mean_surf_temp") + 5*get("sd_surf_temp"),
-                              NA, get("surf_temp"))) |>
-    dplyr::filter(!is.na(get("surf_temp"))) |>
-    dplyr::ungroup() |>
-    dplyr::group_by(get("x"),get("y"),get("year"), get("doy"), get("mod_start"), get("mod_end")) |>
-    dplyr::summarise(surf_temp = mean(get("surf_temp"), na.rm = T)) |>
-    dplyr::ungroup()
-
 
   return(flights_data)
 }

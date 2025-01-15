@@ -55,7 +55,6 @@ match_data <- function(flights_data, otm_splines, coverage_per, error_max){
   suppressWarnings(coverage <- flights_data |>
                      dplyr::group_by(get("x"), get("y")) |>
                      dplyr::summarise(coverage = (dplyr::n())/flight_n) |>
-                     dplyr::mutate(coverage = ifelse(coverage > 1, 1, coverage)) |>
                      dplyr::ungroup())
   colnames(coverage) <- c("x", "y", "coverage")
   tile_n <- length(unique(flights_data$y)) * length(unique(flights_data$x))
