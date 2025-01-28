@@ -149,10 +149,13 @@ structured:</p></li>
 <span><span class="co">## 30   VAL2_30 8/26/2023      17:31    17:35</span></span></code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li>The spatial <code>resolution</code> to which the <code>.tif</code>
-files should be summarized to in <span class="math inline">\(m^2\)</span>. This parameter will control the This
-parameter will control the spatial resolution of the final output and
-should be chosen according to the spatial scale of the study
-organism.</li>
+files should be summarized to in <span class="math inline">\(m^2\)</span>. This parameter will control the
+spatial resolution of the final output and should be chosen according to
+the spatial scale of the study organism. The lower boundry for spatial
+resolution is set to <span class="math inline">\(0.5 m^2\)</span> and
+while there is no upper boundry we recommend users to set
+<code>resolution</code> to a value that is not larger than the area they
+are studying.</li>
 </ol>
 </div>
 <div class="section level2">

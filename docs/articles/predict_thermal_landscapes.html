@@ -242,6 +242,8 @@ is much smaller than the total area covered in flights.</p>
 indication that the OTMs are well suited to describe the thermal
 dynamics of the area of interest. Below is the distribution of error to
 further illustrate this point.</p>
+<pre><code><span><span class="co">## Warning: Removed 1 row containing non-finite outside the scale range</span></span>
+<span><span class="co">## (`stat_density()`).</span></span></code></pre>
 <p><img src="predict_thermal_landscapes_files/figure-html/plot%20error%20distribution-1.png" width="480" style="display: block; margin: auto;"></p>
 <p>The resulting <code>matches</code> has the <code>otm_id</code> column
 indicating the OTM that best describes a given tile (i.e., a combination
@@ -251,21 +253,21 @@ flights for the user to inspect if desired. In rows where
 <code>error &gt; error_max</code> the <code>otm_id</code> will be
 specified as <code>NA</code>. Below we show how the function would be
 run and its output:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># mock code to show how match_data would need to be ran</span></span>
 <span><span class="va">matches</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/match_data.html">match_data</a></span><span class="op">(</span>flights_data <span class="op">=</span> <span class="va">flights_data_corrected</span>,</span>
 <span>                      otm_splines <span class="op">=</span> <span class="va">otms_splines</span>,</span>
 <span>                      error_max <span class="op">=</span> <span class="fl">10</span>, <span class="co"># allowing a maximum error of 10 C as an example</span></span>
 <span>                      coverage_per <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span> <span class="co"># setting coverage across flights to 90%</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">throne</span><span class="fu">::</span><span class="va"><a href="../reference/matches.html">matches</a></span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##          x       y coverage    error otm_id</span></span>
-<span><span class="co">## 597 275257 4416488      0.9 5.308257  OTM02</span></span>
-<span><span class="co">## 606 275257 4416489      0.9 5.431529  OTM37</span></span>
-<span><span class="co">## 615 275257 4416490      0.9 9.308441  OTM11</span></span>
-<span><span class="co">## 648 275257 4416494      1.0 7.471241  OTM02</span></span>
-<span><span class="co">## 658 275257 4416495      0.9 7.124999  OTM11</span></span>
-<span><span class="co">## 667 275257 4416496      0.9 7.685370  OTM02</span></span></code></pre>
+<pre><code><span><span class="co">##             x       y  coverage     error otm_id</span></span>
+<span><span class="co">## 1594 275257.2 4416493 0.9411765 13.107961  OTM37</span></span>
+<span><span class="co">## 1626 275257.2 4416494 0.9117647 11.903082  OTM37</span></span>
+<span><span class="co">## 1657 275257.2 4416496 0.9117647 10.479966  OTM11</span></span>
+<span><span class="co">## 2308 275258.4 4416488 0.9117647  8.957312  OTM02</span></span>
+<span><span class="co">## 2339 275258.4 4416490 0.9411765  9.262035  OTM02</span></span>
+<span><span class="co">## 2371 275258.4 4416491 0.9705882 11.695899  OTM26</span></span></code></pre>
 <blockquote>
 <p><strong>NOTE</strong>: The <code>matches</code> data set presented
 above was generated considering with <code>error_max = 100</code> that
@@ -346,23 +348,23 @@ user to <strong>predict the entire thermal landscape of their site at
 any moment while OTMs were deployed</strong>. For example, below is how
 one would obtain a complete thermal landscape prediction every hour of
 the day for the <code>doy = 237</code> (i.e., August 24th):</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># obtain prediction using system.time to show duration </span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="va">prediction_237</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/predict_thermal_landscape.html">predict_thermal_landscape</a></span><span class="op">(</span>matches <span class="op">=</span> <span class="fu">throne</span><span class="fu">::</span><span class="va"><a href="../reference/matches.html">matches</a></span>, </span>
 <span>                                                        otm_splines <span class="op">=</span> <span class="va">otms_splines</span>, </span>
 <span>                                                        doy <span class="op">=</span> <span class="fl">237</span>, </span>
 <span>                                                        mod <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1440</span>, by <span class="op">=</span> <span class="fl">60</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="co"># every hour)</span></span></code></pre></div>
 <pre><code><span><span class="co">##    user  system elapsed </span></span>
-<span><span class="co">##    0.87    0.00    0.89</span></span></code></pre>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<span><span class="co">##    0.53    0.04    0.64</span></span></code></pre>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">prediction_237</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">##   otm_id      x       y coverage doy mod pred_op_temp</span></span>
-<span><span class="co">## 1  OTM01 275351 4416511        1 237   0     21.50141</span></span>
-<span><span class="co">## 2  OTM01 275351 4416511        1 237  60     21.27824</span></span>
-<span><span class="co">## 3  OTM01 275351 4416511        1 237 120     20.07036</span></span>
-<span><span class="co">## 4  OTM01 275351 4416511        1 237 180     19.05241</span></span>
-<span><span class="co">## 5  OTM01 275351 4416511        1 237 240     17.58155</span></span>
-<span><span class="co">## 6  OTM01 275351 4416511        1 237 300     17.03824</span></span></code></pre>
+<pre><code><span><span class="co">##   otm_id        x       y coverage doy mod pred_op_temp</span></span>
+<span><span class="co">## 1  OTM01 275317.2 4416522        1 237   0     21.50141</span></span>
+<span><span class="co">## 2  OTM01 275317.2 4416522        1 237  60     21.27824</span></span>
+<span><span class="co">## 3  OTM01 275317.2 4416522        1 237 120     20.07036</span></span>
+<span><span class="co">## 4  OTM01 275317.2 4416522        1 237 180     19.05241</span></span>
+<span><span class="co">## 5  OTM01 275317.2 4416522        1 237 240     17.58155</span></span>
+<span><span class="co">## 6  OTM01 275317.2 4416522        1 237 300     17.03824</span></span></code></pre>
 <blockquote>
 <p><strong>NOTE</strong>: The <code>predict_thermal_landscape</code>
 function will not be able to predict thermal landscapes if the specified
@@ -372,7 +374,7 @@ predictions were removed due to falling outside of the range when the
 OTMs were recording.</p>
 </blockquote>
 <p>We can plot this prediction using regular <code>ggplot</code>:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">prediction_237</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">mod</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">6</span><span class="op">*</span><span class="fl">60</span>,<span class="fl">21</span><span class="op">*</span><span class="fl">60</span>,by <span class="op">=</span> <span class="fl">60</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">mod</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>

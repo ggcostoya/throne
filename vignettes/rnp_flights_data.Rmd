@@ -44,7 +44,7 @@ The `rnp_flights_data` takes in 3 inputs:
 flights_metadata
 ```
 
-3. The spatial `resolution` to which the `.tif` files should be summarized to in $m^2$. This parameter will control the  This parameter will control the spatial resolution of the final output and should be chosen according to the spatial scale of the study organism.
+3. The spatial `resolution` to which the `.tif` files should be summarized to in $m^2$. This parameter will control the spatial resolution of the final output and should be chosen according to the spatial scale of the study organism. The lower boundry for spatial resolution is set to $0.5 m^2$ and while there is no upper boundry we recommend users to set `resolution` to a value that is not larger than the area they are studying. 
 
 # Processes
 

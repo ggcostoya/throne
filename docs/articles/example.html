@@ -101,7 +101,7 @@
     
 <style>
 p.caption {
-  font-size: 0.9em;
+  font-size: 0.5em;
 }
 </style>
 <div class="section level2">
@@ -209,20 +209,20 @@ An operative temperature model of the type used for this study.
 <span></span>
 <span><span class="co"># show metadata </span></span>
 <span><span class="va">c_otms_metadata</span></span></code></pre></div>
-<pre><code><span><span class="co">## # A tibble: 150 × 3</span></span>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 150 × 3</span></span></span>
 <span><span class="co">##    otm_id latitude longitude</span></span>
-<span><span class="co">##    &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt;</span></span>
-<span><span class="co">##  1 H1         39.7     -119.</span></span>
-<span><span class="co">##  2 H2         39.7     -119.</span></span>
-<span><span class="co">##  3 H3         39.7     -119.</span></span>
-<span><span class="co">##  4 H4         39.7     -119.</span></span>
-<span><span class="co">##  5 H5         39.7     -119.</span></span>
-<span><span class="co">##  6 H6         39.7     -119.</span></span>
-<span><span class="co">##  7 H7         39.7     -119.</span></span>
-<span><span class="co">##  8 H8         39.7     -119.</span></span>
-<span><span class="co">##  9 H9         39.7     -119.</span></span>
-<span><span class="co">## 10 H10        39.7     -119.</span></span>
-<span><span class="co">## # ℹ 140 more rows</span></span></code></pre>
+<span><span class="co">##    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span> H1         39.7     -<span style="color: #BB0000;">119.</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span> H2         39.7     -<span style="color: #BB0000;">119.</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span> H3         39.7     -<span style="color: #BB0000;">119.</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span> H4         39.7     -<span style="color: #BB0000;">119.</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span> H5         39.7     -<span style="color: #BB0000;">119.</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span> H6         39.7     -<span style="color: #BB0000;">119.</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span> H7         39.7     -<span style="color: #BB0000;">119.</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span> H8         39.7     -<span style="color: #BB0000;">119.</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span> H9         39.7     -<span style="color: #BB0000;">119.</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span> H10        39.7     -<span style="color: #BB0000;">119.</span></span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 140 more rows</span></span></span></code></pre>
 </div>
 </div>
 <div class="section level2">
@@ -276,9 +276,7 @@ a sense of the thermal characteristics of the study area:</p>
 <span>  <span class="fu">theme</span><span class="op">(</span>strip.text <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span>,</span>
 <span>        legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">guides</span><span class="op">(</span>fill <span class="op">=</span> <span class="fu">guide_colorbar</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Surface temperature (°C)"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="figure" style="text-align: center">
-<p><img src="images/plot_c_flights_data-1.png" alt="plot of chunk plot c_flights_data"></p>
-</div>
+<p><img src="example_files/figure-html/plot%20c_flights_data-1.png" width="768" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="reading-and-processing-otms-data">Reading and processing OTMs data<a class="anchor" aria-label="anchor" href="#reading-and-processing-otms-data"></a>
@@ -361,20 +359,20 @@ simply run:</p>
 column <code>spline</code>):</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">c_otms_splines</span></span></code></pre></div>
-<pre><code><span><span class="co">## # A tibble: 11,008 × 8</span></span>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 11,008 × 8</span></span></span>
 <span><span class="co">##    otm_id  year   doy latitude longitude       x        y spline    </span></span>
-<span><span class="co">##    &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt; &lt;list&gt;    </span></span>
-<span><span class="co">##  1 H1      2022   164     39.7     -119. 289252. 4402355. &lt;smth.spl&gt;</span></span>
-<span><span class="co">##  2 H1      2022   165     39.7     -119. 289252. 4402355. &lt;smth.spl&gt;</span></span>
-<span><span class="co">##  3 H1      2022   166     39.7     -119. 289252. 4402355. &lt;smth.spl&gt;</span></span>
-<span><span class="co">##  4 H1      2022   167     39.7     -119. 289252. 4402355. &lt;smth.spl&gt;</span></span>
-<span><span class="co">##  5 H1      2022   168     39.7     -119. 289252. 4402355. &lt;smth.spl&gt;</span></span>
-<span><span class="co">##  6 H1      2022   169     39.7     -119. 289252. 4402355. &lt;smth.spl&gt;</span></span>
-<span><span class="co">##  7 H1      2022   170     39.7     -119. 289252. 4402355. &lt;smth.spl&gt;</span></span>
-<span><span class="co">##  8 H1      2022   171     39.7     -119. 289252. 4402355. &lt;smth.spl&gt;</span></span>
-<span><span class="co">##  9 H1      2022   172     39.7     -119. 289252. 4402355. &lt;smth.spl&gt;</span></span>
-<span><span class="co">## 10 H1      2022   173     39.7     -119. 289252. 4402355. &lt;smth.spl&gt;</span></span>
-<span><span class="co">## # ℹ 10,998 more rows</span></span></code></pre>
+<span><span class="co">##    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span> H1      <span style="text-decoration: underline;">2</span>022   164     39.7     -<span style="color: #BB0000;">119.</span> <span style="text-decoration: underline;">289</span>252. 4<span style="text-decoration: underline;">402</span>355. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span> H1      <span style="text-decoration: underline;">2</span>022   165     39.7     -<span style="color: #BB0000;">119.</span> <span style="text-decoration: underline;">289</span>252. 4<span style="text-decoration: underline;">402</span>355. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span> H1      <span style="text-decoration: underline;">2</span>022   166     39.7     -<span style="color: #BB0000;">119.</span> <span style="text-decoration: underline;">289</span>252. 4<span style="text-decoration: underline;">402</span>355. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span> H1      <span style="text-decoration: underline;">2</span>022   167     39.7     -<span style="color: #BB0000;">119.</span> <span style="text-decoration: underline;">289</span>252. 4<span style="text-decoration: underline;">402</span>355. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span> H1      <span style="text-decoration: underline;">2</span>022   168     39.7     -<span style="color: #BB0000;">119.</span> <span style="text-decoration: underline;">289</span>252. 4<span style="text-decoration: underline;">402</span>355. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span> H1      <span style="text-decoration: underline;">2</span>022   169     39.7     -<span style="color: #BB0000;">119.</span> <span style="text-decoration: underline;">289</span>252. 4<span style="text-decoration: underline;">402</span>355. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span> H1      <span style="text-decoration: underline;">2</span>022   170     39.7     -<span style="color: #BB0000;">119.</span> <span style="text-decoration: underline;">289</span>252. 4<span style="text-decoration: underline;">402</span>355. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span> H1      <span style="text-decoration: underline;">2</span>022   171     39.7     -<span style="color: #BB0000;">119.</span> <span style="text-decoration: underline;">289</span>252. 4<span style="text-decoration: underline;">402</span>355. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span> H1      <span style="text-decoration: underline;">2</span>022   172     39.7     -<span style="color: #BB0000;">119.</span> <span style="text-decoration: underline;">289</span>252. 4<span style="text-decoration: underline;">402</span>355. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span> H1      <span style="text-decoration: underline;">2</span>022   173     39.7     -<span style="color: #BB0000;">119.</span> <span style="text-decoration: underline;">289</span>252. 4<span style="text-decoration: underline;">402</span>355. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 10,998 more rows</span></span></span></code></pre>
 </div>
 <div class="section level3">
 <h3 id="correcting-flight-data">Correcting flight data<a class="anchor" aria-label="anchor" href="#correcting-flight-data"></a>
@@ -426,9 +424,7 @@ original flights (<code>Pre-correction</code>).</p>
 <span>  <span class="fu">guides</span><span class="op">(</span>fill <span class="op">=</span> <span class="fu">guide_colorbar</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Temperature (°C)"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">ggarrange</span><span class="op">(</span><span class="va">pre_corr</span>, <span class="va">post_corr</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">1</span>, common.legend <span class="op">=</span> <span class="cn">TRUE</span>, legend <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span></code></pre></div>
-<div class="figure" style="text-align: center">
-<p><img src="images/plot_comparison_pre-post_flight_correction-1.png" alt="plot of chunk plot comparison pre-post flight correction"></p>
-</div>
+<p><img src="example_files/figure-html/plot%20comparison%20pre-post%20flight%20correction-1.png" width="768" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="match-flight-to-otm-data">Match flight to OTM data<a class="anchor" aria-label="anchor" href="#match-flight-to-otm-data"></a>
@@ -451,9 +447,7 @@ below, our flights had a particularly good overlap:</p>
 <span>  <span class="fu">geom_raster</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>fill <span class="op">=</span> <span class="va">coverage_per</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">guides</span><span class="op">(</span>fill <span class="op">=</span> <span class="fu">guide_colorbar</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Coverage (%)"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_void</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="figure" style="text-align: center">
-<p><img src="images/plot%20coverage%20across%20flights-1.png" alt="plot of chunk plot coverage across flights"></p>
-</div>
+<p><img src="example_files/figure-html/plot%20coverage%20across%20flights-1.png" width="432" style="display: block; margin: auto;"></p>
 <p>In our case, we can set <code>coverage_per = 1</code> to ensure that
 only areas covered across all flights are considered although, for a
 greater number of flights we would recommend setting
@@ -482,17 +476,13 @@ best represents it’s thermal dynamics.</p>
 <span><span class="co">## 279 289069.2 4402654        1  0.2772866    H49</span></span>
 <span><span class="co">## 328 289069.2 4402686        1  2.7483973    H32</span></span></code></pre>
 <p>We can visualize the results of the matching step as shown below:</p>
-<div class="figure" style="text-align: center">
-<p><img src="images/plot_assigned_OTM_id_map-1.png" alt="plot of chunk plot assigned OTM id map"></p>
-</div>
+<p><img src="example_files/figure-html/plot%20assigned%20OTM%20id%20map-1.png" width="336" style="display: block; margin: auto;"></p>
 <p>In the plot above, each tile is color coded to match the ID of the
 OTM that best described it (each color is a unique OTM). Without need
 for user-specified input, the matching process identified the topography
 of the terrain, assigning different OTMs to the eastern and western
 facing sides of the ridge that divides the site.</p>
-<div class="figure" style="text-align: center">
-<p><img src="images/plot%20matching%20error-1.png" alt="plot of chunk plot matching error"></p>
-</div>
+<p><img src="example_files/figure-html/plot%20matching%20error-1.png" width="384" style="display: block; margin: auto;"></p>
 <p>The matching bias (<code>error</code>) was generally very low (a good
 thing) and the number of tiles that could not be assigned to any OTM
 when setting <code>error_max = 5</code> was minimal (tiles highlighted
@@ -525,10 +515,8 @@ obtain this prediction we’d simply run:</p>
 <span>  <span class="fu">theme_void</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">guides</span><span class="op">(</span>fill <span class="op">=</span> <span class="fu">guide_colorbar</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Predicted Operative Temperature (°C)"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="figure" style="text-align: center">
-<p><img src="images/visualize%20thermal%20landscape%20prediction-1.png" alt="plot of chunk visualize thermal landscape prediction"></p>
-</div>
-<p>Each panel above shows the predicted thermal landscape of the entire
+<p><img src="example_files/figure-html/visualize%20thermal%20landscape%20prediction-1.png" width="480" style="display: block; margin: auto;">
+Each panel above shows the predicted thermal landscape of the entire
 site at a given hour of the day. Tiles colored in white are tiles for
 which no OTM could be assigned during the matching process.</p>
 </div>
@@ -544,20 +532,20 @@ landscape prediction with the spatial distribution of the home ranges of
 mark-recapture example data set we will use:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lizard_mr</span></span></code></pre></div>
-<pre><code><span><span class="co">## # A tibble: 36 × 7</span></span>
+<pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 36 × 7</span></span></span>
 <span><span class="co">##    id    sex    year   doy   mod        y       x</span></span>
-<span><span class="co">##    &lt;chr&gt; &lt;chr&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;</span></span>
-<span><span class="co">##  1 H005  M      2022   175   720 4402397. 289268.</span></span>
-<span><span class="co">##  2 H005  M      2022   200   767 4402413. 289264.</span></span>
-<span><span class="co">##  3 H005  M      2022   173   678 4402417. 289269.</span></span>
-<span><span class="co">##  4 H005  M      2022   180   720 4402415. 289295.</span></span>
-<span><span class="co">##  5 H009  M      2022   193   704 4402510. 289395.</span></span>
-<span><span class="co">##  6 H009  M      2022   216   630 4402492. 289327.</span></span>
-<span><span class="co">##  7 H009  M      2022   173   753 4402553. 289316.</span></span>
-<span><span class="co">##  8 H009  M      2022   214   784 4402560. 289324.</span></span>
-<span><span class="co">##  9 H020  M      2023   166   765 4402683. 289237.</span></span>
-<span><span class="co">## 10 H020  M      2022   195   774 4402683. 289234.</span></span>
-<span><span class="co">## # ℹ 26 more rows</span></span></code></pre>
+<span><span class="co">##    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 1</span> H005  M      <span style="text-decoration: underline;">2</span>022   175   720 4<span style="text-decoration: underline;">402</span>397. <span style="text-decoration: underline;">289</span>268.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 2</span> H005  M      <span style="text-decoration: underline;">2</span>022   200   767 4<span style="text-decoration: underline;">402</span>413. <span style="text-decoration: underline;">289</span>264.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 3</span> H005  M      <span style="text-decoration: underline;">2</span>022   173   678 4<span style="text-decoration: underline;">402</span>417. <span style="text-decoration: underline;">289</span>269.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 4</span> H005  M      <span style="text-decoration: underline;">2</span>022   180   720 4<span style="text-decoration: underline;">402</span>415. <span style="text-decoration: underline;">289</span>295.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 5</span> H009  M      <span style="text-decoration: underline;">2</span>022   193   704 4<span style="text-decoration: underline;">402</span>510. <span style="text-decoration: underline;">289</span>395.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 6</span> H009  M      <span style="text-decoration: underline;">2</span>022   216   630 4<span style="text-decoration: underline;">402</span>492. <span style="text-decoration: underline;">289</span>327.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 7</span> H009  M      <span style="text-decoration: underline;">2</span>022   173   753 4<span style="text-decoration: underline;">402</span>553. <span style="text-decoration: underline;">289</span>316.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 8</span> H009  M      <span style="text-decoration: underline;">2</span>022   214   784 4<span style="text-decoration: underline;">402</span>560. <span style="text-decoration: underline;">289</span>324.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;"> 9</span> H020  M      <span style="text-decoration: underline;">2</span>023   166   765 4<span style="text-decoration: underline;">402</span>683. <span style="text-decoration: underline;">289</span>237.</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">10</span> H020  M      <span style="text-decoration: underline;">2</span>022   195   774 4<span style="text-decoration: underline;">402</span>683. <span style="text-decoration: underline;">289</span>234.</span></span>
+<span><span class="co">## <span style="color: #949494;"># ℹ 26 more rows</span></span></span></code></pre>
 <p>Our spatially explicit mark-recapture data set allows us to estimate
 each individual’s territory as an individual-specific minimum convex
 polygon. We can plot each individual’s home range on top of the
@@ -576,9 +564,7 @@ predicted thermal landscape at 10 AM as an example:</p>
 <span>               <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>, fill <span class="op">=</span> <span class="va">id</span><span class="op">)</span>,</span>
 <span>               alpha <span class="op">=</span> <span class="fl">0.75</span>, col <span class="op">=</span> <span class="st">"black"</span>, linewidth <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="figure" style="text-align: center">
-<p><img src="images/plot%20lizard%20territories%20on%20top%20of%20thermal%20landscape-1.png" alt="plot of chunk plot lizard territories on top of thermal landscape"></p>
-</div>
+<p><img src="example_files/figure-html/plot%20lizard%20territories%20on%20top%20of%20thermal%20landscape-1.png" width="576" style="display: block; margin: auto;"></p>
 <p>We can hen calculate the average predicted operative temperature
 experience by each individual within their home range as:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
@@ -621,9 +607,7 @@ experienced by each individual within their home range as follows:</p>
 <span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## No summary function supplied, defaulting to `mean_se()`</span></span></code></pre>
-<div class="figure" style="text-align: center">
-<p><img src="images/plot_average_daytime_op_temp_in_each_lizard_territory-1.png" alt="plot of chunk plot average daytime op temp in each lizard territory"></p>
-</div>
+<p><img src="example_files/figure-html/plot%20average%20daytime%20op%20temp%20in%20each%20lizard%20territory-1.png" width="576" style="display: block; margin: auto;"></p>
 <p>As seen above, individuals experience substantially different thermal
 environments on average, but how does this translate by hour of the
 day?:</p>
@@ -635,9 +619,7 @@ day?:</p>
 <span>  <span class="fu">ylab</span><span class="op">(</span><span class="st">"Mean day-time operative temperature within home range (C)"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">xlab</span><span class="op">(</span><span class="st">"Hour of the day"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="figure" style="text-align: center">
-<p><img src="images/plot%20mean%20operative%20temp%20in%20lizard%20territory%20by%20hour%20of%20the%20day-1.png" alt="plot of chunk plot mean operative temp in lizard territory by hour of the day"></p>
-</div>
+<p><img src="example_files/figure-html/plot%20mean%20operative%20temp%20in%20lizard%20territory%20by%20hour%20of%20the%20day-1.png" width="576" style="display: block; margin: auto;"></p>
 <p>Lastly, we can consider what is the ecological relevance of the
 different conditions experienced by each individual by examining the
 percentage of their home range that falls within their <strong>preferred
@@ -654,13 +636,11 @@ percentage by hour of the day as follows:</p>
 <span>  <span class="fu">ylab</span><span class="op">(</span><span class="st">"% of home range within 30 - 35 C"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">xlab</span><span class="op">(</span><span class="st">"Hour of the day"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="figure" style="text-align: center">
-<p><img src="images/plot%20percentage%20of%20home%20range%20within%20thermal%20optima%20range-1.png" alt="plot of chunk plot percentage of home range within thermal optima range"></p>
-</div>
-<p>Individuals differ substantially on the percentage of their home
-range that falls within their preferred temperature range. This
-information can be used to infer the potential impact of the thermal
-landscape on the fitness of each individual.</p>
+<p><img src="example_files/figure-html/plot%20percentage%20of%20home%20range%20within%20thermal%20optima%20range-1.png" width="576" style="display: block; margin: auto;">
+Individuals differ substantially on the percentage of their home range
+that falls within their preferred temperature range. This information
+can be used to infer the potential impact of the thermal landscape on
+the fitness of each individual.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

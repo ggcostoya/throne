@@ -2,18 +2,17 @@
 
 Accurately quantifying and mapping thermal environments is crucial to predict 
 how environmental change is going to impact organisms. However, describing thermal
-environments is challenging because 1) there is a mismatch between the resolution
-of available data and the scale at which organisms experience thermal variation, and 
-2) available tools can pose a challenge for inexperienced users. Here, we present
+environments is challenging due to the mismatch between the resolution of available data 
+and the scale at which organisms experience thermal variation. Here, we present
 the `throne` package, which provides tools to combine spatially discrete but temporally
 complete measurements from temperature loggers with spatially complete but temporally 
-discrete thermal maps obtained via IR drone photogrammetry to produce spatio-temporally
+discrete thermal maps obtained via TIR drone photogrammetry to produce spatio-temporally
 complete thermal landscapes. 
 
 ## Getting started
 
 The package is currently under development and not yet available on CRAN, but it 
-can be dowloaded directly from GitHub via:
+can be downloaded directly from GitHub via:
 
 ```R
  devtools::install_github("ggcostoya/throne")

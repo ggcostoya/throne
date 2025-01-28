@@ -124,5 +124,8 @@ rnp_flights_data <- function(path, metadata, resolution){
       message("Flight data reading and processing complete!")}
   }
 
+  # rename columns
+  colnames(flights_data) <- c("x", "y", "year","doy","mod_start","mod_end","surf_temp")
+
   return(flights_data)
 }
