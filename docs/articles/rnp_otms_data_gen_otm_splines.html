@@ -300,6 +300,18 @@ containing the model generated via the native <code>R</code> function
 <span><span class="co">## <span style="color: #BCBCBC;"> 9</span> OTM03   <span style="text-decoration: underline;">2</span>023   236     39.9     -<span style="color: #BB0000;">120.</span> <span style="text-decoration: underline;">275</span>291. 4<span style="text-decoration: underline;">416</span>498. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
 <span><span class="co">## <span style="color: #BCBCBC;">10</span> OTM03   <span style="text-decoration: underline;">2</span>023   237     39.9     -<span style="color: #BB0000;">120.</span> <span style="text-decoration: underline;">275</span>291. 4<span style="text-decoration: underline;">416</span>498. <span style="color: #949494;">&lt;smth.spl&gt;</span></span></span>
 <span><span class="co">## <span style="color: #949494;"># ℹ 122 more rows</span></span></span></code></pre>
+<blockquote>
+<p><strong>Why splines?</strong>: Using a smoothing function as opposed
+to modelling OTM thermal fluctuations using biophysical principles
+offers, in this case, a more flexible approach. Smoothing minimizes
+noise from short-term, stochastic shifts in operative temperature while
+capturing fluctuations caused by conditions unique to each day (e.g.,
+sustained changes in cloud cover or wind) that may be ecologically
+relevant. This approach eliminates the need to collect additional
+metadata during OTM deployment (e.g., aspect or shade cover) and removes
+the assumption that within-day thermal fluctuations follow a fixed
+sinusoidal curve in order to inform the resulting models.</p>
+</blockquote>
 </div>
 <div class="section level2">
 <h2 id="choosing-the-appropriate-knot_p-value">Choosing the appropriate <code>knot_p</code> value<a class="anchor" aria-label="anchor" href="#choosing-the-appropriate-knot_p-value"></a>

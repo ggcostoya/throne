@@ -265,6 +265,28 @@ include in <code>throne</code> as an example processed at 0.5, 1 and 5
 <p>Next, we will present how the <code>throne</code> package can read
 and process OTM data and generate OTM and date specific spline
 models.</p>
+</div>
+<div class="section level2">
+<h2 id="bonus-extending-the-use-of-throne-">BONUS: Extending the use of <code>throne</code>.<a class="anchor" aria-label="anchor" href="#bonus-extending-the-use-of-throne-"></a>
+</h2>
+<p>While `<code>throne</code> was designed with drone imagery in mind,
+users of the package can use any geo-referenced spatial raster that is
+encoded as a <code>.tif</code> file as a source. A potential avenue to
+extend the use of <code>throne</code> is to use satellite thermal
+imagery as that provided in the <a href="https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/viirs/" class="external-link">VIIRS</a>,
+<a href="https://lpdaac.usgs.gov/products/mod11a1v006/" class="external-link">MODIS</a> or <a href="https://climate.copernicus.eu/surface-air-temperature-maps" class="external-link">Copernicus</a>
+datasets instead of data from drone flights. Satellite rasters can be
+treated similarly to drone flights, though each cell will have a much
+coarser spatial resolution. While this approach is totally possible,
+users of <code>throne</code> will face a new logistical challenge in the
+deployment of OTMs. The recommendations provided in the “Collect OTM
+data” vignette would need to be adapted to a much larger study area.
+Users would need to deploy OTMs over a large geographical area making
+sure that representative microhabitats as well as any latitudinal,
+elevational or other environmental gradients are captured by OTMs. This
+would allow users to model spatio-temporally complete operative thermal
+landscapes at much greater scales at the expense of spatial
+resolution.</p>
 <nav aria-label="Page navigation"><ul class="pagination justify-content-end">
 <li class="page-item">
 <a class="page-link" href="collect_otm_data">Previous: Collect OTM

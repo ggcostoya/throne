@@ -92,6 +92,8 @@ otm_splines_ex <- gen_otm_splines(otm_data = otms_data, knot_p = 0.02) %>%
 otm_splines_ex
 ```
 
+>**Why splines?**: Using a smoothing function as opposed to modelling OTM thermal fluctuations using biophysical principles offers, in this case, a more flexible approach.  Smoothing minimizes noise from short-term, stochastic shifts in operative temperature while capturing fluctuations caused by conditions unique to each day (e.g., sustained changes in cloud cover or wind) that may be ecologically relevant. This approach eliminates the need to collect additional metadata during OTM deployment (e.g., aspect or shade cover) and removes the assumption that within-day thermal fluctuations follow a fixed sinusoidal curve in order to inform the resulting models. 
+
 # Choosing the appropriate `knot_p` value
 
 A critical point for the `gen_otm_splines` function to work correctly is determining the appropriate value for the `knot_p` argument. This argument determines the percentage of observations recorded by an OTM in a given day that are used to determine the number of knots of the smoothing spline model. The number of knots will ultimately determine the degrees of freedom of the model as $df = degree + k$ and $degree = 3$ for cubic splines (see [here](https://stats.stackexchange.com/questions/517375/splines-relationship-of-knots-degree-and-degrees-of-freedom#:~:text=In%20essence%2C%20splines%20are%20piecewise,degree%203%20and%20so%20on.) for further details). The number of degrees of freedom will then determine the "wiggliness" of the resulting model, i.e. the number of times the resulting curve will change direction. As an example, below we plot different spline models for the same data using different `knot_p` parameter values.
@@ -151,6 +153,7 @@ For instance, the OTMs we use as an example in this package were programmed to r
 The second issue that determines the value of `knot_p` is the study organism. Generally, OTMs will equilibrate to the environmental temperature much faster than the organism they represent with this difference in equilibration time being positively correlated to the mass of the organism due to thermal inertia. We recommend understanding the thermal properties of the organism of interest when choosing the appropriate `knot_p` value as we did in our pilot study.
 
 Having shown how to read and process both flights and OTM data the next step will be to correct the flights data to transform surface temperature to operative temperature temperature measurements. 
+
 
 <nav aria-label="Page navigation">
  <ul class="pagination justify-content-end">

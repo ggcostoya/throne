@@ -13,7 +13,7 @@ output:
 
 <style>
 p.caption {
-  font-size: 0.5em;
+  font-size: 1em;
 }
 </style>
 
@@ -419,6 +419,7 @@ example_pred_lizards |>
   theme_minimal()
 
 ```
+
 Individuals differ substantially on the percentage of their home range that falls within their preferred temperature range. This information can be used to infer the potential impact of the thermal landscape on the fitness of each individual.
 
 
