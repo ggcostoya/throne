@@ -23,9 +23,13 @@ For an overview of how the `throne` works please visit [this page](https://ggcos
 ## How to cite the package
 
 This package accompanies a manuscript that is currently under review in Methods in
-Ecology & Evolution. 
+Ecology & Evolution but is available in the pre-print server bioarxiv at:
 
-If you use `throne` in your research, please cite the package as:
+  Alujević K, Garcia-Costoya G, Ratia N, Schmitz E, Godkin R, Bujan J, Gopal A, 
+  Logan M (2024). Using aerial thermography to map terrestrial thermal environments 
+  in unprecedented detail. https://doi.org/10.1101/2025.02.21.638895
+
+If you use `throne` in your software, please cite the package as:
 
   Alujević K, Garcia-Costoya G, Ratia N, Schmitz E, Godkin R, Bujan J, Gopal A, 
   Logan M (2024). throne: Predicting thermal landscapes in spatio-temporally 
