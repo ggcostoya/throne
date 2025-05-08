@@ -92,7 +92,7 @@ otm_splines_ex <- gen_otm_splines(otm_data = otms_data, knot_p = 0.02) %>%
 otm_splines_ex
 ```
 
->**Why splines?**: Using a smoothing function as opposed to modelling OTM thermal fluctuations using biophysical principles offers, in this case, a more flexible approach.  Smoothing minimizes noise from short-term, stochastic shifts in operative temperature while capturing fluctuations caused by conditions unique to each day (e.g., sustained changes in cloud cover or wind) that may be ecologically relevant. This approach eliminates the need to collect additional metadata during OTM deployment (e.g., aspect or shade cover) and removes the assumption that within-day thermal fluctuations follow a fixed sinusoidal curve in order to inform the resulting models. 
+>**Why splines?**: Using a smoothing function as opposed to modelling OTM thermal fluctuations using biophysical principles offers, in this case, a more flexible approach. Smoothing minimizes noise from short-term, stochastic shifts in operative temperature while capturing fluctuations caused by conditions unique to each day (e.g., sustained changes in cloud cover or wind) that may be ecologically relevant. This approach eliminates the need to collect additional metadata during OTM deployment (e.g., aspect or shade cover) and removes the assumption that within-day thermal fluctuations follow a fixed sinusoidal curve in order to inform the resulting models. Nonetheless, as the level of smoothing may be important in certain systems and may influence the ability of `throne` to match OTMs with orthomosaic tiles, the `gen_otm_splines` function incorporates the parameter `knot_p` which allows users to determine their desired level of smoothness 
 
 # Choosing the appropriate `knot_p` value
 
