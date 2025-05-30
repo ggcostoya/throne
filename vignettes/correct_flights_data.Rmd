@@ -93,6 +93,8 @@ summary(mod)$r.squared
 
 The `(Intercept)` and the slope (i.e., the `Estimate` of `op_temp` above) are `12.15` and `0.6` when, ideally, they should be at `0` and `1` respectively. Further the $R^2$of this relationship is `0.45`. For a good match between these two measurements we would also want the $R^2$ to be closer to `1`. To solve this `correct_flights_data` implements a two-step correction approach allowing users to correct the data as they see most appropriate for their system.
 
+> Note that by implementing a linear model on the correction dataset obtained with `eval_flights_data` users can also assess the uncertainty around parameter estimates. 
+
 ### Time correction
 
 The first step will be to perform a time-specific correction. Because flights took place at different days and different `mod` both the environmental temperature and the light conditions where variable. This leads to consistent biases between between measurements (i.e., `op_temp` - `surf_temp`) by time of the day (i.e., `mod`):

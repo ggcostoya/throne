@@ -310,7 +310,12 @@ sustained changes in cloud cover or wind) that may be ecologically
 relevant. This approach eliminates the need to collect additional
 metadata during OTM deployment (e.g., aspect or shade cover) and removes
 the assumption that within-day thermal fluctuations follow a fixed
-sinusoidal curve in order to inform the resulting models.</p>
+sinusoidal curve in order to inform the resulting models. Nonetheless,
+as the level of smoothing may be important in certain systems and may
+influence the ability of <code>throne</code> to match OTMs with
+orthomosaic tiles, the <code>gen_otm_splines</code> function
+incorporates the parameter <code>knot_p</code> which allows users to
+determine their desired level of smoothness</p>
 </blockquote>
 </div>
 <div class="section level2">
