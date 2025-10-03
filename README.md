@@ -22,12 +22,12 @@ For an overview of how the `throne` works please visit [this page](https://ggcos
 
 ## How to cite the package
 
-This package accompanies a manuscript that is currently under review in Methods in
-Ecology & Evolution but is available in the pre-print server bioarxiv at:
+This package accompanies a [study in *Methods in Ecology & Evolution*](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.70096):
 
-  Alujević K, Garcia-Costoya G, Ratia N, Schmitz E, Godkin R, Bujan J, Gopal A, 
-  Logan M (2024). Using aerial thermography to map terrestrial thermal environments 
-  in unprecedented detail. https://doi.org/10.1101/2025.02.21.638895
+  Alujević, K., Garcia-Costoya, G., Ratia, N., Schmitz, E., Godkin, R. S., Gopal, A. C., 
+  Bujan, J., & Logan, M. L. (2025). Using aerial thermography to map terrestrial thermal 
+  environments in unprecedented detail. Methods in Ecology and Evolution, 
+  16, 1688–1702. https://doi.org/10.1111/2041-210X.70096
 
 If you use `throne` in your software, please cite the package as:
 
