@@ -32,8 +32,8 @@ This package accompanies a [study in *Methods in Ecology & Evolution*](https://b
 If you use `throne` in your software, please cite the package as:
 
   Alujević K, Garcia-Costoya G, Ratia N, Schmitz E, Godkin R, Bujan J, Gopal A, 
-  Logan M (2024). throne: Predicting thermal landscapes in spatio-temporally 
-  unprecedented detail. R package version 1.0, https://ggcostoya.github.io/throne/.
+  Logan M (2024). throne: Using aerial thermography to map terrestrial thermal 
+  environments in unprecedented detail. R package version 1.0, https://ggcostoya.github.io/throne/.
 
 ## Contact 
 
